@@ -15,6 +15,7 @@ module CsBuilder
       end
 
       def run(options)
+        @config = BuildConfig.from_opts(options)
         git = options[:git]
         branch = options[:branch]
         cmd = options[:cmd]
