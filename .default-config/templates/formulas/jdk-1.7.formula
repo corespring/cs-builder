@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+./_jdk.formula $1 "1.7"

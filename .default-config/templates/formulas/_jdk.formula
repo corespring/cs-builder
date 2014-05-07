@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+##
+## One time slug template installer - once installed no need to run this again.
+##
+
+TEMPLATES_DIR=$1
+VERSION=$2
+BUILD_DIR=$TEMPLATES_DIR/jdk-$VERSION
+mkdir -p $BUILD_DIR/.jdk
+
+curl --silent --location http://heroku-jvm-common.s3.amazonaws.com/jvm-buildpack-common.tar.gz | tar xz
+
+. bin/java
+
+install_java $BUILD_DIR/.jdk "$VERSION"
+
+echo "java.runtime.version=$VERSION" >> $BUILD_DIR/system.properties
+
+export "PATH=\"/app/.jdk/bin:$PATH\"" >> $BUILD_DIR/.profile.d/scala.sh
+
+
+tar czvf $TEMPLATES_DIR/jdk-$VERSION.tgz -C $BUILD_DIR .
+
+rm -fr $BUILD_DIR
+
+echo "Done"
