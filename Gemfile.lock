@@ -3,6 +3,7 @@ PATH
   specs:
     cs-builder (0.0.1)
       log4r (~> 1.1.10)
+      rest-client (~> 1.6.7)
       thor
 
 GEM
@@ -10,7 +11,10 @@ GEM
   specs:
     diff-lcs (1.2.5)
     log4r (1.1.10)
+    mime-types (2.2)
     rake (10.1.1)
+    rest-client (1.6.7)
+      mime-types (>= 1.16)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
       rspec-expectations (~> 2.14.0)

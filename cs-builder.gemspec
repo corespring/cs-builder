@@ -21,5 +21,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "rake", "~> 10.1.0"
   gem.add_dependency "thor"
   gem.add_dependency "log4r", '~> 1.1.10'
+  gem.add_dependency "rest-client", '~> 1.6.7'
 
 end

@@ -1,6 +1,6 @@
 require 'thor'
 
-require 'cs-builder/cmds'
+Dir[File.dirname(__FILE__) + '/cmds/*.rb'].each {|file| require file }
 
 module CsBuilder
 
@@ -20,6 +20,8 @@ module CsBuilder
       cmd = Commands::BuildFromGit.new(options[:log_level], options[:config_dir])
       cmd.run(options)
     end
+
+
 =begin
     desc "build-from-folder", "checkout (if needed) and build"
     option :path, :type => :string, :required => true
@@ -54,17 +56,47 @@ module CsBuilder
       cmd.run(options)
     end
 
-=begin
+    desc "list-slugs", "list all slugs"
+    option :git, :type => :string, :required => true
+    option :branch, :type => :string, :required => true
+    option :sha, :type => :string, :required => false
+    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
+    option :log_level, :type => :string, :default => "INFO"
+    def list_slugs
+      cmd = Commands::ListSlugs.new(options[:log_level], options[:config_dir])
+      cmd.run(options)
+    end
+
+    desc "remove template", "remove template"
+    option :template, :type => :string, :required => true
+    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
+    option :log_level, :type => :string, :default => "INFO"
+    def remove_template 
+      cmd = Commands::RemoveTemplate.new(options[:log_level], options[:config_dir])
+      cmd.run(options)
+    end
+
+    desc "list templates", "list installed templates"
+    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
+    option :log_level, :type => :string, :default => "INFO"
+    def list_templates
+      cmd = Commands::ListTemplates.new(options[:log_level], options[:config_dir])
+      cmd.run(options)
+    end
+
     desc "heroku-deploy-slug", "deploy a slug"
     option :git, :type => :string, :required => true
     option :branch, :type => :string, :required => true
     option :commit_hash, :type => :string 
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     def deploy_slug
-      cmd = Commands::DeploySlug.new
+      cmd = Commands::HerokuDeploySlug.new
       puts cmd.run(options)
     end
 
+
+
+=begin
     desc "list-slugs", "list slugs for git+branch"
     option :git, :type => :string, :required => true
     option :branch, :type => :string, :required => true
