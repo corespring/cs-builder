@@ -13,9 +13,9 @@ looks like:
     │       └── repo 
     │           └── branch
     ├── repos
-    │   ├── org
-    │   │   └── repo
-    │   │       └── branch
+    │   └── org
+    │       └── repo
+    │           └── branch
     ├── slugs
     │   └── org
     │       └── repo
