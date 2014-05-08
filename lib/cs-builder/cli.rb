@@ -19,7 +19,8 @@ module CsBuilder
     def build_from_git
       puts options
       cmd = Commands::BuildFromGit.new(options[:log_level], options[:config_dir])
-      cmd.run(options)
+      out = cmd.run(options)
+      puts out
     end
 
     desc "remove-config", "remove ~/.cs-build config folder (Can't undo!!)"
@@ -28,16 +29,18 @@ module CsBuilder
       Commands::RemoveConfig.new(options[:config_dir]).run
     end
 
-    desc "slug", "make a slug"
+    desc "git-slug", "make a slug"
     option :git, :type => :string, :required => true
     option :branch, :type => :string, :required => true
     option :sha, :type => :string, :required => false
     option :template, :type => :string, :default => "jdk-1.7"
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     option :log_level, :type => :string, :default => "INFO"
-    def slug
-      cmd = Commands::MakeSlug.new(options[:log_level], options[:config_dir])
-      cmd.run(options)
+    def git_slug
+      cmd = Commands::MakeGitSlug.new(options[:log_level], options[:config_dir])
+      out = cmd.run(options)
+
+      puts "Done: #{out}"
     end
 
     desc "list-slugs", "list all slugs"
@@ -71,10 +74,12 @@ module CsBuilder
     desc "heroku-deploy-slug", "deploy a slug"
     option :git, :type => :string, :required => true
     option :branch, :type => :string, :required => true
-    option :commit_hash, :type => :string 
+    option :heroku_app, :type => :string, :required => true 
+    option :commit_hash, :type => :string
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
-    def deploy_slug
-      cmd = Commands::HerokuDeploySlug.new
+    option :log_level, :type => :string, :default => "INFO"
+    def heroku_deploy_slug
+      cmd = Commands::HerokuDeploySlug.new(options[:log_level], options[:config_dir])
       puts cmd.run(options)
     end
 

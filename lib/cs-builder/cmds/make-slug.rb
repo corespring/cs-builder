@@ -7,8 +7,8 @@ module CsBuilder
 
 
     class MakeSlug < CoreCommand
-      def initialize(level, config_dir)
-        super('make_slug', level, config_dir)
+      def initialize(level, config_dir, log_name: 'make_slug')
+        super(log_name, level, config_dir)
       end
 
       def run(options)
@@ -79,10 +79,11 @@ module CsBuilder
 
     class MakeGitSlug < MakeSlug
 
+      include Models
       include Models::GitHelper
 
       def initialize(level, config_dir)
-        super('make_git_slug', level, config_dir)
+        super(level, config_dir, log_name: 'make_git_slug')
       end
 
       def build_slug(options)
@@ -94,7 +95,7 @@ module CsBuilder
         sha = commit_hash(paths.repo)
 
         @log.debug "org: #{org}, repo: #{repo}, branch: #{branch}"
-        
+
         prepped_options = {
           :template => options[:template],
           :binary => File.join(paths.binaries, "#{sha}.tgz"),

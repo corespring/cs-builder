@@ -37,6 +37,7 @@ module CsBuilder
       put_slug_to_heroku(slug, blob_url)
       release_response = trigger_release(app, release_id)
       @log.debug release_response
+      release_response
     end
 
     private 

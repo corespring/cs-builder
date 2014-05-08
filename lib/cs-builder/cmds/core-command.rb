@@ -44,30 +44,6 @@ module CsBuilder
         @log.debug("[in_dir] back to: #{Dir.pwd}")
       end
 
-      def get_sha(org, repo, branch)
-        path = repo_path(org, repo, branch)
-        @log.debug "[get_sha] for path: #{path}"
-        sha = `git --git-dir=#{path}/.git --work-tree=#{path} rev-parse --short HEAD`.strip
-        raise "no sha" if sha.nil? or sha.empty?
-        sha
-      end
-
-      def repo_path(org, repo, branch)
-        "#{@config_dir}/repos/#{org}/#{repo}/#{branch}"
-      end
-
-      def binaries_path(org, repo, branch)
-        "#{@config_dir}/binaries/#{org}/#{repo}/#{branch}"
-      end
-
-      def slug_path(org, repo, branch, sha, suffix: "")
-        "#{@config_dir}/slugs/#{org}/#{repo}/#{branch}/sha" << suffix
-      end
-
-      def binary_archive_path(binary_path, sha, suffix: "")
-        "#{binary_path}/#{sha}" << suffix
-      end
-
       def mkdir_if_needed(p)
         unless File.directory? p
           FileUtils.mkdir(p)
