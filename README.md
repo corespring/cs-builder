@@ -26,7 +26,7 @@ looks like:
         └── formulas
             ├── jdk-1.6.formula
             ├── jdk-1.7.formula
-            ├── _jdk.formula
+            └── _jdk.formula
 
 ### binaries
 
