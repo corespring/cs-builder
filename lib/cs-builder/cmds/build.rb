@@ -1,6 +1,6 @@
 require_relative './core-command'
-require_relative '../git-parser' 
-require_relative '../models' 
+require_relative '../git-parser'
+require_relative '../models'
 
 module CsBuilder
   module Commands
@@ -12,7 +12,7 @@ module CsBuilder
         super(log_name, log_level, config_dir)
       end
 
-      protected 
+      protected
       def run_build(config)
         @config = config
         @log.debug "install external src"
@@ -26,7 +26,7 @@ module CsBuilder
           @log.debug "binaries exist for #{uid}"
         else
           @log.debug "build repo for #{uid}"
-          build_repo 
+          build_repo
           @log.debug "prepare binaries for #{uid}"
           prepare_binaries(uid)
         end
@@ -35,8 +35,8 @@ module CsBuilder
       end
 
       def install_external_src_to_repo
-        raise "not defined"        
-      end 
+        raise "not defined"
+      end
 
       def update_repo
         raise "not defined"
@@ -47,7 +47,7 @@ module CsBuilder
       end
 
       def binaries_exist?(uid)
-        File.exists? @config.binary_archive(uid) 
+        File.exists? @config.binary_archive(uid)
       end
 
       def build_repo
@@ -62,7 +62,7 @@ module CsBuilder
         archive = @config.binary_archive(uid)
         @log.debug("[prepare_binaries] repo: #{@config.paths.repo} -> #{archive}")
         @log.debug("binary_folder: #{binary_folder}")
-        FileUtils.mkdir_p binary_folder 
+        FileUtils.mkdir_p binary_folder
 
         @config.build_assets.each{ |asset|
           from = "#{@config.paths.repo}/#{asset}"
@@ -83,7 +83,7 @@ module CsBuilder
         raise "Binary doesn't exist: #{archive}" unless File.exists? archive
         archive
       end
- 
+
     end
 
     class BuildFromFile < BaseBuild
@@ -94,7 +94,7 @@ module CsBuilder
       def run(options)
         run_build(config_from_opts(options))
       end
-      
+
       def config_from_opts(options)
         FileConfig.new(
           @config_dir,
@@ -103,15 +103,15 @@ module CsBuilder
           options[:repo],
           options[:branch],
           options[:cmd],
-          options[:build_assets], 
+          options[:build_assets],
           uid: options[:uid] || Time.now.strftime('%Y%m%d%H%M%S')
         )
-      end 
-      
+      end
+
       def install_external_src_to_repo
-        FileUtils.mkdir_p(File.dirname(@config.paths.repo), :verbose => true ) 
+        FileUtils.mkdir_p(File.dirname(@config.paths.repo), :verbose => true )
         FileUtils.cp_r(@config.external_src, @config.paths.repo, :verbose => true)
-      end   
+      end
 
       def update_repo
         @log.debug "[update_src] - nothing to do when building from file"
@@ -119,7 +119,7 @@ module CsBuilder
 
       def build_uid
         @config.uid
-      end 
+      end
 
     end
 
@@ -138,22 +138,26 @@ module CsBuilder
         org = GitParser.org(options[:git])
         repo = GitParser.repo(options[:git])
 
-        GitConfig.new(
+        Models::GitConfig.new(
           @config_dir,
           options[:git],
-          org, 
-          repo, 
+          org,
+          repo,
           options[:branch],
           options[:cmd],
           options[:build_assets]
-        ) 
+        )
+      end
+
+      def build_uid
+        @config.uid
       end
 
       def install_external_src_to_repo
         path = @config.paths.repo
         branch = @config.branch
         git = @config.git
-        @log.info "path: #{path}, branch: #{branch}, git: #{gi}t" 
+        @log.info "path: #{path}, branch: #{branch}, git: #{git}"
         FileUtils.mkdir_p(path, :verbose => true )
         @log.debug "clone #{git}"
         `git clone #{git} #{path}`
@@ -172,7 +176,7 @@ module CsBuilder
         branch = @config.branch
         path = @config.paths.repo
 
-        @log.info "[update_repo] path: #{path}, branch: #{branch}" 
+        @log.info "[update_repo] path: #{path}, branch: #{branch}"
         @log.debug "reset hard to #{branch}"
         `git --git-dir=#{path}/.git --work-tree=#{path} reset --hard HEAD`
         `git --git-dir=#{path}/.git --work-tree=#{path} pull origin #{branch}`

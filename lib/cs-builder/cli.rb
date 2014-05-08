@@ -11,7 +11,7 @@ module CsBuilder
     desc "build-from-git", "checkout (if needed) and build"
     option :git, :type => :string, :required => true
     option :branch, :type => :string, :required => true
-    option :binaries, :type => :array, :required => true
+    option :build_assets, :type => :array, :required => true
     option :cmd, :type => :string, :default => "play clean update compile stage"
     option :log_level, :type => :string, :default => "INFO"
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
@@ -21,28 +21,11 @@ module CsBuilder
       cmd.run(options)
     end
 
-
-=begin
-    desc "build-from-folder", "checkout (if needed) and build"
-    option :path, :type => :string, :required => true
-    option :branch, :type => :string, :required => true
-    option :org, :type => :string, :required => true
-    option :binaries, :type => :array, :required => true
-    option :cmd, :type => :string, :default => "play clean update compile stage"
-    option :log_level, :type => :string, :default => "INFO"
-    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
-    def build_from_folder
-      puts options
-      cmd = Commands::BuildFromFile.new(options[:log_level], options[:config_dir])
-      puts cmd.run(options)
-    end
-=end
     desc "remove-config", "remove ~/.cs-build config folder (Can't undo!!)"
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     def remove_config
       Commands::RemoveConfig.new(options[:config_dir]).run
     end
-
 
     desc "slug", "make a slug"
     option :git, :type => :string, :required => true

@@ -32,12 +32,13 @@ module CsBuilder
 
     class Config
 
-      attr_accessor :paths, :cmd, :build_assets, :external_src, :build_cmd
+      attr_accessor :paths, :cmd, :build_assets, :external_src, :build_cmd, :branch
       def initialize(root, external_src, org, repo, branch, build_cmd, build_assets)
         @paths = Paths.new(root, org, repo, branch)
         @build_cmd = build_cmd
         @build_assets = build_assets
         @external_src = external_src
+        @branch = branch
       end
 
       def uid

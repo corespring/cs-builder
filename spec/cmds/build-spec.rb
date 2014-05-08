@@ -5,7 +5,7 @@ include CsBuilder::Commands
 describe BuildFromFile do 
   it "should build" do 
 
-    config_dir = "spec/mock/build-from-file"
+    config_dir = "spec/tmp/build-from-file"
     FileUtils.rm_rf(config_dir)
     FileUtils.mkdir_p(config_dir)
     cmd = BuildFromFile.new("DEBUG", File.expand_path(config_dir))
@@ -28,7 +28,7 @@ describe BuildFromFile do
     IO.read(File.join(extracted, "asset.txt")).should eql "hello\n"
     IO.read(File.join(extracted, "existing.txt")).should eql "I'm an existing asset"
 
-    FileUtils.rm_rf("spec/mock/build-from-file")
+    FileUtils.rm_rf(config_dir)
   end
 
 end 

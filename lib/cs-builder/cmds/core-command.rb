@@ -31,7 +31,7 @@ module CsBuilder
             puts "#{cleaned}" unless cleaned == nil or cleaned.empty?
           end
           io.close
-          raise "An error occured" if $?.to_i != 0
+          raise "shell command: [#{cmd}] - threw an error" if $?.to_i != 0
         end
       end
 
@@ -68,6 +68,12 @@ module CsBuilder
         "#{binary_path}/#{sha}" << suffix
       end
 
+      def mkdir_if_needed(p)
+        unless File.directory? p
+          FileUtils.mkdir(p)
+        end
+      end
+
       private
 
       def init_build_dir
@@ -75,17 +81,18 @@ module CsBuilder
           @log.debug "config dir already exists - skip initialisation"
         else
           @log.debug "config dir doesn't exist - #{@config_dir}"
-          default_config = "#{File.expand_path(File.dirname(__FILE__))}/../../.default-config/."
+          default_config = "#{File.expand_path(File.dirname(__FILE__))}/../../../.default-config/."
           @log.debug("mkdir: #{@config_dir}")
           FileUtils.mkdir(@config_dir)
           FileUtils.cp_r(default_config, @config_dir)
         end
 
         # create some dirs if needed
-        FileUtils.mkdir(File.join(@config_dir, "repos"))  
-        FileUtils.mkdir(File.join(@config_dir, "slugs"))  
-        FileUtils.mkdir(File.join(@config_dir, "binaries"))  
+        mkdir_if_needed(File.join(@config_dir, "repos") )
+        mkdir_if_needed(File.join(@config_dir, "slugs") )
+        mkdir_if_needed(File.join(@config_dir, "binaries") )
       end
+
 
       def str_to_log_level(s)
         case s.upcase
