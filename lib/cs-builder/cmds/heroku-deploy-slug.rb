@@ -10,6 +10,7 @@ module CsBuilder
 
     class HerokuDeploySlug < CoreCommand
 
+      include Models
       include Models::GitHelper
 
       def initialize(level, config_dir)
@@ -24,16 +25,23 @@ module CsBuilder
         repo = GitParser.repo(git)
         branch = options[:branch]
 
-        paths = Paths.new(org, repo, branch)
-        sha = get_sha(org, repo, options[:branch])
-        slug = slug_path(org, repo, branch, sha, suffix: ".tgz")
+        paths = Paths.new(@config_dir, org, repo, branch)
+        sha = commit_hash(paths.repo)
+
+        slug = File.join(paths.slugs, "#{sha}.tgz")
+        @log.debug "slug -> #{slug}"
 
         raise "Can't find slug to deploy #{slug}" unless File.exists? slug
 
+        deployer.deploy(slug, processes_from_slug(slug), app)
+      end
+
+      private 
+      def processes_from_slug(slug)
         `tar -zxvf #{slug} ./app/Procfile`
         proc_yml = YAML.load_file('./app/Procfile')
-        deployer.deploy(slug, proc_yml, app)
         FileUtils.rm_rf 'app/Procfile'
+        proc_yml
       end
     end
   end

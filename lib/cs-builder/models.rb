@@ -39,7 +39,7 @@ module CsBuilder
       def initialize(root, external_src, org, repo, branch, build_cmd, build_assets)
         @paths = Paths.new(root, org, repo, branch)
         @build_cmd = build_cmd
-        @build_assets = build_assets
+        @build_assets = build_assets << "Procfile"
         @external_src = external_src
         @branch = branch
       end
