@@ -60,22 +60,19 @@ module CsBuilder
 
         if File.exists?(output)
           @log.info "File #{output} already exists"
+          output
         else
           FileUtils.mkdir_p app_path, :verbose => true
           @log.debug "extract #{archive} -> #{app_path}"
           `tar xvf #{archive} -C #{app_path}`
           @log.debug "extract #{binary} -> #{app_path}"
           `tar xvf #{binary} -C #{app_path}`
-          @log.debug "compress folder to a new archive: #{output}.tgz"
-
-          `tar czvf #{output} -C #{output_dir} ./app`
-          #in_dir(output_dir){
-          #  `tar czvf #{basename} ./app`
-          #}
+          @log.debug "compress folder to a new archive: #{output}"
           #Note: the './app' is significant here
+          `tar czvf #{output} -C #{output_dir} ./app`
           FileUtils.rm_rf output_dir, :verbose => true
+          output
         end
-
       end
     end
 

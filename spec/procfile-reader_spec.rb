@@ -4,6 +4,9 @@ include CsBuilder
 
 describe ProcfileReader do
   it "should get repo" do 
-    ProcfileReader.processes("spec/mock/procfile-one").should eql("speed-slug")
+    ProcfileReader.processes("spec/mock/procfile-one").should eql({
+      "web" => "hello",
+      "other" => "goodbye"
+      })
   end
 end
