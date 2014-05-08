@@ -19,6 +19,7 @@ Gem::Specification.new do |gem|
   gem.version       = CsBuilder::VERSION
   gem.add_development_dependency "rspec", "~> 2.6"
   gem.add_development_dependency "rake", "~> 10.1.0"
+  gem.add_development_dependency "byebug", "~> 3.1.2"
   gem.add_dependency "thor"
   gem.add_dependency "log4r", '~> 1.1.10'
   gem.add_dependency "rest-client", '~> 1.6.7'

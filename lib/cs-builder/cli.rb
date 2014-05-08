@@ -14,6 +14,7 @@ module CsBuilder
     option :build_assets, :type => :array, :required => true
     option :cmd, :type => :string, :default => "play clean update compile stage"
     option :log_level, :type => :string, :default => "INFO"
+    option :force, :type => :boolean, :default => false
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     def build_from_git
       puts options

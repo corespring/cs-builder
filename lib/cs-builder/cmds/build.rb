@@ -13,7 +13,7 @@ module CsBuilder
       end
 
       protected
-      def run_build(config)
+      def run_build(config, force: false)
         @config = config
         @log.debug "install external src"
         install_external_src_to_repo
@@ -22,7 +22,7 @@ module CsBuilder
         @log.debug "get uid"
         uid = build_uid
 
-        if(binaries_exist?(uid))
+        if(binaries_exist?(uid) and !force )
           @log.debug "binaries exist for #{uid}"
         else
           @log.debug "build repo for #{uid}"
@@ -92,7 +92,7 @@ module CsBuilder
       end
 
       def run(options)
-        run_build(config_from_opts(options))
+        run_build(config_from_opts(options), force: options[:force] || false)
       end
 
       def config_from_opts(options)
@@ -130,7 +130,7 @@ module CsBuilder
       end
 
       def run(options)
-        run_build(config_from_opts(options))
+        run_build(config_from_opts(options), force: options[:force] || false)
       end
 
       def config_from_opts(options)

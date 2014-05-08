@@ -1,3 +1,5 @@
+require 'log4r'
+
 module CsBuilder
 
   module Models
@@ -30,6 +32,7 @@ module CsBuilder
 
     end
 
+
     class Config
 
       attr_accessor :paths, :cmd, :build_assets, :external_src, :build_cmd, :branch
@@ -56,12 +59,23 @@ module CsBuilder
 
     end
 
+    module GitHelper
+      def commit_hash(path)
+        sha = `git --git-dir=#{path}/.git --work-tree=#{path} rev-parse --short HEAD`.strip
+        raise "no sha" if sha.nil? or sha.empty?
+        sha
+      end
+    end
+
     class GitConfig < Config
+
+      include GitHelper 
 
       attr_accessor :git
       def initialize(root, external_src, org, repo, branch, build_cmd, build_assets)
         super(root, external_src, org, repo, branch, build_cmd, build_assets)
         @git = external_src
+        @log = Log4r::Logger.new('git_config')
       end
 
       def uid
@@ -71,9 +85,8 @@ module CsBuilder
       private
 
       def get_sha
-        sha = `git --git-dir=#{@paths.repo}/.git --work-tree=#{@paths.repo} rev-parse --short HEAD`.strip
-        raise "no sha" if sha.nil? or sha.empty?
-        sha
+        @log.debug "get sha for #{@paths.repo}"
+        commit_hash(@paths.repo)
       end
     end
 
