@@ -57,8 +57,10 @@ module CsBuilder
 
     class GitConfig < Config
 
-      def initialize(root, external_src, org, repo, branch)
-        super(root, external_src, org, repo, branch)
+      attr_accessor :git
+      def initialize(root, external_src, org, repo, branch, build_cmd, build_assets)
+        super(root, external_src, org, repo, branch, build_cmd, build_assets)
+        @git = external_src
       end
 
       def uid

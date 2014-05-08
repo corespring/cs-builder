@@ -121,7 +121,6 @@ module CsBuilder
         @config.uid
       end 
 
-
     end
 
     class BuildFromGit < BaseBuild
@@ -131,34 +130,30 @@ module CsBuilder
       end
 
       def run(options)
-        @config = BuildConfig.from_opts(options)
-        git = options[:git]
-        branch = options[:branch]
-        cmd = options[:cmd]
-        binaries = options[:binaries]
-        org = GitParser.org(git)
-        repo = GitParser.repo(git)
-        path = repo_path(org, repo, branch)
-        binary_path = binaries_path(org, repo, branch)
-        @log.debug("path: #{path}")
-        @log.debug("git: #{git}, branch: #{branch}, cmd: #{cmd}")
-        install_repo(git, branch, path) unless File.exists?(path)
-        update_repo(branch, path)
-        sha = get_sha(org, repo, branch)
-
-        if File.exists?( binary_archive_path(binary_path, sha, suffix: ".tgz"))
-          @log.info("This sha has already been built #{binary_archive_path(binary_path, sha, suffix: ".tgz")}")
-          0
-        else
-          @log.debug("sha: #{sha}, binaries path: #{binary_path}")
-          build_app(path, cmd)
-          prepare_binaries(path, binary_path, sha, binaries)
-        end
+        run_build(config_from_opts(options))
       end
 
-      private
+      def config_from_opts(options)
 
-      def install_repo(git, branch, path)
+        org = GitParser.org(options[:git])
+        repo = GitParser.repo(options[:git])
+
+        GitConfig.new(
+          @config_dir,
+          options[:git],
+          org, 
+          repo, 
+          options[:branch],
+          options[:cmd],
+          options[:build_assets]
+        ) 
+      end
+
+      def install_external_src_to_repo
+        path = @config.paths.repo
+        branch = @config.branch
+        git = @config.git
+        @log.info "path: #{path}, branch: #{branch}, git: #{gi}t" 
         FileUtils.mkdir_p(path, :verbose => true )
         @log.debug "clone #{git}"
         `git clone #{git} #{path}`
@@ -173,7 +168,11 @@ module CsBuilder
         end
       end
 
-      def update_repo(branch, path)
+      def update_repo
+        branch = @config.branch
+        path = @config.paths.repo
+
+        @log.info "[update_repo] path: #{path}, branch: #{branch}" 
         @log.debug "reset hard to #{branch}"
         `git --git-dir=#{path}/.git --work-tree=#{path} reset --hard HEAD`
         `git --git-dir=#{path}/.git --work-tree=#{path} pull origin #{branch}`
@@ -186,33 +185,6 @@ module CsBuilder
         end
       end
 
-      def build_app(path, cmds)
-        in_dir(path){
-          @log.debug( "run: #{cmds}")
-          run_cmd cmds
-        }
-      end
-
-      def prepare_binaries(src_path, out_path, sha, binaries)
-        @log.debug("[prepare_binaries] src: #{src_path}, #{out_path}, #{binaries}")
-        target = binary_archive_path(out_path, sha)
-        @log.debug("target: #{target}")
-        FileUtils.mkdir_p target
-
-        binaries.each{ |b|
-          from = "#{src_path}/#{b}"
-          to = "#{target}/#{b}"
-          FileUtils.cp_r(from, to, :verbose => true)
-        }
-
-        system("tar", "czvf", "#{target}.tgz", "-C", target, ".",
-               [:out, :err] => "/dev/null")
-
-        FileUtils.rm_rf(target, :verbose => true)
-        "#{target}.tgz"
-      end
-
     end
-
   end
 end
