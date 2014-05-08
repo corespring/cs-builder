@@ -2,20 +2,12 @@ module CsBuilder
 
   module Models
 
-
-    class Config 
-
+    class Paths
       def initialize(root, org, repo, branch)
-        @root = root_dir
+        @root = root
         @org = org
         @repo = repo
         @branch = branch
-      end
-
-      def self.from_git(root,git,branch)
-        org = GitParser.org(git)
-        repo = GitParser.repo(git)
-        Config.new(root, org, repo, branch)
       end
 
       def repo
@@ -28,24 +20,70 @@ module CsBuilder
 
       def slugs
         make("slugs")
-      end 
-
-      def get_sha
-        sha = `git --git-dir=#{repo}/.git --work-tree=#{repo} rev-parse --short HEAD`.strip
-        raise "no sha" if sha.nil? or sha.empty?
-        sha
       end
 
-      private 
+      private
 
-      def make_path(key)
-        File.join(@root, key, org, repo, branch)
+      def make(key)
+        File.join(@root, key, @org, @repo, @branch)
       end
 
     end
 
-  end
+    class Config
 
-  class BuildConfig < Config
+      attr_accessor :paths, :cmd, :build_assets, :external_src, :build_cmd
+      def initialize(root, external_src, org, repo, branch, build_cmd, build_assets)
+        @paths = Paths.new(root, org, repo, branch)
+        @build_cmd = build_cmd
+        @build_assets = build_assets
+        @external_src = external_src
+      end
+
+      def uid
+        raise "not defined" 
+      end
+
+      def binary_archive(uid)
+        File.join(@paths.binaries, "#{uid}.tgz")
+      end
+
+      def binary_folder(uid)
+        File.join(@paths.binaries, uid)
+      end
+
+
+    end
+
+    class GitConfig < Config
+
+      def initialize(root, external_src, org, repo, branch)
+        super(root, external_src, org, repo, branch)
+      end
+
+      def uid
+        get_sha
+      end
+
+      private
+
+      def get_sha
+        sha = `git --git-dir=#{@paths.repo}/.git --work-tree=#{@paths.repo} rev-parse --short HEAD`.strip
+        raise "no sha" if sha.nil? or sha.empty?
+        sha
+      end
+    end
+
+    class FileConfig < Config
+      def initialize(root, external_src, org, repo, branch, build_cmd, build_assets, uid: Time.now.strftime('%Y%m%d%H%M%S'))
+        super(root, external_src, org, repo, branch, build_cmd, build_assets)
+        @uid = uid
+      end
+
+      def uid
+        @uid
+      end
+    end
+
   end
 end

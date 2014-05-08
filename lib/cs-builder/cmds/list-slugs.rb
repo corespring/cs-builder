@@ -10,7 +10,7 @@ module CsBuilder
       end
 
       def run(options)
-        @log.debug('... coming... ')
+        "... coming... "
       end
     end
   end

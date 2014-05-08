@@ -74,10 +74,17 @@ module CsBuilder
         if(File.exists? @config_dir)
           @log.debug "config dir already exists - skip initialisation"
         else
+          @log.debug "config dir doesn't exist - #{@config_dir}"
           default_config = "#{File.expand_path(File.dirname(__FILE__))}/../../.default-config/."
+          @log.debug("mkdir: #{@config_dir}")
           FileUtils.mkdir(@config_dir)
           FileUtils.cp_r(default_config, @config_dir)
         end
+
+        # create some dirs if needed
+        FileUtils.mkdir(File.join(@config_dir, "repos"))  
+        FileUtils.mkdir(File.join(@config_dir, "slugs"))  
+        FileUtils.mkdir(File.join(@config_dir, "binaries"))  
       end
 
       def str_to_log_level(s)
