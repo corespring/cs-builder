@@ -23,6 +23,24 @@ module CsBuilder
       puts out
     end
 
+    desc "build-from-file", "copy a projecd and build"
+    option :external_src, :type => :string, :required => true
+    option :org, :type => :string, :required => true
+    option :repo, :type => :string, :required => true
+    option :branch, :type => :string, :required => true
+    option :build_assets, :type => :array, :required => true
+    option :cmd, :type => :string, :default => ""
+    option :uid, :type => :string
+    option :log_level, :type => :string, :default => "INFO"
+    option :force, :type => :boolean, :default => false
+    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
+    def build_from_git
+      puts options
+      cmd = Commands::BuildFromGit.new(options[:log_level], options[:config_dir])
+      out = cmd.run(options)
+      puts out
+    end
+
     desc "remove-config", "remove ~/.cs-build config folder (Can't undo!!)"
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     def remove_config
