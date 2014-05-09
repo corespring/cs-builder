@@ -12,6 +12,12 @@ describe Runner do
     def runner_log(msg)
       puts "! #{msg}"
     end
+
+    def runner_error(path)
+     "Error -> #{path}" 
+    end
+
+
     def run(lock, sleep_length)
       puts "run -> #{lock}"
       run_with_lock(lock){
@@ -23,6 +29,8 @@ describe Runner do
   end
 
   it "should throw an error on the 2nd call for the same lock path" do
+
+    error = TestRunner.new.runner_error("spec/tmp/one.lock")
 
     expect {
       threads = []
@@ -37,7 +45,7 @@ describe Runner do
         two.run("spec/tmp/one.lock", 1)
       }
       threads.each { |t| t.join  }
-    }.to raise_error("Lock exists -> spec/tmp/one.lock!")
+    }.to raise_error(error)
   end
 
 end

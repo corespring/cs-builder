@@ -6,8 +6,12 @@ module CsBuilder
       puts msg
     end
 
+    def runner_error(path)
+      "Lock exists -> #{path} - this means that the same process is already running" 
+    end
+
     def run_with_lock(lock_path)
-      raise "Lock exists -> #{lock_path} - this means that the same process is already running" if has_lock?(lock_path)
+      raise runner_error(lock_path) if has_lock?(lock_path)
       add_lock(lock_path)
       begin
         yield
