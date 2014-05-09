@@ -87,6 +87,10 @@ These are bash scripts that are run to create a built template. They are passed 
 
 ### Tests
 
+for integration tests you'll want to override the env var: `TEST_HEROKU_APP`
+
+
+
 
 ### How it works
 
