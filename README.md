@@ -17,6 +17,7 @@ However - if you know what you're doing these drawbacks can be overcome.
 
 * git
 * heroku toolbelt if you want to deploy to heroku (plus an app you can deploy to)
+* curl
 
 ## Setup
 
