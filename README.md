@@ -84,3 +84,12 @@ These are bash scripts that are run to create a built template. They are passed 
 
     cs-builder help cmd #-> more detailed help for the command
 
+
+## Todo
+
+* timings of commands
+* command line docs
+* deployment working - app working
+* slug tidy up
+* any commit_hash can make a build 
+* concurrent builds - fail if process already in place
