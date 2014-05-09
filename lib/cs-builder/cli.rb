@@ -4,9 +4,19 @@ Dir[File.dirname(__FILE__) + '/cmds/*.rb'].each {|file| require file }
 
 module CsBuilder
 
+  module Docs
+    def self.docs(name)
+      here = File.dirname(__FILE__)
+      IO.read(File.join(here, "..", "..", "docs", "#{name}.md"))
+    end
+  end
+
+
   include Commands
 
   class CLI < Thor
+
+    include CsBuilder::Docs
 
     desc "build-from-git", "clone if needed, update, build and create an archive"
     option :git, :type => :string, :required => true
@@ -16,18 +26,7 @@ module CsBuilder
     option :log_level, :type => :string, :default => "INFO"
     option :force, :type => :boolean, :default => false
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
-    long_desc <<-LONGDESC
-    `build-from-git` will clone if needed, build and create an archive of `build_assets`.
-    --
-
-    * git clone the project/branch if needed
-    * update the project
-    * run the `cmd` which is expected to build the project
-    * create an archive here:
-     -- binaries/org/repo/branch/commit_hash.tgz
-    * return the path to the archive on completion.
- 
-  LONGDESC
+    long_desc Docs.docs("build-from-git")
     def build_from_git
       puts options
       cmd = Commands::BuildFromGit.new(options[:log_level], options[:config_dir])
@@ -46,21 +45,7 @@ module CsBuilder
     option :log_level, :type => :string, :default => "INFO"
     option :force, :type => :boolean, :default => false
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
-    long_desc <<-LONGDESC
-    `build-from-file` will copy a local folder, build and create an archive of `build_assets`.
-    --
-
-    It uses the org/repo/branch naming convention so these need to be passed in as params.
-
-    steps
-    * copy the folder to org/name/branch (you need to specify these) 
-    * run the `cmd` which is expected to build the project
-    * create an archive here:
-     -- binaries/org/repo/branch/uid.tgz
-    * return the path to the archive on completion.
- 
-    LONGDESC
-
+    long_desc Docs.docs("build-from-file")
     def build_from_file
       puts options
       cmd = Commands::BuildFromGit.new(options[:log_level], options[:config_dir])
@@ -81,20 +66,7 @@ module CsBuilder
     option :template, :type => :string, :default => "jdk-1.7"
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     option :log_level, :type => :string, :default => "INFO"
-     long_desc <<-LONGDESC
-    `git-slug` will create a heroku compatible slug using binaries and a slug template. 
-    --
-    
-    steps: 
-    * get the commit_hash from the source repo 
-    * check to see if there is a binary with that commith_hash in 'repos'
-    * check to see if there is a template ready
-    ** if not install the template using the formula
-    * expand the template and binaries to one folder
-    * compress archive into a heroku compatible slug
-    * return the path to the slug  
-    LONGDESC
-
+    long_desc Docs.docs("git-slug")
     def git_slug
       cmd = Commands::MakeGitSlug.new(options[:log_level], options[:config_dir])
       out = cmd.run(options)
