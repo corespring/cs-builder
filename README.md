@@ -2,7 +2,20 @@
 
 A command line tool for cloning, compiling and deploying software.
 
+It's based on the ideas outlined [in this heroku article](https://devcenter.heroku.com/articles/platform-api-deploying-slugs).
+
+
+Instead of using a buildpack to make the slug, it uses a `template` and the `binaries` from the project to make it.
+
+The benefits of this approach is speed. You are compiling/prepping your project once, then the rest of the process is a matter of tarring and untarring some stuff together.
+
+The drawbacks are that there may be build inconsistencies in the slug (for example - if you put jdk-1.6 with an app that was compiled with jdk-1.7).
+
+However - if you know what you're doing these drawbacks can be overcome.
+
 ## Setup
+
+The gem creates its own configuration folder in your home dir. This contains the following diretories: `binaries`, `repos`, `slugs` and under these the data is stored using the `org/repo/branch/` format. It also contains a `templates` directory that contains `formulas` and `built`.
 
 The first time you run the gem it'll create a folder `~/.cs-builder` that 
 looks like: 
@@ -43,6 +56,15 @@ The compilation happens at the root of these folders
 
 These are where the heroku slugs live using the org/repo/branch/commit_hash
 naming convention. A slug is a template.tgz ++ a binary.tgz.
+
+### templates
+
+These are slug templates, that are used to make slugs along with the `binaries`. If the template isn't built, and there's a formula for it, `cs-builder` will run the formula to install the template.
+
+#### formulas
+
+These are bash scripts that are run to create a built template. They are passed the path to the templates folder as the 1st (`$1`) parameter.
+
 
 ### installation
 
