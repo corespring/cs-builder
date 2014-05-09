@@ -51,10 +51,14 @@ module CsBuilder
       end
 
       def build_repo
-        in_dir(@config.paths.repo){
-          @log.debug( "run: #{@config.build_cmd}")
-          run_cmd @config.build_cmd
-        }
+        if @config.build_cmd.empty? or @config.build_cmd.nil?
+          @log.debug "no build command to run - skipping"
+        else
+          in_dir(@config.paths.repo){
+            @log.debug( "run: #{@config.build_cmd}")
+            run_cmd @config.build_cmd
+          }
+        end
       end
 
       def prepare_binaries(uid)

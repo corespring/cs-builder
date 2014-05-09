@@ -13,6 +13,11 @@ The drawbacks are that there may be build inconsistencies in the slug (for examp
 
 However - if you know what you're doing these drawbacks can be overcome.
 
+## Dependencies
+
+* git
+* heroku toolbelt if you want to deploy to heroku (plus an app you can deploy to)
+
 ## Setup
 
 The gem creates its own configuration folder in your home dir. This contains the following diretories: `binaries`, `repos`, `slugs` and under these the data is stored using the `org/repo/branch/` format. It also contains a `templates` directory that contains `formulas` and `built`.

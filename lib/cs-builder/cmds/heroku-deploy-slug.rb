@@ -1,8 +1,8 @@
-require_relative '../git-parser' 
+require_relative '../git-parser'
 require_relative '../heroku-deployer'
 require_relative '../models'
 
-require 'yaml' 
+require 'yaml'
 
 
 module CsBuilder
@@ -12,6 +12,7 @@ module CsBuilder
 
       include Models
       include Models::GitHelper
+      include Models::SlugHelper
 
       def initialize(level, config_dir)
         super('heroku_deploy_slug', level, config_dir)
@@ -33,16 +34,9 @@ module CsBuilder
 
         raise "Can't find slug to deploy #{slug}" unless File.exists? slug
 
-        deployer.deploy(slug, processes_from_slug(slug), app)
+        deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app)
       end
 
-      private 
-      def processes_from_slug(slug)
-        `tar -zxvf #{slug} ./app/Procfile`
-        proc_yml = YAML.load_file('./app/Procfile')
-        FileUtils.rm_rf 'app/Procfile'
-        proc_yml
-      end
     end
   end
 end

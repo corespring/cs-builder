@@ -45,7 +45,7 @@ module CsBuilder
       end
 
       def uid
-        raise "not defined" 
+        raise "not defined"
       end
 
       def binary_archive(uid)
@@ -67,9 +67,24 @@ module CsBuilder
       end
     end
 
+    module SlugHelper
+
+      require 'yaml'
+
+      # Get a hash from the Procfile yml file
+      #
+      def self.processes_from_slug(slug)
+        `tar -zxvf #{slug} ./app/Procfile`
+        proc_yml = YAML.load_file('./app/Procfile')
+        FileUtils.rm_rf './app/Procfile'
+        proc_yml
+      end
+    end
+
+
     class GitConfig < Config
 
-      include GitHelper 
+      include GitHelper
 
       attr_accessor :git
       def initialize(root, external_src, org, repo, branch, build_cmd, build_assets)

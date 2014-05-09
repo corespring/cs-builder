@@ -42,7 +42,7 @@ module CsBuilder
         mkdir_if_needed(File.join(@config_dir, "templates", "built"))
         in_dir(File.dirname(script)){
           File.chmod(0755, "#{name}.formula")
-          @log.debug "running formula.. please wait"
+          @log.debug "running formula: #{name}.formula - this will install the template for #{name} - this is a one-time process ... please wait"
           run_cmd "./#{name}.formula ../built"
         }
       end
