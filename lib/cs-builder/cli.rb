@@ -66,6 +66,7 @@ module CsBuilder
     option :template, :type => :string, :default => "jdk-1.7"
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     option :log_level, :type => :string, :default => "INFO"
+    option :force, :type => :boolean, :default => false
     long_desc Docs.docs("git-slug")
     def git_slug
       cmd = Commands::MakeGitSlug.new(options[:log_level], options[:config_dir])

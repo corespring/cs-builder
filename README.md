@@ -83,6 +83,10 @@ These are bash scripts that are run to create a built template. They are passed 
 
     bundle exec bin/cs-builder
 
+
+### Tests
+
+
 ### How it works
 
     cs-builder #-> outputs the list of available commmands
@@ -96,5 +100,5 @@ These are bash scripts that are run to create a built template. They are passed 
 * command line docs
 * deployment working - app working
 * slug tidy up
-* any commit_hash can make a build 
+* any commit_hash can make a build (checkout a new folder for the hash if it isn't HEAD - toss if after?) 
 * concurrent builds - fail if process already in place

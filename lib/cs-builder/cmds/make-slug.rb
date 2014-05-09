@@ -48,6 +48,7 @@ module CsBuilder
       end
 
       def build_slug(options)
+        @log.debug "[build_slug] options: #{options}"
         template = options[:template]
         binary = options[:binary]
         archive = template_archive(template)
@@ -59,7 +60,7 @@ module CsBuilder
 
         @log.debug "binary path to add to tar: #{binary}"
 
-        if File.exists?(output)
+        if File.exists?(output) and !options[:force]
           @log.info "File #{output} already exists"
           output
         else
@@ -96,12 +97,13 @@ module CsBuilder
 
         @log.debug "org: #{org}, repo: #{repo}, branch: #{branch}"
 
-        prepped_options = {
-          :template => options[:template],
-          :binary => File.join(paths.binaries, "#{sha}.tgz"),
-          :output => File.join(paths.slugs, "#{sha}.tgz") 
-        }
-        super(prepped_options)
+        prepped = options.merge(
+          {
+            :template => options[:template],
+            :binary => File.join(paths.binaries, "#{sha}.tgz"),
+            :output => File.join(paths.slugs, "#{sha}.tgz"),
+        })
+        super(prepped)
       end
 
     end

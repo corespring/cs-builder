@@ -24,6 +24,10 @@ module CsBuilder
         make("slugs")
       end
 
+      def lock_file
+        make("locks") << ".lock"
+      end
+
       private
 
       def make(key)

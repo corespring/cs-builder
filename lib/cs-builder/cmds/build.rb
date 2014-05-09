@@ -1,6 +1,7 @@
 require_relative './core-command'
 require_relative '../git-parser'
 require_relative '../models'
+require_relative '../runner'
 
 module CsBuilder
   module Commands
@@ -8,30 +9,41 @@ module CsBuilder
     include Models
 
     class BaseBuild < CoreCommand
+      
+      include CsBuilder::Runner 
+
       def initialize(log_name, log_level, config_dir)
         super(log_name, log_level, config_dir)
+      end
+
+      def runner_log(msg)
+        @log.debug(msg)
       end
 
       protected
       def run_build(config, force: false)
         @config = config
-        @log.debug "install external src"
-        install_external_src_to_repo
-        @log.debug "update repo"
-        update_repo
-        @log.debug "get uid"
-        uid = build_uid
 
-        if(binaries_exist?(uid) and !force )
-          @log.debug "binaries exist for #{uid}"
-        else
-          @log.debug "build repo for #{uid}"
-          build_repo
-          @log.debug "prepare binaries for #{uid}"
-          prepare_binaries(uid)
-        end
-        @log.debug "get binaries path for #{uid}"
-        binaries_path(uid)
+        run_with_lock(@config.paths.lock_file) {
+
+          @log.debug "install external src"
+          install_external_src_to_repo
+          @log.debug "update repo"
+          update_repo
+          @log.debug "get uid"
+          uid = build_uid
+
+          if(binaries_exist?(uid) and !force )
+            @log.debug "binaries exist for #{uid}"
+          else
+            @log.debug "build repo for #{uid}"
+            build_repo
+            @log.debug "prepare binaries for #{uid}"
+            prepare_binaries(uid)
+          end
+          @log.debug "get binaries path for #{uid}"
+          binaries_path(uid)
+        }
       end
 
       def install_external_src_to_repo
