@@ -9,8 +9,8 @@ module CsBuilder
     include Models
 
     class BaseBuild < CoreCommand
-      
-      include CsBuilder::Runner 
+
+      include CsBuilder::Runner
 
       def initialize(log_name, log_level, config_dir)
         super(log_name, log_level, config_dir)
@@ -24,7 +24,7 @@ module CsBuilder
       def run_build(config, force: false)
         @config = config
 
-        run_with_lock(@config.paths.lock_file) {
+        run_with_lock(@config.paths.lock_file("build")) {
 
           @log.debug "install external src"
           install_external_src_to_repo
