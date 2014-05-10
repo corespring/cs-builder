@@ -33,8 +33,9 @@ module CsBuilder
           @log.debug "get uid"
           uid = build_uid
 
-          if(@config.has_assets_to_build?)
-            @log.info("no assets to build - exit")
+          if(!@config.has_assets_to_build?)
+            @log.info("no assets to build - just run the build command: #{@config.build_cmd}")
+            build_repo
             ""
           else
             if(binaries_exist?(uid) and !force )
