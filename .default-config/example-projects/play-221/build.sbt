@@ -10,4 +10,4 @@ libraryDependencies ++= Seq(
 
 play.Project.playScalaSettings
 
-javacOptions in Compile ++= Seq("-source", "1.7", "-target", "1.7")
+//javacOptions in Compile ++= Seq("-source", "1.7", "-target", "1.7")
