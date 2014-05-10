@@ -3,7 +3,7 @@ require 'base64'
 require 'log4r'
 require 'log4r/outputter/datefileoutputter'
 
-module CsBuilder 
+module CsBuilder
 
   #
   # See: https://devcenter.heroku.com/articles/platform-api-deploying-slugs
@@ -27,7 +27,7 @@ module CsBuilder
     def deploy(slug, process_hash, app)
 
       raise "Can't deploy - slug doesn't exist" unless File.exists? slug
-      
+
       create_slug_response = create_slug(app, process_hash)
       result = JSON.parse(create_slug_response)
       blob_url = result["blob"]["url"]
@@ -40,7 +40,7 @@ module CsBuilder
       release_response
     end
 
-    private 
+    private
     def create_slug(app, processes)
 
       @log.debug(processes)
@@ -50,10 +50,10 @@ module CsBuilder
       }
 
       RestClient::Request.execute(
-        :method => :post, 
-        :payload => data, 
-        :url => slugs_url(app), 
-        :headers => @headers, 
+        :method => :post,
+        :payload => data,
+        :url => slugs_url(app),
+        :headers => @headers,
         :timeout => 3)
     end
 
@@ -69,13 +69,18 @@ module CsBuilder
     end
 
     def trigger_release(app, id)
-      RestClient::Request.execute(
-        :method => :post,
-        :payload => "{\"slug\": \"#{id}\"}",
-        :url => releases_url(app),
-        :headers => @headers, 
-        :timeout => 3
-      )
+      begin
+        RestClient::Request.execute(
+          :method => :post,
+          :payload => "{\"slug\": \"#{id}\"}",
+          :url => releases_url(app),
+          :headers => @headers,
+          :timeout => 3
+        )
+      rescue => e
+        @log.warn e
+        e.response
+      end
     end
 
     def auth_key
