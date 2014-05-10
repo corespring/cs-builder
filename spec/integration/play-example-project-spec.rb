@@ -14,24 +14,24 @@ include CsBuilder
 # - slug creation
 # - slug deployment to heroku
 
-describe CsBuilder do 
+describe CsBuilder do
 
     Dotenv.load
 
     def add_default_config(path)
-      FileUtils.cp_r(".default-config", path, :verbose => true) 
+      FileUtils.cp_r(".default-config", path, :verbose => true)
     end
 
-    it "should work" do 
+    it "should work" do
 
-      heroku_app = ENV["TEST_HEROKU_APP"] 
+      heroku_app = ENV["TEST_HEROKU_APP"]
 
       include CsBuilder::Models::SlugHelper
 
       config_dir = "spec/tmp/play-example-config"
-      
+
       FileUtils.rm_rf(config_dir)
-      
+
       add_default_config(config_dir)
 
       file_opts = {
@@ -44,7 +44,7 @@ describe CsBuilder do
         :build_assets => ["target"]
       }
 
-      build_result = BuildFromFile.new("DEBUG", config_dir).run(file_opts) 
+      build_result = BuildFromFile.new("DEBUG", config_dir).run(file_opts)
 
       puts "build_result: #{build_result}"
 
@@ -66,9 +66,14 @@ describe CsBuilder do
       deployer.deploy(slug_path, SlugHelper.processes_from_slug(slug_path), heroku_app )
 
       # give the app some time to boot up
-      sleep 10
-      result = RestClient.get("http://#{heroku_app}.herokuapp.com")
-      result.should eql("I'm a play app")
+      sleep 6
+      begin
+        result = RestClient.get("http://#{heroku_app}.herokuapp.com")
+        result.should eql("I'm a play app")
+      rescue => e
+        puts "spec - An error occured loading the page"
+        puts e.response
+      end
     end
 
 end

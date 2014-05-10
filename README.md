@@ -23,13 +23,13 @@ However - if you know what you're doing these drawbacks can be overcome.
 
 The gem creates its own configuration folder in your home dir. This contains the following diretories: `binaries`, `repos`, `slugs` and under these the data is stored using the `org/repo/branch/` format. It also contains a `templates` directory that contains `formulas` and `built`.
 
-The first time you run the gem it'll create a folder `~/.cs-builder` that 
-looks like: 
+The first time you run the gem it'll create a folder `~/.cs-builder` that
+looks like:
 
     .
     ├── binaries
     │   └── org
-    │       └── repo 
+    │       └── repo
     │           └── branch
     ├── repos
     │   └── org
@@ -98,6 +98,15 @@ for integration tests you'll want to override the env var: `TEST_HEROKU_APP`
 
     cs-builder help cmd #-> more detailed help for the command
 
+### Workflow with CI
+
+* scm change
+  -> build "play test" #just test the app
+  -> build "play stage" #stage app
+  -> build prep build_assets
+  -> make-slug
+  -> deploy-slug
+
 
 ## Todo
 
@@ -105,5 +114,5 @@ for integration tests you'll want to override the env var: `TEST_HEROKU_APP`
 * command line docs
 * deployment working - app working
 * slug tidy up
-* any commit_hash can make a build (checkout a new folder for the hash if it isn't HEAD - toss if after?) 
+* any commit_hash can make a build (checkout a new folder for the hash if it isn't HEAD - toss if after?)
 * concurrent builds - fail if process already in place
