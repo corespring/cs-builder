@@ -6,6 +6,7 @@
 
 TEMPLATES_DIR=$1
 VERSION=$2
+echo "[shell] ---------> Installing jdk - $VERSION"
 BUILD_DIR=$TEMPLATES_DIR/jdk-$VERSION
 mkdir -p $BUILD_DIR
 
@@ -13,15 +14,22 @@ curl --silent --location http://heroku-jvm-common.s3.amazonaws.com/jvm-buildpack
 
 . bin/java
 
-install_java $BUILD_DIR "$VERSION"
+mkdir tmp
 
-echo "java.runtime.version=$VERSION" >> $BUILD_DIR/system.properties
+install_java tmp "$VERSION"
 
-export "PATH=\"/app/.jdk/bin:$PATH\"" >> $BUILD_DIR/.profile.d/scala.sh
+echo "java.runtime.version=$VERSION" >> tmp/system.properties
+
+mkdir tmp/.profile.d
+
+echo "export PATH=\"/app/.jdk/bin:\$PATH\"" >> tmp/.profile.d/scala.sh
 
 
-tar czvf $TEMPLATES_DIR/jdk-$VERSION.tgz -C $BUILD_DIR .
+tar czvf jdk-$VERSION.tgz -C tmp .
 
-rm -fr $BUILD_DIR
+mv jdk-$VERSION.tgz $TEMPLATES_DIR/jdk-$VERSION.tgz
+
+
+rm -fr tmp
 
 echo "Done"
