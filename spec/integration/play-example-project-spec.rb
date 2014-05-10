@@ -67,14 +67,8 @@ describe CsBuilder do
 
       # give the app some time to boot up
       sleep 6
-      begin
-        result = RestClient.get("http://#{heroku_app}.herokuapp.com")
-        result.should eql("I'm a play app")
-      rescue => e
-        puts "spec - An error occured loading the page"
-        puts e.response
-        fail
-      end
+      result = RestClient.get("http://#{heroku_app}.herokuapp.com")
+      result.should eql("I'm a simple play app")
     end
 
 end
