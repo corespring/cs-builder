@@ -21,7 +21,7 @@ module CsBuilder
     desc "build-from-git", "clone if needed, update, build and create an archive"
     option :git, :type => :string, :required => true
     option :branch, :type => :string, :required => true
-    option :build_assets, :type => :array, :required => true
+    option :build_assets, :type => :array, :required => false
     option :cmd, :type => :string, :default => "play clean update compile stage"
     option :log_level, :type => :string, :default => "INFO"
     option :force, :type => :boolean, :default => false
@@ -90,7 +90,7 @@ module CsBuilder
     option :template, :type => :string, :required => true
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     option :log_level, :type => :string, :default => "INFO"
-    def remove_template 
+    def remove_template
       cmd = Commands::RemoveTemplate.new(options[:log_level], options[:config_dir])
       cmd.run(options)
     end
@@ -106,7 +106,7 @@ module CsBuilder
     desc "heroku-deploy-slug", "deploy a slug"
     option :git, :type => :string, :required => true
     option :branch, :type => :string, :required => true
-    option :heroku_app, :type => :string, :required => true 
+    option :heroku_app, :type => :string, :required => true
     option :commit_hash, :type => :string
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     option :log_level, :type => :string, :default => "INFO"
@@ -129,7 +129,7 @@ module CsBuilder
 
     desc "slug-templates", "list slug templates"
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
-    def slug_templates 
+    def slug_templates
       cmd = Commands::SlugTemplates.new
       puts cmd.run(options)
     end

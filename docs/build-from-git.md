@@ -1,4 +1,4 @@
-`build-from-git` will clone if needed, build and create an archive of `build_assets`.
+`build-from-git` will clone if needed, run the build command and if you have specified `build_assets` will create an archive of those assets.
 
 --
 
@@ -10,7 +10,7 @@ steps:
 
 * run the `cmd` which is expected to build the project
 
-* create an archive here:
+* if build_assets is defined - create an archive here:
 
  -- binaries/org/repo/branch/commit_hash.tgz
 

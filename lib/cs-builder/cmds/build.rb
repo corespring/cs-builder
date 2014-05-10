@@ -33,16 +33,21 @@ module CsBuilder
           @log.debug "get uid"
           uid = build_uid
 
-          if(binaries_exist?(uid) and !force )
-            @log.debug "binaries exist for #{uid}"
+          if(@config.has_assets_to_build?)
+            @log.info("no assets to build - exit")
+            ""
           else
-            @log.debug "build repo for #{uid}"
-            build_repo
-            @log.debug "prepare binaries for #{uid}"
-            prepare_binaries(uid)
+            if(binaries_exist?(uid) and !force )
+              @log.debug "binaries exist for #{uid}"
+            else
+              @log.debug "build repo for #{uid}"
+              build_repo
+              @log.debug "prepare binaries for #{uid}"
+              prepare_binaries(uid)
+            end
+            @log.debug "get binaries path for #{uid}"
+            binaries_path(uid)
           end
-          @log.debug "get binaries path for #{uid}"
-          binaries_path(uid)
         }
       end
 

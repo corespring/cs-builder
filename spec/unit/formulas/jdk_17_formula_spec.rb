@@ -1,7 +1,4 @@
-
-
 describe "Jdk 1.7 Formula" do
-
 
   it "should build correctly" do
 
@@ -16,15 +13,14 @@ describe "Jdk 1.7 Formula" do
 
       FileUtils.rm_rf(spec_dir)
       FileUtils.mkdir_p(File.dirname(spec_dir))
-
       FileUtils.cp_r(".default-config", spec_dir)
-
       FileUtils.mkdir(File.join(spec_dir, "templates", "built"))
       Dir.chdir(File.join(spec_dir, "templates", "formulas"))
 
       `./jdk-1.7.formula ../built`
 
       Dir.chdir("../built")
+
       `mkdir out`
       `tar xvf jdk-1.7.tgz -C ./out`
 
@@ -35,7 +31,6 @@ describe "Jdk 1.7 Formula" do
       end
 
       File.directory?(".jdk").should eql(true)
-
       Dir.chdir(root)
 
   end

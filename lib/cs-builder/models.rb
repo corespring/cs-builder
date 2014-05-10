@@ -39,11 +39,11 @@ module CsBuilder
 
     class Config
 
-      attr_accessor :paths, :cmd, :build_assets, :external_src, :build_cmd, :branch
+      attr_accessor :paths, :cmd, :external_src, :build_cmd, :branch
       def initialize(root, external_src, org, repo, branch, build_cmd, build_assets)
         @paths = Paths.new(root, org, repo, branch)
         @build_cmd = build_cmd
-        @build_assets = build_assets << "Procfile"
+        @internal_build_assets = build_assets
         @external_src = external_src
         @branch = branch
       end
@@ -60,6 +60,18 @@ module CsBuilder
         File.join(@paths.binaries, uid)
       end
 
+      def has_assets_to_build?
+        build_assets.length == 0
+      end
+
+      def build_assets
+        if @internal_build_assets.nil? || @internal_build_assets.length == 0
+          []
+        else
+          out = ["Procfile"] << @internal_build_assets
+          out.uniq
+        end
+      end
 
     end
 
