@@ -73,6 +73,7 @@ describe CsBuilder do
       rescue => e
         puts "spec - An error occured loading the page"
         puts e.response
+        fail
       end
     end
 
