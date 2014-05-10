@@ -1,5 +1,17 @@
 module CsBuilder
 
+  module LockFileRunner
+
+    def with_locked_file(path)
+      f = File.open(path, File::RDWR|File::CREAT, 0644){ |f|
+        f.flock(File::LOCK_EX)
+        yield
+        f.flock(File::LOCK_UN)
+      }
+    end
+
+  end
+
   module Runner
 
     def runner_log(msg)
@@ -7,7 +19,7 @@ module CsBuilder
     end
 
     def runner_error(path)
-      "Lock exists -> #{path} - this means that the same process is already running" 
+      "Lock exists -> #{path} - this means that the same process is already running"
     end
 
     def run_with_lock(lock_path)
@@ -15,7 +27,7 @@ module CsBuilder
       add_lock(lock_path)
       begin
         yield
-      rescue => e 
+      rescue => e
         runner_log("--------> lock error!")
         raise e
       ensure
@@ -23,7 +35,7 @@ module CsBuilder
       end
     end
 
-    private 
+    private
 
     def has_lock?(path)
       has = File.exists?(path)

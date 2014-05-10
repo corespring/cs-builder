@@ -24,8 +24,8 @@ module CsBuilder
         make("slugs")
       end
 
-      def lock_file
-        make("locks") << ".lock"
+      def lock_file(name)
+        File.join(make("locks") ,"#{name}.lock")
       end
 
       private

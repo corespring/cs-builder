@@ -95,6 +95,7 @@ module CsBuilder
         paths = Paths.new(@config_dir, org, repo, branch)
         sha = commit_hash(paths.repo)
 
+        remove_old_slugs(paths.slugs, sha)
         @log.debug "org: #{org}, repo: #{repo}, branch: #{branch}"
 
         prepped = options.merge(
@@ -106,6 +107,12 @@ module CsBuilder
         super(prepped)
       end
 
+      private
+      def remove_old_slugs(path, sha)
+        Dir["#{path}/*.tgz", "!#{path}/#{sha}.tgz"].each{ |slug|
+          FileUtils.rm_rf(slug, :verbose => true)
+        }
+      end
     end
   end
 end

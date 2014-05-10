@@ -23,13 +23,13 @@ However - if you know what you're doing these drawbacks can be overcome.
 
 The gem creates its own configuration folder in your home dir. This contains the following diretories: `binaries`, `repos`, `slugs` and under these the data is stored using the `org/repo/branch/` format. It also contains a `templates` directory that contains `formulas` and `built`.
 
-The first time you run the gem it'll create a folder `~/.cs-builder` that 
-looks like: 
+The first time you run the gem it'll create a folder `~/.cs-builder` that
+looks like:
 
     .
     ├── binaries
     │   └── org
-    │       └── repo 
+    │       └── repo
     │           └── branch
     ├── repos
     │   └── org
@@ -87,17 +87,56 @@ These are bash scripts that are run to create a built template. They are passed 
 
 ### Tests
 
-for integration tests you'll want to override the env var: `TEST_HEROKU_APP`
+#### Unit
+
+    rspec spec/unit
+
+#### Integration
+
+    rspec spec/integration
+
+Note that these tests will take a bit longer and you'll need override the env var: `TEST_HEROKU_APP`.
 
 
-
-
-### How it works
+### Commands
 
     cs-builder #-> outputs the list of available commmands
 
-    cs-builder help cmd #-> more detailed help for the command
+    build-from-file    # copy a local project, build and create an archive
+    build-from-git     # clone if needed, update, build and create an archive
+    git-slug           # make a slug identified by a git repo
+    heroku-deploy-slug # deploy a slug
+    list-slugs         # list all slugs
+    remove             # remove template
+    remove-config      # remove the config dir
 
+* removing binaries
+* removing slugs
+
+If you have hooked up `cs-builder` to a CI system it's going to be generating alot of binaries and slugs. For these systems you normally only want to hang on to the latest build per branch (aka `HEAD`), that can be used for deployment to various targets.
+
+
+    1: build org/repo/branch#2 => binaries/org/repo/branch/2.tgz
+      --> are there old binaries? (1.tgz)
+      --> is being used? (1.tgz)
+      ----> yes: leave it
+      ----> no: delete it
+
+    2: slug org/repo/branch#1 => slugs/org/repo/branch/1.tgz
+      --> are there any old slugs (0.tgz)?
+      --> is in use? (0.tgz)
+      ----> yes: leave alone
+      ----> no: delete it
+      --> declare use of binaries 1.tgz (will prevent others from deleting it)
+      --> complete action
+      --> take lock off binaries:1.tgz
+
+    3: deploy org/repo/branch#3 => ...
+      --> declare use of slug:0.tgz
+      --> complete action
+      --> take lock off slug:0.tgz
+
+You may also want to build + deploy an older commit. You don't want to keep the slug/binary after it's been deployed.
 
 ## Todo
 
@@ -105,5 +144,5 @@ for integration tests you'll want to override the env var: `TEST_HEROKU_APP`
 * command line docs
 * deployment working - app working
 * slug tidy up
-* any commit_hash can make a build (checkout a new folder for the hash if it isn't HEAD - toss if after?) 
+* any commit_hash can make a build (checkout a new folder for the hash if it isn't HEAD - toss if after?)
 * concurrent builds - fail if process already in place
