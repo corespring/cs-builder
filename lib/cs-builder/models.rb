@@ -61,14 +61,14 @@ module CsBuilder
       end
 
       def has_assets_to_build?
-        build_assets.length == 0
+        build_assets.length > 0
       end
 
       def build_assets
         if @internal_build_assets.nil? || @internal_build_assets.length == 0
           []
         else
-          out = ["Procfile"] << @internal_build_assets
+          out = @internal_build_assets << "Procfile"
           out.uniq
         end
       end
