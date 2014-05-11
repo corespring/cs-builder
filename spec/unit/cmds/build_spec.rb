@@ -17,14 +17,13 @@ describe BuildFromFile do
       :external_src => File.expand_path("spec/mock/mock-project-1"),
       :cmd => "echo \"hello\" >> asset.txt",
       :build_assets => build_assets,
-      #["asset.txt", "existing.txt"],
       :uid => uid
      })
      yield out
     FileUtils.rm_rf(config_dir)
   end
 
-  it "should build binaries" do
+  it "should create an archive if build_assets are defined" do
     config_dir = "spec/tmp/build-from-file"
     run_build(config_dir, build_assets: ["asset.txt", "existing.txt"]){ |out|
       out.should eql(File.expand_path("#{config_dir}/binaries/org/repo/branch/build-1.tgz"))
