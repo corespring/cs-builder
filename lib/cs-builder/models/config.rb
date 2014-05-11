@@ -1,41 +1,10 @@
-require 'log4r'
+require_relative "../git/git-helper"
+require_relative "./paths"
+
 
 module CsBuilder
 
   module Models
-
-    class Paths
-      def initialize(root, org, repo, branch)
-        @root = root
-        @org = org
-        @repo = repo
-        @branch = branch
-      end
-
-      def repo
-        make("repos")
-      end
-
-      def binaries
-        make("binaries")
-      end
-
-      def slugs
-        make("slugs")
-      end
-
-      def lock_file(name)
-        File.join(make("locks"), "#{name}.lock")
-      end
-
-      private
-
-      def make(key)
-        File.join(@root, key, @org, @repo, @branch)
-      end
-
-    end
-
 
     class Config
 
@@ -74,29 +43,6 @@ module CsBuilder
       end
 
     end
-
-    module GitHelper
-      def commit_hash(path)
-        sha = `git --git-dir=#{path}/.git --work-tree=#{path} rev-parse --short HEAD`.strip
-        raise "no sha" if sha.nil? or sha.empty?
-        sha
-      end
-    end
-
-    module SlugHelper
-
-      require 'yaml'
-
-      # Get a hash from the Procfile yml file
-      #
-      def self.processes_from_slug(slug)
-        `tar -zxvf #{slug} ./app/Procfile`
-        proc_yml = YAML.load_file('./app/Procfile')
-        FileUtils.rm_rf './app/Procfile'
-        proc_yml
-      end
-    end
-
 
     class GitConfig < Config
 

@@ -1,5 +1,5 @@
-require_relative '../git-parser'
-require_relative '../heroku-deployer'
+require_relative '../git/git-parser'
+require_relative '../heroku/heroku-deployer'
 require_relative '../models'
 
 require 'yaml'
@@ -22,8 +22,8 @@ module CsBuilder
         deployer = HerokuDeployer.new
         app = options[:heroku_app]
         git = options[:git]
-        org =  GitParser.org(git)
-        repo = GitParser.repo(git)
+        org =  GitUrlParser.org(git)
+        repo = GitUrlParser.repo(git)
         branch = options[:branch]
 
         paths = Paths.new(@config_dir, org, repo, branch)

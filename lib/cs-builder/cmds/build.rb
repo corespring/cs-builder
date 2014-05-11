@@ -1,6 +1,6 @@
 require_relative './core-command'
-require_relative '../git-parser'
-require_relative '../models'
+require_relative '../git/git-parser'
+require_relative '../models/config'
 require_relative '../runner'
 
 module CsBuilder
@@ -157,8 +157,8 @@ module CsBuilder
 
       def config_from_opts(options)
 
-        org = GitParser.org(options[:git])
-        repo = GitParser.repo(options[:git])
+        org = GitUrlParser.org(options[:git])
+        repo = GitUrlParser.repo(options[:git])
 
         Models::GitConfig.new(
           @config_dir,
