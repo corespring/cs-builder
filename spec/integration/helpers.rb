@@ -24,8 +24,6 @@ module Helpers
 
       heroku_app = ENV["TEST_HEROKU_APP"]
 
-
-
       config_dir = "spec/tmp/#{name}"
 
       FileUtils.rm_rf(config_dir)
@@ -71,5 +69,5 @@ module Helpers
       RestClient.get("http://#{heroku_app}.herokuapp.com")
     end
 
-end
+  end
 end
