@@ -115,24 +115,5 @@ module CsBuilder
       puts cmd.run(options)
     end
 
-
-
-=begin
-    desc "list-slugs", "list slugs for git+branch"
-    option :git, :type => :string, :required => true
-    option :branch, :type => :string, :required => true
-    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
-    def list_slugs
-      cmd = Commands::ListSlugs.new
-      puts cmd.run(options)
-    end
-
-    desc "slug-templates", "list slug templates"
-    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
-    def slug_templates
-      cmd = Commands::SlugTemplates.new
-      puts cmd.run(options)
-    end
-=end
   end
 end
