@@ -1,4 +1,3 @@
-require 'dotenv'
 require 'cs-builder/cmds/build'
 require 'cs-builder/cmds/make-slug'
 require 'cs-builder/models/paths'
