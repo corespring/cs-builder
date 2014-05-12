@@ -22,12 +22,12 @@ module CsBuilder
 
       protected
 
-      def run_cmd(cmd)
+      def run_cmd(cmd, strip_ansi: true)
         @log.debug "[run] -> #{cmd}"
         IO.popen(cmd) do |io|
           while line = io.gets
-            # the heroku-helper adds this to reset the ansi command - strip it
             cleaned = line.chomp
+            cleaned.gsub!(/\e\[[^m]*m/, '') if strip_ansi
             puts "#{cleaned}" unless cleaned == nil or cleaned.empty?
           end
           io.close
