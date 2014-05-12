@@ -184,7 +184,7 @@ module CsBuilder
         @log.info "path: #{path}, branch: #{branch}, git: #{git}"
         FileUtils.mkdir_p(path, :verbose => true )
         @log.debug "clone #{git}"
-        `git clone #{git} #{path}` unless File.exists(File.join(path, ".git"))
+        `git clone #{git} #{path}` unless File.exists?(File.join(path, ".git"))
         @log.debug "checkout #{branch}"
         `git --git-dir=#{path}/.git --work-tree=#{path} checkout #{branch}`
 
