@@ -66,12 +66,12 @@ module CsBuilder
         else
           FileUtils.mkdir_p app_path, :verbose => true
           @log.debug "extract #{archive} -> #{app_path}"
-          `tar xvf #{archive} -C #{app_path}`
+          run_shell_cmd("tar xvf #{archive} -C #{app_path}")
           @log.debug "extract #{binary} -> #{app_path}"
-          `tar xvf #{binary} -C #{app_path}`
+          run_shell_cmd("tar xvf #{binary} -C #{app_path}")
           @log.debug "compress folder to a new archive: #{output}"
           #Note: the './app' is significant here
-          `tar czvf #{output} -C #{output_dir} ./app`
+          run_shell_cmd("tar czvf #{output} -C #{output_dir} ./app")
           FileUtils.rm_rf output_dir, :verbose => true
           output
         end

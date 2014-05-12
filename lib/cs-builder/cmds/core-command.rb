@@ -1,9 +1,12 @@
 require 'log4r'
 require 'log4r/outputter/datefileoutputter'
+require_relative '../shell/runner'
 
 module CsBuilder
   module Commands
     class CoreCommand
+
+      include CsBuilder::ShellRunner
 
       @config_dir = File.expand_path("~/.cs-builder")
 
@@ -24,15 +27,7 @@ module CsBuilder
 
       def run_cmd(cmd, strip_ansi: true)
         @log.debug "[run] -> #{cmd}"
-        IO.popen(cmd) do |io|
-          while line = io.gets
-            cleaned = line.chomp
-            cleaned.gsub!(/\e\[[^m]*m/, '') if strip_ansi
-            puts "#{cleaned}" unless cleaned == nil or cleaned.empty?
-          end
-          io.close
-          raise "shell command: [#{cmd}] - threw an error" if $?.to_i != 0
-        end
+        run_shell_cmd(cmd, strip_ansi: strip_ansi)
       end
 
       def in_dir(dir)

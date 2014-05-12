@@ -184,14 +184,14 @@ module CsBuilder
         @log.info "path: #{path}, branch: #{branch}, git: #{git}"
         FileUtils.mkdir_p(path, :verbose => true )
         @log.debug "clone #{git}"
-        `git clone #{git} #{path}` unless File.exists?(File.join(path, ".git"))
+        run_shell_cmd("git clone #{git} #{path}") unless File.exists?(File.join(path, ".git"))
         @log.debug "checkout #{branch}"
-        `git --git-dir=#{path}/.git --work-tree=#{path} checkout #{branch}`
+        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} checkout #{branch}")
 
         if File.exists?(File.join(path, ".gitmodules"))
           in_dir(path) {
             @log.debug "Init the submodules in #{path}"
-            `git submodule init`
+            run_shell_cmd("git submodule init")
           }
         end
       end
@@ -202,14 +202,14 @@ module CsBuilder
 
         @log.info "[update_repo] path: #{path}, branch: #{branch}"
         @log.debug "reset hard to #{branch}"
-        `git --git-dir=#{path}/.git --work-tree=#{path} reset --hard HEAD`
-        `git --git-dir=#{path}/.git --work-tree=#{path} checkout #{branch}`
-        `git --git-dir=#{path}/.git --work-tree=#{path} pull origin #{branch}`
+        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} reset --hard HEAD")
+        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} checkout #{branch}")
+        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} pull origin #{branch}")
         if File.exists? "#{path}/.gitmodules"
           in_dir(path){
             @log.debug "update all the submodules in #{path}"
-            `git pull --recurse-submodules`
-            `git submodule update --recursive`
+            run_shell_cmd("git pull --recurse-submodules")
+            run_shell_cmd("git submodule update --recursive")
           }
         end
       end
