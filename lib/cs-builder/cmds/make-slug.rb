@@ -55,7 +55,6 @@ module CsBuilder
         archive = template_archive(template)
         raise "Archive doesn't exist: #{archive}" unless File.exists? archive
         output = options[:output]
-        basename = File.basename(output)
         output_dir = output.gsub(".tgz", "")
         app_path = File.join(output_dir, "app")
 
