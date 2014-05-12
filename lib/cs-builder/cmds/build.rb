@@ -201,6 +201,7 @@ module CsBuilder
         @log.info "[update_repo] path: #{path}, branch: #{branch}"
         @log.debug "reset hard to #{branch}"
         `git --git-dir=#{path}/.git --work-tree=#{path} reset --hard HEAD`
+        `git --git-dir=#{path}/.git --work-tree=#{path} checkout #{branch}`
         `git --git-dir=#{path}/.git --work-tree=#{path} pull origin #{branch}`
         if File.exists? "#{path}/.gitmodules"
           in_dir(path){
