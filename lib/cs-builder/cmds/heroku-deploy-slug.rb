@@ -1,10 +1,10 @@
 require_relative '../git/git-parser'
+require_relative '../git/git-helper'
 require_relative '../heroku/heroku-deployer'
 require_relative '../heroku/slug-helper'
 require_relative '../models/paths'
 
 require 'yaml'
-
 
 module CsBuilder
   module Commands
@@ -13,6 +13,8 @@ module CsBuilder
 
       include Models
       include Git::GitHelper
+      include Git::GitUrlParser
+      include Heroku
       include Heroku::SlugHelper
 
       def initialize(level, config_dir)

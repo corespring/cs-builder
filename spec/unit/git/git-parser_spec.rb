@@ -1,6 +1,6 @@
 require 'cs-builder/git/git-parser'
 
-include CsBuilder
+include CsBuilder::Git
 
 describe GitUrlParser do
   it "should get repo" do
