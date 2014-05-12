@@ -1,5 +1,6 @@
 require_relative '../git/git-parser'
 require_relative '../heroku/heroku-deployer'
+require_relative '../heroku/slug-helper'
 require_relative '../models/paths'
 
 require 'yaml'
@@ -11,8 +12,8 @@ module CsBuilder
     class HerokuDeploySlug < CoreCommand
 
       include Models
-      include Models::GitHelper
-      include Models::SlugHelper
+      include Git::GitHelper
+      include Heroku::SlugHelper
 
       def initialize(level, config_dir)
         super('heroku_deploy_slug', level, config_dir)

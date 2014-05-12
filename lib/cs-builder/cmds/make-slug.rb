@@ -1,6 +1,7 @@
 require_relative './core-command'
 require_relative '../git/git-parser'
 require_relative '../git/git-helper'
+require_relative '../models/paths'
 
 module CsBuilder
   module Commands
@@ -80,8 +81,8 @@ module CsBuilder
 
     class MakeGitSlug < MakeSlug
 
-      include Models
-      include GitHelper
+      include CsBuilder::Models
+      include CsBuilder::Git::GitHelper
 
       def initialize(level, config_dir)
         super(level, config_dir, log_name: 'make_git_slug')

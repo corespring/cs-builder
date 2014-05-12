@@ -46,7 +46,7 @@ module CsBuilder
 
     class GitConfig < Config
 
-      include GitHelper
+      include Git::GitHelper
 
       attr_accessor :git
       def initialize(root, external_src, org, repo, branch, build_cmd, build_assets)
