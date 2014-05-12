@@ -48,11 +48,10 @@ module CsBuilder
               build_repo
               @log.debug "prepare binaries for #{uid}"
               prepare_binaries(uid)
+              safely_remove_all_except(binaries_path(uid))
             end
             @log.debug "get binaries path for #{uid}"
-            out = binaries_path(uid)
-            safely_remove_all_except(out)
-            out
+            binaries_path(uid)
           end
         }
       end
