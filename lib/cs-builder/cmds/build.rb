@@ -2,6 +2,8 @@ require_relative './core-command'
 require_relative '../git/git-parser'
 require_relative '../models/config'
 require_relative '../runner'
+require_relative '../io/safe-file-removal'
+
 
 module CsBuilder
   module Commands
@@ -11,6 +13,7 @@ module CsBuilder
     class BaseBuild < CoreCommand
 
       include CsBuilder::Runner
+      include CsBuilder::Io::SafeFileRemoval
 
       def initialize(log_name, log_level, config_dir)
         super(log_name, log_level, config_dir)
@@ -47,7 +50,9 @@ module CsBuilder
               prepare_binaries(uid)
             end
             @log.debug "get binaries path for #{uid}"
-            binaries_path(uid)
+            out = binaries_path(uid)
+            safely_remove_all_except(out)
+            out
           end
         }
       end

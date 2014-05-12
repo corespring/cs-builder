@@ -2,12 +2,17 @@ require_relative './core-command'
 require_relative '../git/git-parser'
 require_relative '../git/git-helper'
 require_relative '../models/paths'
+require_relative '../io/safe-file-removal'
+require_relative '../io/file-lock'
 
 module CsBuilder
   module Commands
 
-
     class MakeSlug < CoreCommand
+
+      include CsBuilder::Io::SafeFileRemoval
+      include CsBuilder::Io::FileLock
+
       def initialize(level, config_dir, log_name: 'make_slug')
         super(log_name, level, config_dir)
       end
@@ -64,18 +69,27 @@ module CsBuilder
           @log.info "File #{output} already exists"
           output
         else
-          FileUtils.mkdir_p app_path, :verbose => true
-          @log.debug "extract #{archive} -> #{app_path}"
-          run_shell_cmd("tar xvf #{archive} -C #{app_path}")
-          @log.debug "extract #{binary} -> #{app_path}"
-          run_shell_cmd("tar xvf #{binary} -C #{app_path}")
-          @log.debug "compress folder to a new archive: #{output}"
-          #Note: the './app' is significant here
-          run_shell_cmd("tar czvf #{output} -C #{output_dir} ./app")
-          FileUtils.rm_rf output_dir, :verbose => true
-          output
+          with_file_lock(binary){
+            FileUtils.mkdir_p app_path, :verbose => true
+            @log.debug "extract #{archive} -> #{app_path}"
+            run_shell_cmd("tar xvf #{archive} -C #{app_path}")
+            @log.debug "extract #{binary} -> #{app_path}"
+            run_shell_cmd("tar xvf #{binary} -C #{app_path}")
+            @log.debug "compress folder to a new archive: #{output}"
+            #Note: the './app' is significant here
+            run_shell_cmd("tar czvf #{output} -C #{output_dir} ./app")
+            FileUtils.rm_rf output_dir, :verbose => true
+          }
         end
+
+        remove_old_slugs(output)
+        output
       end
+
+      def remove_old_slugs(latest_slug)
+        safely_remove_all_except(latest_slug)
+      end
+
     end
 
     class MakeGitSlug < MakeSlug
