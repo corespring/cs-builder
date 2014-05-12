@@ -83,6 +83,7 @@ module CsBuilder
 
       include CsBuilder::Models
       include CsBuilder::Git::GitHelper
+      include CsBuilder::Git
 
       def initialize(level, config_dir)
         super(level, config_dir, log_name: 'make_git_slug')

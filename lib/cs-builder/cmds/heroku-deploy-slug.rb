@@ -12,9 +12,9 @@ module CsBuilder
     class HerokuDeploySlug < CoreCommand
 
       include Models
-      include Git::GitHelper
-      include Git::GitUrlParser
+      include Git
       include Heroku
+      include Git::GitHelper
       include Heroku::SlugHelper
 
       def initialize(level, config_dir)

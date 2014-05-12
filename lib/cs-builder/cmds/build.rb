@@ -147,6 +147,8 @@ module CsBuilder
 
     class BuildFromGit < BaseBuild
 
+      include CsBuilder::Git
+
       def initialize(level, config_dir)
         super('build-from-git', level, config_dir)
       end
