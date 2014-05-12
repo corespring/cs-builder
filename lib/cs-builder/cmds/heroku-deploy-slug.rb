@@ -1,6 +1,6 @@
 require_relative '../git/git-parser'
 require_relative '../heroku/heroku-deployer'
-require_relative '../models'
+require_relative '../models/paths'
 
 require 'yaml'
 
