@@ -36,6 +36,8 @@ module CsBuilder
           @log.debug "get uid"
           uid = build_uid
 
+          @log.debug("build uid set to: #{uid}")
+
           if(!@config.has_assets_to_build?)
             @log.info("no assets to build - just run the build command: #{@config.build_cmd}")
             build_repo
@@ -186,7 +188,7 @@ module CsBuilder
         branch = @config.branch
         git = @config.git
         @log.info "path: #{path}, branch: #{branch}, git: #{git}"
-        FileUtils.mkdir_p(path, :verbose => true )
+        FileUtils.mkdir_p(path, :verbose => true ) unless File.exists?(path)
         @log.debug "clone #{git}"
         run_shell_cmd("git clone #{git} #{path}") unless File.exists?(File.join(path, ".git"))
         @log.debug "checkout #{branch}"
