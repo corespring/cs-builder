@@ -69,18 +69,13 @@ module CsBuilder
       end
 
       def trigger_release(app, id)
-        begin
-          RestClient::Request.execute(
-            :method => :post,
-            :payload => "{\"slug\": \"#{id}\"}",
-            :url => releases_url(app),
-            :headers => @headers,
-            :timeout => 3
-          )
-        rescue => e
-          @log.warn e
-          e.response
-        end
+        RestClient::Request.execute(
+          :method => :post,
+          :payload => "{\"slug\": \"#{id}\"}",
+          :url => releases_url(app),
+          :headers => @headers,
+          :timeout => 3
+        )
       end
 
       def auth_key
