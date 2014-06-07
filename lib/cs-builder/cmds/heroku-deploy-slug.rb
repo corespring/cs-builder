@@ -1,9 +1,11 @@
 require_relative '../git/git-parser'
+require_relative '../git/git-helper'
 require_relative '../heroku/heroku-deployer'
-require_relative '../models'
+require_relative '../heroku/slug-helper'
+require_relative '../models/paths'
+require_relative '../io/file-lock'
 
 require 'yaml'
-
 
 module CsBuilder
   module Commands
@@ -11,8 +13,11 @@ module CsBuilder
     class HerokuDeploySlug < CoreCommand
 
       include Models
-      include Models::GitHelper
-      include Models::SlugHelper
+      include Git
+      include Heroku
+      include Git::GitHelper
+      include Heroku::SlugHelper
+      include Io::FileLock
 
       def initialize(level, config_dir)
         super('heroku_deploy_slug', level, config_dir)
@@ -34,7 +39,9 @@ module CsBuilder
 
         raise "Can't find slug to deploy #{slug}" unless File.exists? slug
 
-        deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app)
+        with_file_lock(slug){
+          deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app)
+        }
       end
 
     end

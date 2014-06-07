@@ -1,17 +1,22 @@
 module CsBuilder
-  module GitUrlParser
 
-    REGEX = /git@.*?:(.*?)\/(.*?).git/
+  module Git
+    
+    module GitUrlParser
 
-    def self.org(s)
-      m = REGEX.match(s)
-      m[1]
+      REGEX = /git@.*?:(.*?)\/(.*?).git/
+
+      def self.org(s)
+        m = REGEX.match(s)
+        m[1]
+      end
+
+      def self.repo(s)
+        m = REGEX.match(s)
+        m[2]
+      end
     end
 
-    def self.repo(s)
-      m = REGEX.match(s)
-      m[2]
-    end
   end
 
 end

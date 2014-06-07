@@ -2,6 +2,8 @@ require_relative './core-command'
 require_relative '../git/git-parser'
 require_relative '../models/config'
 require_relative '../runner'
+require_relative '../io/safe-file-removal'
+
 
 module CsBuilder
   module Commands
@@ -11,6 +13,7 @@ module CsBuilder
     class BaseBuild < CoreCommand
 
       include CsBuilder::Runner
+      include CsBuilder::Io::SafeFileRemoval
 
       def initialize(log_name, log_level, config_dir)
         super(log_name, log_level, config_dir)
@@ -33,6 +36,8 @@ module CsBuilder
           @log.debug "get uid"
           uid = build_uid
 
+          @log.debug("build uid set to: #{uid}")
+
           if(!@config.has_assets_to_build?)
             @log.info("no assets to build - just run the build command: #{@config.build_cmd}")
             build_repo
@@ -45,6 +50,7 @@ module CsBuilder
               build_repo
               @log.debug "prepare binaries for #{uid}"
               prepare_binaries(uid)
+              safely_remove_all_except(binaries_path(uid))
             end
             @log.debug "get binaries path for #{uid}"
             binaries_path(uid)
@@ -147,6 +153,8 @@ module CsBuilder
 
     class BuildFromGit < BaseBuild
 
+      include CsBuilder::Git
+
       def initialize(level, config_dir)
         super('build-from-git', level, config_dir)
       end
@@ -180,16 +188,16 @@ module CsBuilder
         branch = @config.branch
         git = @config.git
         @log.info "path: #{path}, branch: #{branch}, git: #{git}"
-        FileUtils.mkdir_p(path, :verbose => true )
+        FileUtils.mkdir_p(path, :verbose => true ) unless File.exists?(path)
         @log.debug "clone #{git}"
-        `git clone #{git} #{path}`
+        run_shell_cmd("git clone #{git} #{path}") unless File.exists?(File.join(path, ".git"))
         @log.debug "checkout #{branch}"
-        `git --git-dir=#{path}/.git --work-tree=#{path} checkout #{branch}`
+        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} checkout #{branch}")
 
-        if File.exists? "#{path}/.gitmodules"
+        if File.exists?(File.join(path, ".gitmodules"))
           in_dir(path) {
             @log.debug "Init the submodules in #{path}"
-            `git submodule init`
+            run_shell_cmd("git submodule init")
           }
         end
       end
@@ -200,13 +208,14 @@ module CsBuilder
 
         @log.info "[update_repo] path: #{path}, branch: #{branch}"
         @log.debug "reset hard to #{branch}"
-        `git --git-dir=#{path}/.git --work-tree=#{path} reset --hard HEAD`
-        `git --git-dir=#{path}/.git --work-tree=#{path} pull origin #{branch}`
+        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} reset --hard HEAD")
+        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} checkout #{branch}")
+        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} pull origin #{branch}")
         if File.exists? "#{path}/.gitmodules"
           in_dir(path){
             @log.debug "update all the submodules in #{path}"
-            `git pull --recurse-submodules`
-            `git submodule update --recursive`
+            run_shell_cmd("git pull --recurse-submodules")
+            run_shell_cmd("git submodule update --recursive")
           }
         end
       end

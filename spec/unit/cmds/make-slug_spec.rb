@@ -45,6 +45,10 @@ describe MakeSlug do
 
     binary = mk_binary
     cmd = MakeSlug.new("DEBUG", File.expand_path(config_dir))
+
+    FileUtils.mkdir_p("#{config_dir}/slugs/org/repo/branch")
+    `echo "I'll be removed" >> #{config_dir}/slugs/org/repo/branch/removeme`
+
     out = cmd.run({
                     :binary => File.expand_path(binary),
                     :template => "test-template",
@@ -53,6 +57,8 @@ describe MakeSlug do
 
     out.should eql("#{config_dir}/slugs/org/repo/branch/build-1.tgz")
 
+    Dir["#{File.dirname(out)}/*"].length.should eql(1)
+    
     extracted = File.dirname(out)
     puts "-> #{out}"
     `tar -ztvf #{out}`
