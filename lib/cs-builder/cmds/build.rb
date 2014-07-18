@@ -115,6 +115,9 @@ module CsBuilder
     end
 
     class BuildFromFile < BaseBuild
+
+      include CsBuilder::Models
+
       def initialize(level, config_dir)
         super('build-from-file', level, config_dir)
       end
@@ -193,6 +196,7 @@ module CsBuilder
         run_shell_cmd("git clone #{git} #{path}") unless File.exists?(File.join(path, ".git"))
         @log.debug "checkout #{branch}"
         run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} checkout #{branch}")
+        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} branch --set-upstream-to=origin/#{branch} #{branch}")
 
         if File.exists?(File.join(path, ".gitmodules"))
           in_dir(path) {

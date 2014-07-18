@@ -48,7 +48,7 @@ module CsBuilder
     long_desc Docs.docs("build-from-file")
     def build_from_file
       puts options
-      cmd = Commands::BuildFromGit.new(options[:log_level], options[:config_dir])
+      cmd = Commands::BuildFromFile.new(options[:log_level], options[:config_dir])
       out = cmd.run(options)
       puts out
     end

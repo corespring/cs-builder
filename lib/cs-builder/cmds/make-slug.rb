@@ -94,6 +94,8 @@ module CsBuilder
 
     class MakeFileSlug < MakeSlug
 
+      include CsBuilder::Models
+
       def initialize(level, config_dir)
         super(level, config_dir, log_name: 'make_file_slug')
       end
