@@ -1,12 +1,12 @@
-`git-slug` will create a heroku compatible slug using binaries and a slug template.
+`file-slug` will create a heroku compatible slug using binaries and a slug template.
 
+You pass in org, repo, branch and uid so it knows which binary to use.
 --
 
 steps:
 
-* get the commit_hash from the source repo
 
-* check to see if there is a binary with that commith_hash in 'binaries'
+* check to see if there is a binary with the uid in 'binaries'
 
 * check to see if there is a template ready
 

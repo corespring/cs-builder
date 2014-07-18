@@ -41,7 +41,7 @@ module CsBuilder
     option :branch, :type => :string, :required => true
     option :build_assets, :type => :array, :required => true
     option :cmd, :type => :string, :default => ""
-    option :uid, :type => :string
+    option :uid, :type => :string, :required => true
     option :log_level, :type => :string, :default => "INFO"
     option :force, :type => :boolean, :default => false
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
@@ -52,6 +52,23 @@ module CsBuilder
       out = cmd.run(options)
       puts out
     end
+
+    desc "file-slug", "make a slug from a binary"
+    option :branch, :type => :string, :required => true
+    option :uid, :type => :string, :required => true
+    option :org, :type => :string, :required => true
+    option :repo, :type => :string, :required => true
+    option :template, :type => :string, :default => "jdk-1.7"
+    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
+    option :log_level, :type => :string, :default => "INFO"
+    option :force, :type => :boolean, :default => false
+    long_desc Docs.docs("file-slug")
+    def file_slug
+      cmd = Commands::MakeFileSlug.new(options[:log_level], options[:config_dir])
+      out = cmd.run(options)
+      puts "Done: #{out}"
+    end
+
 
     desc "remove-config", "remove ~/.cs-build config folder (Can't undo!!)"
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
@@ -74,6 +91,7 @@ module CsBuilder
 
       puts "Done: #{out}"
     end
+
 
     desc "list-slugs", "list all slugs"
     option :git, :type => :string, :required => true

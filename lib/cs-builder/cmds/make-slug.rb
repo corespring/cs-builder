@@ -92,6 +92,31 @@ module CsBuilder
 
     end
 
+    class MakeFileSlug < MakeSlug
+
+      def initialize(level, config_dir)
+        super(level, config_dir, log_name: 'make_file_slug')
+      end
+
+      def build_slug(options)
+        org = options[:org]
+        repo = options[:repo]
+        branch = options[:branch]
+        paths = Paths.new(@config_dir, org, repo, branch)
+        sha = options[:uid]
+
+        @log.debug "org: #{org}, repo: #{repo}, branch: #{branch}"
+
+        prepped = options.merge(
+          {
+            :template => options[:template],
+            :binary => File.join(paths.binaries, "#{sha}.tgz"),
+            :output => File.join(paths.slugs, "#{sha}.tgz"),
+        })
+        super(prepped)
+      end
+    end
+
     class MakeGitSlug < MakeSlug
 
       include CsBuilder::Models
