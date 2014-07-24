@@ -2,6 +2,7 @@ require 'rest-client'
 require 'base64'
 require 'log4r'
 require 'log4r/outputter/datefileoutputter'
+require 'json'
 
 module CsBuilder
 
