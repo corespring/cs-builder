@@ -79,6 +79,12 @@ These are bash scripts that are run to create a built template. They are passed 
     bundle install
     rake build
     gem install pkg/cs-builder-0.0.1.gem
+    
+### Configuration
+
+#### Heroku
+
+HEROKU_AUTH_TOKEN (optional) if not present will use `heroku auth:token`
 
 ### developing
 
