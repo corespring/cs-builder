@@ -80,7 +80,8 @@ module CsBuilder
       end
 
       def auth_key
-        auth_token= `heroku auth:token`
+        auth_token = ENV["HEROKU_AUTH_TOKEN"] || `heroku auth:token`
+        @log.debug "Found an auth token" unless auth_token.nil?
         raise "No auth token - You need to login to the heroku toolbelt" if auth_token.nil? or auth_token.empty?
         Base64.encode64(":#{auth_token}")
       end
