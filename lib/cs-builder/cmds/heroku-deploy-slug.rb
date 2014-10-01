@@ -40,7 +40,7 @@ module CsBuilder
         raise "Can't find slug to deploy #{slug}" unless File.exists? slug
 
         with_file_lock(slug){
-          deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app)
+          deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app, sha)
         }
       end
 

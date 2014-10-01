@@ -61,7 +61,7 @@ module Helpers
       puts "MakeSlug result: #{out}"
       deployer = HerokuDeployer.new
       # TODO - make heroku app configurable
-      deployer.deploy(slug_path, SlugHelper.processes_from_slug(slug_path), heroku_app )
+      deployer.deploy(slug_path, SlugHelper.processes_from_slug(slug_path), heroku_app, file_opts[:uid] )
 
       # give the app some time to boot up
       sleep 4
