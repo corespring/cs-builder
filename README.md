@@ -93,7 +93,18 @@ HEROKU_AUTH_TOKEN (optional) if not present will use `heroku auth:token`
 
 ### Tests
 
+#### Unit 
+
+    rspec spec/unit
+    
+    
+#### Integration
+
 for integration tests you'll want to override the env var: `TEST_HEROKU_APP`
+
+You'll want to run the integration tests specifically (it'll break if you don't): 
+
+    rspec spec/integration/node-example-project_spec.rb
 
 
 ### How it works
