@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cs-builder (0.0.2)
+    cs-builder (0.0.3)
       log4r (~> 1.1.10)
       rest-client (~> 1.6.7)
       thor
@@ -13,11 +13,15 @@ GEM
     dotenv (0.11.1)
       dotenv-deployment (~> 0.0.2)
     dotenv-deployment (0.0.2)
+    json (1.8.1)
     log4r (1.1.10)
-    mime-types (2.2)
+    mime-types (1.25.1)
     rake (10.1.1)
-    rest-client (1.6.7)
-      mime-types (>= 1.16)
+    rdoc (4.1.2)
+      json (~> 1.4)
+    rest-client (1.6.8)
+      mime-types (~> 1.16)
+      rdoc (>= 2.4.2)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
       rspec-expectations (~> 2.14.0)

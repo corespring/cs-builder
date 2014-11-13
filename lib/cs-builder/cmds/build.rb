@@ -95,6 +95,7 @@ module CsBuilder
         @config.build_assets.each{ |asset|
           from = "#{@config.paths.repo}/#{asset}"
           to = "#{binary_folder}/#{asset}"
+          FileUtils.mkdir_p( File.dirname(to), :verbose => true)
           FileUtils.cp_r(from, to, :verbose => true)
         }
 
