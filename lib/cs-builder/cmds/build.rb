@@ -219,6 +219,7 @@ module CsBuilder
         if File.exists? "#{path}/.gitmodules"
           in_dir(path){
             @log.debug "update all the submodules in #{path}"
+            run_shell_cmd("git clean -fd")
             run_shell_cmd("git submodule foreach git clean -fd")
             run_shell_cmd("git pull --recurse-submodules")
             run_shell_cmd("git submodule update --recursive")
