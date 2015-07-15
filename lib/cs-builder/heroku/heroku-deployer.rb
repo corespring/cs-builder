@@ -20,7 +20,7 @@ module CsBuilder
 
         @headers = {
           "Accept" =>  "application/vnd.heroku+json; version=3" ,
-          "Authorization" => auth_key,
+          "Authorization" => "Bearer: #{auth_key}",
           :content_type => :json
         }
       end
@@ -51,12 +51,18 @@ module CsBuilder
           :commit => commit_hash
         }
 
-        RestClient::Request.execute(
-          :method => :post,
-          :payload => data,
-          :url => slugs_url(app),
-          :headers => @headers,
-        :timeout => 3)
+        begin
+          RestClient::Request.execute(
+            :method => :post,
+            :payload => data,
+            :url => slugs_url(app),
+            :headers => @headers,
+            :timeout => 3)
+        rescue => e
+          @log.warn e.response
+          raise e
+        end
+
       end
 
       #TODO - use a ruby lib instead
