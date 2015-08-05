@@ -30,6 +30,7 @@ module CsBuilder
         org =  GitUrlParser.org(git)
         repo = GitUrlParser.repo(git)
         branch = options[:branch]
+        stack = options[:stack]
 
         paths = Paths.new(@config_dir, org, repo, branch)
         sha = commit_hash(paths.repo)
@@ -40,7 +41,7 @@ module CsBuilder
         raise "Can't find slug to deploy #{slug}" unless File.exists? slug
 
         with_file_lock(slug){
-          deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app, sha)
+          deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app, sha, stack)
         }
       end
 

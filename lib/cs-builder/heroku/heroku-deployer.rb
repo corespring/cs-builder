@@ -25,9 +25,13 @@ module CsBuilder
         }
       end
 
-      def deploy(slug, process_hash, app, commit_hash)
+      def deploy(slug, process_hash, app, commit_hash, stack)
 
         raise "Can't deploy - slug doesn't exist" unless File.exists? slug
+
+        if !stack
+          stack = "cedar-14"
+        end
 
         create_slug_response = create_slug(app, process_hash, commit_hash)
         result = JSON.parse(create_slug_response)
@@ -35,7 +39,7 @@ module CsBuilder
         release_id = result["id"]
         @log.debug "blob url: #{blob_url}"
         @log.debug "id: #{release_id}"
-        put_slug_to_heroku(slug, blob_url)
+        put_slug_to_heroku(slug, blob_url, stack)
         release_response = trigger_release(app, release_id)
         @log.debug "release successful for #{app} response: #{release_response}"
         release_response
@@ -66,12 +70,15 @@ module CsBuilder
       end
 
       #TODO - use a ruby lib instead
-      def put_slug_to_heroku(slug, url)
+      def put_slug_to_heroku(slug, url, stack)
         cmd = <<-EOF
         curl -X PUT \
           -H "Content-Type:" \
           --data-binary @#{slug} \
-          "#{url}"
+          "#{url}" \
+          -d { \
+            "stack": "#{stack}" \
+          }
         EOF
         `#{cmd}`
       end

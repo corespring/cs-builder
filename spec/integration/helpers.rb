@@ -19,7 +19,7 @@ module Helpers
       FileUtils.cp_r(".default-config", path, :verbose => true)
     end
 
-    def build_deploy_and_load_example(name, cmd, assets, template)
+    def build_deploy_and_load_example(name, cmd, assets, template, stack)
 
       heroku_app = ENV["TEST_HEROKU_APP"]
 
@@ -61,7 +61,7 @@ module Helpers
       puts "MakeSlug result: #{out}"
       deployer = HerokuDeployer.new
       # TODO - make heroku app configurable
-      deployer.deploy(slug_path, SlugHelper.processes_from_slug(slug_path), heroku_app, file_opts[:uid] )
+      deployer.deploy(slug_path, SlugHelper.processes_from_slug(slug_path), heroku_app, file_opts[:uid], stack)
 
       # give the app some time to boot up
       sleep 4
