@@ -29,10 +29,6 @@ module CsBuilder
 
         raise "Can't deploy - slug doesn't exist" unless File.exists? slug
 
-        if !stack
-          stack = "cedar-14"
-        end
-
         create_slug_response = create_slug(app, process_hash, commit_hash, stack)
         result = JSON.parse(create_slug_response)
         blob_url = result["blob"]["url"]
