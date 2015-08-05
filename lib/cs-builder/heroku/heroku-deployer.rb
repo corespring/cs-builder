@@ -33,26 +33,27 @@ module CsBuilder
           stack = "cedar-14"
         end
 
-        create_slug_response = create_slug(app, process_hash, commit_hash)
+        create_slug_response = create_slug(app, process_hash, commit_hash, stack)
         result = JSON.parse(create_slug_response)
         blob_url = result["blob"]["url"]
         release_id = result["id"]
         @log.debug "blob url: #{blob_url}"
         @log.debug "id: #{release_id}"
-        put_slug_to_heroku(slug, blob_url, stack)
+        put_slug_to_heroku(slug, blob_url)
         release_response = trigger_release(app, release_id)
         @log.debug "release successful for #{app} response: #{release_response}"
         release_response
       end
 
       private
-      def create_slug(app, processes, commit_hash)
+      def create_slug(app, processes, commit_hash, stack)
 
         @log.debug(processes)
 
         data = {
           :process_types => processes,
-          :commit => commit_hash
+          :commit => commit_hash,
+          :stack => stack
         }
 
         begin
@@ -70,15 +71,12 @@ module CsBuilder
       end
 
       #TODO - use a ruby lib instead
-      def put_slug_to_heroku(slug, url, stack)
+      def put_slug_to_heroku(slug, url)
         cmd = <<-EOF
         curl -X PUT \
           -H "Content-Type:" \
           --data-binary @#{slug} \
-          "#{url}" \
-          -d { \
-            "stack": "#{stack}" \
-          }
+          "#{url}"
         EOF
         `#{cmd}`
       end
