@@ -25,6 +25,10 @@ module Helpers
 
       config_dir = "spec/tmp/#{name}"
 
+      if !stack
+        stack = "cedar-14"
+      end      
+
       FileUtils.rm_rf(config_dir)
 
       add_default_config(config_dir)
