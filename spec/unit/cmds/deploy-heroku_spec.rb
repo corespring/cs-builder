@@ -25,12 +25,7 @@ describe "HerokuDeploySlug and Stack migrate" do
   def compare_stacks?(app, stack)
     current_heroku_stack = `heroku stack -a #{app} | grep "*" | sed 's/* //' | sed 's/cedar-10/cedar/' | tr -d '\n' `
 
-    if stack == current_heroku_stack
-      true
-    else 
-      false
-    end
-
+    stack == current_heroku_stack
   end
 
   it "uses different stack from the existing one (set in .env)" do
@@ -38,7 +33,6 @@ describe "HerokuDeploySlug and Stack migrate" do
   end
 
   it  "checks slug" do
-    #slug_path = "spec/tmp/make-slug/slugs/org/repo/branch/"
     slug_path = "spec/tmp/node-0.10.20/slugs/org/node-0.10.20/master/"
     slug_file = "#{project}.tgz"
     slug = File.join(slug_path, slug_file)
