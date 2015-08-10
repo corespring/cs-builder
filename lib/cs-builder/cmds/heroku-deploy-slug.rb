@@ -19,8 +19,9 @@ module CsBuilder
       include Heroku::SlugHelper
       include Io::FileLock
 
-      def initialize(level, config_dir)
-        super('heroku_deploy_slug', level, config_dir, stack)
+      def initialize(level, config_dir, stack)
+	@stack = stack
+        super('heroku_deploy_slug', level, config_dir)
       end
 
       def run(options)
@@ -36,11 +37,11 @@ module CsBuilder
 
         slug = File.join(paths.slugs, "#{sha}.tgz")
         @log.debug "slug -> #{slug}"
-
+        @log.debug "STACK -> #{@stack}"
         raise "Can't find slug to deploy #{slug}" unless File.exists? slug
 
         with_file_lock(slug){
-          deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app, sha, stack)
+          deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app, sha, @stack)
         }
       end
 
