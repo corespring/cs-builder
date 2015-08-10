@@ -20,7 +20,7 @@ module CsBuilder
       include Io::FileLock
 
       def initialize(level, config_dir)
-        super('heroku_deploy_slug', level, config_dir)
+        super('heroku_deploy_slug', level, config_dir, stack)
       end
 
       def run(options)
@@ -30,7 +30,6 @@ module CsBuilder
         org =  GitUrlParser.org(git)
         repo = GitUrlParser.repo(git)
         branch = options[:branch]
-        stack = options[:stack]
 
         paths = Paths.new(@config_dir, org, repo, branch)
         sha = commit_hash(paths.repo)

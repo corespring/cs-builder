@@ -130,7 +130,7 @@ module CsBuilder
     option :log_level, :type => :string, :default => "INFO"
     option :stack, :type => :string, :default => "cedar-14"
     def heroku_deploy_slug
-      cmd = Commands::HerokuDeploySlug.new(options[:log_level], options[:config_dir])
+      cmd = Commands::HerokuDeploySlug.new(options[:log_level], options[:config_dir], options[:stack])
       puts cmd.run(options)
     end
 
