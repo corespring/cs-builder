@@ -86,6 +86,17 @@ These are bash scripts that are run to create a built template. They are passed 
 
 HEROKU_AUTH_TOKEN (optional) if not present will use `heroku auth:token`
 
+**Migrating existing Heroku apps to new stack**
+
+To set an app to run on a different stack do:
+
+    heroku stack:set stack-name --APP cs-my-cool-feature
+
+After the new stack has been set Heroku will prepare the rest when the next deployment happens.
+`cs-builder` supports stack change when run in the `heroku-deploy-slug` mode through a command line argument `--stack=stack_name`
+
+This `stack_name` parameter has to be the same as the one used above with the `heroku stack:set` command
+
 ### developing
 
     bundle exec bin/cs-builder
@@ -94,6 +105,10 @@ HEROKU_AUTH_TOKEN (optional) if not present will use `heroku auth:token`
 ### Tests
 
 #### Unit 
+for Unit tests you'll want to override the env var: `TEST_HEROKU_APP` and `TEST_HEROKU_STACK`  
+`TEST_HEROKU_STACK` **needs to be different from the stack of the** `TEST_HEROKU_APP`.  
+_This will be the new stack Heroku will migrate the app after the successful deploy._
+(Otherwise the unit test `deploy-heroku_spec` will fail 1 example out of the 4)
 
     rspec spec/unit
     
@@ -121,7 +136,6 @@ You'll want to run the integration tests specifically (it'll break if you don't)
   -> build prep build_assets
   -> make-slug
   -> deploy-slug
-
 
 ## Todo
 
