@@ -74,6 +74,12 @@ module Helpers
       # give the app some time to boot up
       sleep 4
       RestClient.get("http://#{heroku_app}.herokuapp.com")
+
+      case cleanup
+      when true
+        safely_remove(slug_path)
+        safely_remove(binaries_path)
+      end
     end
 
   end
