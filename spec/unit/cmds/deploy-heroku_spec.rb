@@ -4,6 +4,7 @@ require 'dotenv'
 
 include CsBuilder::Heroku
 include CsBuilder::Heroku::SlugHelper
+include CsBuilder::Io::SafeFileRemoval
 
 Dotenv.load
 
@@ -14,6 +15,7 @@ describe "HerokuDeploySlug and Stack migrate" do
   result = ""
   slug = ""
   project = "build-1"
+  cleanup = false
   puts "---Heroku APP: #{heroku_app}"
   puts "---Heroku STACK to set: #{heroku_stack}"
 
@@ -24,8 +26,11 @@ describe "HerokuDeploySlug and Stack migrate" do
 
   def compare_stacks?(app, stack)
     current_heroku_stack = `heroku stack -a #{app} | grep "*" | sed 's/* //' | sed 's/cedar-10/cedar/' | tr -d '\n' `
-
     stack == current_heroku_stack
+  end
+
+  def cleans_up(slug_path)
+    safely_remove(slug_path)
   end
 
   it "uses different stack from the existing one (set in .env)" do
@@ -46,5 +51,17 @@ describe "HerokuDeploySlug and Stack migrate" do
   it "stack changed after deployment" do
     expect(compare_stacks?(heroku_app, heroku_stack)).to be_truthy
   end
+
+  it "cleans up slug folder" do
+    case cleanup
+    when true
+      cleans_up(slug_path)
+      expect(Dir.entries(slug_path).size <= 2).to be_truthy
+    else
+      expect(Dir.entries(slug_path).size <= 2).to be_falsey
+    end
+  end
+
+ 
 
 end
