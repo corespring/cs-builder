@@ -33,7 +33,6 @@ module Helpers
         clean_up = false
       end      
 
-
       FileUtils.rm_rf(config_dir)
 
       add_default_config(config_dir)
@@ -70,7 +69,7 @@ module Helpers
       puts "MakeSlug result: #{out}"
       deployer = HerokuDeployer.new
       # TODO - make heroku app configurable
-      deployer.deploy(slug_path, SlugHelper.processes_from_slug(slug_path), heroku_app, file_opts[:uid] )
+      deployer.deploy(slug_path, SlugHelper.processes_from_slug(slug_path), heroku_app, file_opts[:uid], stack)
 
       # give the app some time to boot up
       sleep 4

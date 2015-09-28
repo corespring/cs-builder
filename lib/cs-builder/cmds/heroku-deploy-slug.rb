@@ -39,7 +39,7 @@ module CsBuilder
 
         slug = File.join(paths.slugs, "#{sha}.tgz")
         @log.debug "slug -> #{slug}"
-
+        @log.debug "STACK -> #{@stack}"
         raise "Can't find slug to deploy #{slug}" unless File.exists? slug
 puts paths
         with_file_lock(slug){
