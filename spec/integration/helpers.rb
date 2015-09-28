@@ -19,11 +19,20 @@ module Helpers
       FileUtils.cp_r(".default-config", path, :verbose => true)
     end
 
-    def build_deploy_and_load_example(name, cmd, assets, template)
+    def build_deploy_and_load_example(name, cmd, assets, template, stack, clean_up)
 
       heroku_app = ENV["TEST_HEROKU_APP"]
 
       config_dir = "spec/tmp/#{name}"
+
+      if !stack
+        stack = "cedar-14"
+      end      
+
+      if !clean_up
+        clean_up = false
+      end      
+
 
       FileUtils.rm_rf(config_dir)
 

@@ -128,8 +128,10 @@ module CsBuilder
     option :commit_hash, :type => :string
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     option :log_level, :type => :string, :default => "INFO"
+    option :stack, :type => :string, :default => "cedar-14"
+    option :clean_up, :type => :boolean, :default => false
     def heroku_deploy_slug
-      cmd = Commands::HerokuDeploySlug.new(options[:log_level], options[:config_dir])
+      cmd = Commands::HerokuDeploySlug.new(options[:log_level], options[:config_dir], options[:stack], options[:clean_up])
       puts cmd.run(options)
     end
 
