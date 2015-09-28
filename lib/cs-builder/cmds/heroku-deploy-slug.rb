@@ -35,17 +35,16 @@ module CsBuilder
         branch = options[:branch]
 
         paths = Paths.new(@config_dir, org, repo, branch)
-        sha = commit_hash(paths.repo)
 
+        sha = commit_hash(paths.repo)
         slug = File.join(paths.slugs, "#{sha}.tgz")
         @log.debug "slug -> #{slug}"
         @log.debug "STACK -> #{@stack}"
         raise "Can't find slug to deploy #{slug}" unless File.exists? slug
-puts paths
         with_file_lock(slug){
-          #deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app, sha, @stack, @clean_up)
+          deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app, sha, @stack, @clean_up)
           
-          #cleanup(@clean_up, paths)
+          cleanup(@clean_up, paths)
         }
 
       end
@@ -53,8 +52,8 @@ puts paths
       def cleanup(clean_up, paths)
         case clean_up
         when true
-          safely_remove_all(paths.repo)
-          safely_remove_all(paths.slugs)
+          safely_remove(paths.repo)
+          safely_remove(paths.slugs)
         else
           return true
         end
