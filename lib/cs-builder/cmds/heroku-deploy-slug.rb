@@ -42,7 +42,7 @@ module CsBuilder
         @log.debug "STACK -> #{@stack}"
         raise "Can't find slug to deploy #{slug}" unless File.exists? slug
         with_file_lock(slug){
-          deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app, sha, @stack, @clean_up)
+          deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app, sha, @stack)
           
           cleanup(@clean_up, paths)
         }
