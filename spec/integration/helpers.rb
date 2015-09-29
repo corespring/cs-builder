@@ -3,12 +3,14 @@ require 'cs-builder/cmds/make-slug'
 require 'cs-builder/models/paths'
 require 'cs-builder/heroku/heroku-deployer'
 require 'cs-builder/heroku/slug-helper'
+require 'cs-builder/io/safe-file-removal'
 require 'dotenv'
 
 include CsBuilder::Commands
 include CsBuilder::Models
 include CsBuilder::Heroku
 include CsBuilder::Heroku::SlugHelper
+include CsBuilder::Io::SafeFileRemoval
 
 module Helpers
   module Integration
@@ -22,7 +24,6 @@ module Helpers
     def build_deploy_and_load_example(name, cmd, assets, template, stack, clean_up)
 
       heroku_app = ENV["TEST_HEROKU_APP"]
-
       config_dir = "spec/tmp/#{name}"
 
       if !stack
@@ -74,12 +75,18 @@ module Helpers
       # give the app some time to boot up
       sleep 4
       RestClient.get("http://#{heroku_app}.herokuapp.com")
+    end
 
-      case cleanup
+    def cleanup_after_deploy(clean_up, path)
+      puts "Slug_path to clean: #{path}"
+      case clean_up
       when true
-        safely_remove(slug_path)
-        safely_remove(binaries_path)
+        safely_remove(path)
       end
+    end
+
+    def returnPath(name)
+      path = "spec/tmp/#{name}/slugs/org/#{name}/master"
     end
 
   end

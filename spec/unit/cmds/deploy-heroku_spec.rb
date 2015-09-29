@@ -1,5 +1,6 @@
 require 'cs-builder/heroku/heroku-deployer'
 require 'cs-builder/heroku/slug-helper'
+require 'cs-builder/io/safe-file-removal'
 require 'dotenv'
 
 include CsBuilder::Heroku
@@ -12,10 +13,11 @@ describe "HerokuDeploySlug and Stack migrate" do
 
   heroku_app = ENV["TEST_HEROKU_APP"]
   heroku_stack = ENV["TEST_HEROKU_STACK"]
+  slug_path = "spec/tmp/node-0.10.20/slugs/org/node-0.10.20/master/"
   result = ""
   slug = ""
   project = "build-1"
-  cleanup = false
+  cleanup = true
   puts "---Heroku APP: #{heroku_app}"
   puts "---Heroku STACK to set: #{heroku_stack}"
 
@@ -38,7 +40,7 @@ describe "HerokuDeploySlug and Stack migrate" do
   end
 
   it  "checks slug" do
-    slug_path = "spec/tmp/node-0.10.20/slugs/org/node-0.10.20/master/"
+    #slug_path = "spec/tmp/node-0.10.20/slugs/org/node-0.10.20/master/"
     slug_file = "#{project}.tgz"
     slug = File.join(slug_path, slug_file)
     expect File.exists? slug
