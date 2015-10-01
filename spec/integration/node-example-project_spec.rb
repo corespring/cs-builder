@@ -18,8 +18,7 @@ describe CsBuilder do
   	path = returnPath(name)
   	cleanup_after_deploy(clean_up, path)
 
-    case clean_up
-    when true
+    if clean_up
       expect(Dir.entries(path).size <= 2).to be_truthy
     else
       expect(Dir.entries(path).size <= 2).to be_falsey

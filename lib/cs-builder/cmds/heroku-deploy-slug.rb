@@ -4,6 +4,7 @@ require_relative '../heroku/heroku-deployer'
 require_relative '../heroku/slug-helper'
 require_relative '../models/paths'
 require_relative '../io/file-lock'
+require_relative '../io/safe-file-removal'
 
 require 'yaml'
 
@@ -50,13 +51,8 @@ module CsBuilder
       end
 
       def cleanup(clean_up, paths)
-        case clean_up
-        when true
-          safely_remove(paths.repo)
-          safely_remove(paths.slugs)
-        else
-          return true
-        end
+        safely_remove(paths.repo) if clean_up
+        safely_remove(paths.slugs) if clean_up
       end
 
     end

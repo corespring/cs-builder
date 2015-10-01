@@ -26,13 +26,8 @@ module Helpers
       heroku_app = ENV["TEST_HEROKU_APP"]
       config_dir = "spec/tmp/#{name}"
 
-      if !stack
-        stack = "cedar-14"
-      end      
-
-      if !clean_up
-        clean_up = false
-      end      
+      stack = "cedar-14" if stack.nil?
+      clean_up = false if clean_up.nil?
 
       FileUtils.rm_rf(config_dir)
 

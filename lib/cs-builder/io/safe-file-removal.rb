@@ -21,10 +21,8 @@ module CsBuilder
 
       def safely_remove(path)
         raise "Directory doesn't exist: #{path}" unless Dir.exists?(path)
-        folder = path
-        removal_log("don't delete path: #{path}")
-        removal_log(folder)
-        Dir["#{folder}/*"].each{ |f|
+        removal_log(path)
+        Dir["#{path}/*"].each{ |f|
           removal_log("removing: #{f}")
           safe_delete(f)
         }
