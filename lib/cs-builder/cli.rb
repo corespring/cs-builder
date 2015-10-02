@@ -137,7 +137,7 @@ module CsBuilder
     end
 
     desc "clean-repos", "clean old / unused repos and slugs"
-    option :older_than_days, :type => :string, :default => 7
+    option :older_than_days, :type => :numeric, :default => 7
     option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     option :log_level, :type => :string, :default => "INFO"
     long_desc Docs.docs("clean-repos")
