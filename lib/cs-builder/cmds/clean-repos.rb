@@ -1,4 +1,3 @@
-require_relative '../models/paths'
 require_relative '../io/safe-file-removal'
 
 require 'yaml'
@@ -8,11 +7,12 @@ module CsBuilder
 
     class CleanRepos < CoreCommand
 
-      include Models
+      #include Models
       include Io::SafeFileRemoval      
 
-      def initialize(level, config_dir, days)
+      def initialize(level, config_dir, days, slugs)
         @days = days
+        @slugs = slugs
         super('clean_repos', level, config_dir)
       end
 
@@ -24,41 +24,41 @@ module CsBuilder
         @log.debug "path_slugs -> #{path_slugs}"
 
         get_org_dirs(path_repos)
-        get_org_dirs(path_slugs)
+        get_org_dirs(path_slugs) if @slugs
       end
 
       def get_org_dirs(path)
         Dir["#{path}/*"].each{ |f|
-          #@log.debug("org: #{f}")
           get_projects(f)
         }
       end
 
       def get_projects(path)
         Dir["#{path}/*"].each{ |f|
-          #@log.debug("projects: #{f}")
           get_branches(f)
         }
       end
 
       def get_branches(path)
         Dir["#{path}/*"].each{ |f|
-          #@log.debug("branches: #{f}")
           get_path_date(f)
         }
       end
 
       def get_path_date(path)
-        Dir.glob("#{path}/*/").max_by { |f| 
+        delete = true
+        time_now = Time.now
+        time_to_compare = Time.at(time_now - @days * 24 * 60 * 60)
+        Dir.glob("#{path}/**/*") { |f| 
           time = File.mtime(f) 
-          time_now = Time.now
-          time_to_compare = Time.at(time_now - @days * 24 * 60 * 60)
-          @log.debug("DELETE #{path}, it's more than #{@days} days OLD") if time < time_to_compare
-          cleanup(path) if time < time_to_compare
+          delete =false if time > time_to_compare
         }
+
+        cleanup(path) if delete
       end
       
       def cleanup(path)
+        @log.debug("CLEAN content of #{path}, it's more than #{@days} days OLD")
         safely_remove(path)
       end
 
