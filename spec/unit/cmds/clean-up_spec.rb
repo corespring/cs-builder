@@ -75,8 +75,15 @@ describe "CleanRepos" do
     expect(Dir.exists?(File.join(tmp_path, folder_old))).to be_truthy
   end
 
-  it "checks for old files and deletes them" do
+  it "checks for old files if they were cleaned up" do
     expect(File.exists?(File.join(tmp_path, folder_old, file_old))).to be_falsey
   end
 
+  it "checks for newer folde if they still exists after cleanup" do
+    expect(Dir.exists?(File.join(tmp_path, folder_new))).to be_truthy
+  end  
+
+  it "checks for newer file if they still exists after cleanup" do
+    expect(File.exists?(File.join(tmp_path, folder_new, file_new))).to be_truthy
+  end
 end
