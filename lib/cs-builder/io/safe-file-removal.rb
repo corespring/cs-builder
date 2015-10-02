@@ -19,6 +19,14 @@ module CsBuilder
         }
       end
 
+      def safely_remove(path)
+        raise "Directory doesn't exist: #{path}" unless Dir.exists?(path)
+        Dir["#{path}/*"].each{ |f|
+          removal_log("removing: #{f}")
+          safe_delete(f)
+        }
+      end      
+
       def safe_delete(path)
         unless flocked?(path)
           FileUtils.rm_rf(path)

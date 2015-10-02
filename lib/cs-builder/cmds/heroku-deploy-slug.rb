@@ -4,6 +4,7 @@ require_relative '../heroku/heroku-deployer'
 require_relative '../heroku/slug-helper'
 require_relative '../models/paths'
 require_relative '../io/file-lock'
+require_relative '../io/safe-file-removal'
 
 require 'yaml'
 
@@ -18,9 +19,11 @@ module CsBuilder
       include Git::GitHelper
       include Heroku::SlugHelper
       include Io::FileLock
+      include Io::SafeFileRemoval      
 
-      def initialize(level, config_dir, stack)
-	@stack = stack
+      def initialize(level, config_dir, stack, clean_up)
+        @stack = stack
+        @clean_up = clean_up
         super('heroku_deploy_slug', level, config_dir)
       end
 
@@ -33,16 +36,23 @@ module CsBuilder
         branch = options[:branch]
 
         paths = Paths.new(@config_dir, org, repo, branch)
-        sha = commit_hash(paths.repo)
 
+        sha = commit_hash(paths.repo)
         slug = File.join(paths.slugs, "#{sha}.tgz")
         @log.debug "slug -> #{slug}"
         @log.debug "STACK -> #{@stack}"
         raise "Can't find slug to deploy #{slug}" unless File.exists? slug
-
         with_file_lock(slug){
           deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app, sha, @stack)
+          
+          cleanup(@clean_up, paths)
         }
+
+      end
+
+      def cleanup(clean_up, paths)
+        safely_remove(paths.repo) if clean_up
+        safely_remove(paths.slugs) if clean_up
       end
 
     end
