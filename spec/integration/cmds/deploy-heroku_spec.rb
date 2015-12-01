@@ -24,7 +24,7 @@ describe "HerokuDeploySlug and Stack migrate" do
 
   def compare_stacks?(app, stack)
     current_heroku_stack = `heroku stack -a #{app} | grep "*" | sed 's/* //' | sed 's/cedar-10/cedar/' | tr -d '\n' `
-
+    puts ">> #{current_heroku_stack}"
     stack == current_heroku_stack
   end
 
@@ -44,7 +44,7 @@ describe "HerokuDeploySlug and Stack migrate" do
   end
 
   it "stack changed after deployment" do
-    expect(compare_stacks?(heroku_app, heroku_stack)).to be_truthy
+    expect(compare_stacks?(heroku_app, heroku_stack)).to be_true
   end
 
 end

@@ -56,7 +56,7 @@ module CsBuilder
       end
 
       def uid
-        get_sha
+        get_tag or get_sha
       end
 
       private
