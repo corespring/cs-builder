@@ -60,6 +60,10 @@ module CsBuilder
       end
 
       private
+      def get_tag
+        @log.debug "get tag for #{@paths.repo}"
+        commit_tag(@paths.repo)
+      end
 
       def get_sha
         @log.debug "get sha for #{@paths.repo}"

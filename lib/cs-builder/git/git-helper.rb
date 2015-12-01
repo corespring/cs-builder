@@ -2,7 +2,7 @@ module CsBuilder
   module Git
     module GitHelper
       
-      def get_tag(path)
+      def commit_tag(path)
         tag = `#{base_cmd(path)} tag --contains HEAD`.strip
         if tag.empty?
           nil
