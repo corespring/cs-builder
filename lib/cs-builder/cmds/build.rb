@@ -169,9 +169,16 @@ module CsBuilder
 
       def config_from_opts(options)
 
-        org = options[:org] or GitUrlParser.org(options[:git])
-        repo = options[:repo] or GitUrlParser.repo(options[:git])
+        git = options[:git]
 
+        @log.debug("options: #{options}")
+        @log.debug("options[:org].nil? #{options[:org].nil?}") 
+        
+        org = options[:org] or GitUrlParser.org(git)
+        repo = options[:repo] or GitUrlParser.repo(git)
+
+        @log.debug "org: #{org}, repo: #{repo}, branch: #{options[:branch]}"
+        
         Models::GitConfig.new(
           @config_dir,
           options[:git],
