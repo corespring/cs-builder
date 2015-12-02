@@ -54,8 +54,8 @@ module CsBuilder
           @log.debug "config dir doesn't exist - #{@config_dir}"
           default_config = "#{File.expand_path(File.dirname(__FILE__))}/../../../.default-config/."
           @log.debug("mkdir: #{@config_dir}")
-          FileUtils.mkdir(@config_dir)
-          FileUtils.cp_r(default_config, @config_dir)
+          FileUtils.mkdir_p(File.expand_path(@config_dir))
+          FileUtils.cp_r(default_config, File.expand_path(@config_dir))
         end
 
         # create some dirs if needed

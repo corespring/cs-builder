@@ -34,7 +34,7 @@ module CsBuilder
       end
 
       def formula(name)
-        File.join(@config_dir, "templates", "formulas", name)
+        File.expand_path(File.join(@config_dir, "templates", "formulas", name))
       end
 
       def template_archive(name)
@@ -131,19 +131,19 @@ module CsBuilder
 
       def build_slug(options)
         git = options[:git]
-        org = GitUrlParser.org(git)
-        repo = GitUrlParser.repo(git)
+        org = options[:org] or GitUrlParser.org(git)
+        repo = options[:repo] or GitUrlParser.repo(git)
         branch = options[:branch]
         paths = Paths.new(@config_dir, org, repo, branch)
-        sha = commit_hash(paths.repo)
+        uid = commit_tag(paths.repo) or commit_hash(paths.repo)
 
         @log.debug "org: #{org}, repo: #{repo}, branch: #{branch}"
 
         prepped = options.merge(
           {
             :template => options[:template],
-            :binary => File.join(paths.binaries, "#{sha}.tgz"),
-            :output => File.join(paths.slugs, "#{sha}.tgz"),
+            :binary => File.join(paths.binaries, "#{uid}.tgz"),
+            :output => File.join(paths.slugs, "#{uid}.tgz"),
         })
         super(prepped)
       end

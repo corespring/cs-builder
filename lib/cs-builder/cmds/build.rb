@@ -169,8 +169,8 @@ module CsBuilder
 
       def config_from_opts(options)
 
-        org = GitUrlParser.org(options[:git])
-        repo = GitUrlParser.repo(options[:git])
+        org = options[:org] or GitUrlParser.org(options[:git])
+        repo = options[:repo] or GitUrlParser.repo(options[:git])
 
         Models::GitConfig.new(
           @config_dir,
@@ -209,7 +209,7 @@ module CsBuilder
 
       def update_repo
         branch = @config.branch
-        path = @config.paths.repo
+        path = File.expand_path(@config.paths.repo)
 
         @log.info "[update_repo] path: #{path}, branch: #{branch}"
         @log.debug "reset hard to #{branch}"
