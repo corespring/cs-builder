@@ -2,6 +2,12 @@ module CsBuilder
   module Git
     module GitHelper
       
+      def git_uid(repo_path)
+        tag = commit_tag(repo_path) 
+        hash = commit_hash(repo_path) 
+        tag.nil? ? hash : tag 
+      end 
+
       def commit_tag(path)
         tag = `#{base_cmd(path)} tag --contains HEAD`.strip.chomp
         if tag.empty?

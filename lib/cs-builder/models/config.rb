@@ -56,19 +56,9 @@ module CsBuilder
       end
 
       def uid
-        get_tag or get_sha
+        git_uid(@paths.repo)
       end
 
-      private
-      def get_tag
-        @log.debug "get tag for #{@paths.repo}"
-        commit_tag(@paths.repo)
-      end
-
-      def get_sha
-        @log.debug "get sha for #{@paths.repo}"
-        commit_hash(@paths.repo)
-      end
     end
 
     class FileConfig < Config

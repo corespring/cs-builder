@@ -34,7 +34,7 @@ module CsBuilder
         branch = options[:branch]
 
         paths = Paths.new(@config_dir, org, repo, branch)
-        sha = commit_hash(paths.repo)
+        sha = git_uid(paths.repo)
 
         slug = File.join(paths.slugs, "#{sha}.tgz")
         @log.debug "slug -> #{slug}"

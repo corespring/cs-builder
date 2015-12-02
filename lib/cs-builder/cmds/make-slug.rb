@@ -138,12 +138,8 @@ module CsBuilder
         repo = options.has_key?(:repo) ? options[:repo] : GitUrlParser.repo(git)
         branch = options[:branch]
         paths = Paths.new(@config_dir, org, repo, branch)
-        
-        tag = commit_tag(paths.repo) 
-        hash = commit_hash(paths.repo) 
-        uid = tag.nil? ? hash : tag 
+        uid = git_uid(paths.repo) 
 
-        @log.debug "tag: #{tag}, hash: #{hash}, uid: #{uid}"
         @log.debug "org: #{org}, repo: #{repo}, branch: #{branch}"
 
         raise "uid is nil" if uid.nil?
