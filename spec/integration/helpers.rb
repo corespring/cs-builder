@@ -40,7 +40,6 @@ module Helpers
       script = <<-EOF
       #!/usr/bin/env bash
       #{cmds}
-      echo "done."
       EOF
       script_path  = File.join(dir, "run.sh")
       File.open(script_path, 'w') { |file| file.write(script) }
@@ -84,6 +83,7 @@ module Helpers
       slug_result = MakeGitSlug.new("DEBUG", config_dir).run(mk_slug_opts) 
 
       { 
+        :cmd_result => cmd_result,
         :binary_result => binary_result, 
         :slug_result => slug_result 
       }

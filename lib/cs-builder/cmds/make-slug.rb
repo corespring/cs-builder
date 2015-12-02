@@ -135,7 +135,9 @@ module CsBuilder
         repo = options[:repo] or GitUrlParser.repo(git)
         branch = options[:branch]
         paths = Paths.new(@config_dir, org, repo, branch)
-        uid = commit_tag(paths.repo) or commit_hash(paths.repo)
+        
+        uid = commit_tag(paths.repo) 
+        uid = commit_hash(paths.repo) if uid.nil?
 
         @log.debug "org: #{org}, repo: #{repo}, branch: #{branch}"
 
