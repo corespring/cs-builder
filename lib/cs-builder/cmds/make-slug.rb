@@ -130,14 +130,16 @@ module CsBuilder
       end
 
       def build_slug(options)
+
+        @log.debug("options: #{options}")
+        @log.debug("options[:org].nil? #{options[:org].nil?}") 
         git = options[:git]
         org = options[:org] or GitUrlParser.org(git)
         repo = options[:repo] or GitUrlParser.repo(git)
         branch = options[:branch]
         paths = Paths.new(@config_dir, org, repo, branch)
         
-        uid = commit_tag(paths.repo) 
-        uid = commit_hash(paths.repo) if uid.nil?
+        uid = commit_tag(paths.repo) or commit_hash(paths.repo) 
 
         @log.debug "org: #{org}, repo: #{repo}, branch: #{branch}"
 
