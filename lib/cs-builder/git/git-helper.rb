@@ -3,7 +3,7 @@ module CsBuilder
     module GitHelper
       
       def commit_tag(path)
-        tag = `#{base_cmd(path)} tag --contains HEAD`.strip
+        tag = `#{base_cmd(path)} tag --contains HEAD`.strip.chomp
         if tag.empty?
           nil
         else 

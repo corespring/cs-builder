@@ -139,9 +139,14 @@ module CsBuilder
         branch = options[:branch]
         paths = Paths.new(@config_dir, org, repo, branch)
         
-        uid = commit_tag(paths.repo) or commit_hash(paths.repo) 
+        tag = commit_tag(paths.repo) 
+        hash = commit_hash(paths.repo) 
+        uid = tag.nil? ? hash : tag 
 
+        @log.debug "tag: #{tag}, hash: #{hash}, uid: #{uid}"
         @log.debug "org: #{org}, repo: #{repo}, branch: #{branch}"
+
+        raise "uid is nil" if uid.nil?
 
         prepped = options.merge(
           {
