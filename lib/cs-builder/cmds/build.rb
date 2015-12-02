@@ -171,11 +171,11 @@ module CsBuilder
 
         git = options[:git]
 
-        @log.debug("options: #{options}")
+        @log.debug(">>> options: #{options}")
         @log.debug("options[:org].nil? #{options[:org].nil?}") 
         
-        org = options[:org] or GitUrlParser.org(git)
-        repo = options[:repo] or GitUrlParser.repo(git)
+        org = options.has_key?(:org) ? options[:org] : GitUrlParser.org(git)
+        repo = options.has_key?(:repo) ? options[:repo] : GitUrlParser.repo(git)
 
         @log.debug "org: #{org}, repo: #{repo}, branch: #{options[:branch]}"
         
