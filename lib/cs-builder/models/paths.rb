@@ -6,10 +6,20 @@ module CsBuilder
 
     class Paths
       def initialize(root, org, repo, branch)
+        @log = Log4r::Logger.new('paths')
+        @log.outputters << Log4r::StdoutOutputter.new('log_stdout') #, :level => Log4r::WARN )
+        @log.level = 1
+        @log.debug('init')
         @root = root
         @org = org
         @repo = repo
         @branch = branch
+        @log.info("init @root: #{@root}, @org: #{@org}, @repo: #{@repo}, @branch: #{@branch}")
+        
+        raise "@root is nil" if @root.nil?
+        raise "@org is nil" if @org.nil?
+        raise "@repo is nil" if @repo.nil?
+        raise "@branch is nil" if @branch.nil?
       end
 
       def repo
@@ -31,6 +41,7 @@ module CsBuilder
       private
 
       def make(key)
+        @log.debug("make: key: #{key}")
         File.join(@root, key, @org, @repo, @branch)
       end
 
