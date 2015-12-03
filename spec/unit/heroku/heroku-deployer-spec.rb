@@ -41,7 +41,7 @@ describe HerokuDeployer do
       :stack => "stack"
     }
 
-    expect(RestClient::Request).to have_received(:execute).with(hash_including(:payload => data)) #.with({})
+    expect(RestClient::Request).to have_received(:execute).with(hash_including(:payload => data)) 
   end
 
 end
