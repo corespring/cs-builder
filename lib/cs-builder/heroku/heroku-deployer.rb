@@ -25,11 +25,12 @@ module CsBuilder
         }
       end
 
-      def deploy(slug, process_hash, app, commit_hash, stack)
+      def deploy(slug, process_hash, app, commit_hash, description, stack)
 
         raise "Can't deploy - slug doesn't exist" unless File.exists? slug
 
-        create_slug_response = create_slug(app, process_hash, commit_hash, stack)
+        create_slug_response = create_slug(app, process_hash, commit_hash, description, stack)
+        @log.debug("response: #{create_slug_response}")
         result = JSON.parse(create_slug_response)
         blob_url = result["blob"]["url"]
         release_id = result["id"]
@@ -42,13 +43,14 @@ module CsBuilder
       end
 
       private
-      def create_slug(app, processes, commit_hash, stack)
+      def create_slug(app, processes, commit_hash, description, stack)
 
         @log.debug(processes)
 
         data = {
           :process_types => processes,
           :commit => commit_hash,
+          :commit_description => description, 
           :stack => stack
         }
 

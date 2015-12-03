@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cs-builder (0.0.8)
+    cs-builder (0.1.0)
       log4r (~> 1.1.10)
       rest-client (~> 1.6.7)
       thor

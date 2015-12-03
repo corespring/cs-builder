@@ -21,7 +21,7 @@ module CsBuilder
       include Io::FileLock
 
       def initialize(level, config_dir, stack)
-	@stack = stack
+	      @stack = stack
         super('heroku_deploy_slug', level, config_dir)
       end
 
@@ -34,15 +34,14 @@ module CsBuilder
         branch = options[:branch]
 
         paths = Paths.new(@config_dir, org, repo, branch)
-        sha = git_uid(paths.repo)
-
+        sha = commit_hash(paths.repo)
+        description = commit_tag(paths.repo) or "no tag"
         slug = File.join(paths.slugs, "#{sha}.tgz")
-        @log.debug "slug -> #{slug}"
-        @log.debug "STACK -> #{@stack}"
+        @log.debug "slug: #{slug}, sha: #{sha}, description: #{description}, stack: #{@stack}"
         raise "Can't find slug to deploy #{slug}" unless File.exists? slug
 
         with_file_lock(slug){
-          deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app, sha, @stack)
+          deployer.deploy(slug, SlugHelper.processes_from_slug(slug), app, sha, description, @stack)
         }
       end
 
