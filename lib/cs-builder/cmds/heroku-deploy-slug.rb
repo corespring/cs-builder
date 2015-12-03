@@ -35,9 +35,10 @@ module CsBuilder
 
         paths = Paths.new(@config_dir, org, repo, branch)
         sha = commit_hash(paths.repo)
+        uid = git_uid(paths.repo) # tag with fallback to sha
         description = commit_tag(paths.repo) or "no tag"
-        slug = File.join(paths.slugs, "#{sha}.tgz")
-        @log.debug "slug: #{slug}, sha: #{sha}, description: #{description}, stack: #{@stack}"
+        slug = File.join(paths.slugs, "#{uid}.tgz")
+        @log.debug "slug: #{slug}, uid: #{uid}, sha: #{sha}, description: #{description}, stack: #{@stack}"
         raise "Can't find slug to deploy #{slug}" unless File.exists? slug
 
         with_file_lock(slug){
