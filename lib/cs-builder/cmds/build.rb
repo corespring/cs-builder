@@ -194,6 +194,10 @@ module CsBuilder
         @config.uid
       end
 
+      def git(path, cmd) 
+        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} #{cmd}")
+      end
+
       def install_external_src_to_repo
         path = @config.paths.repo
         branch = @config.branch
@@ -203,8 +207,9 @@ module CsBuilder
         @log.debug "clone #{git}"
         run_shell_cmd("git clone #{git} #{path}") unless File.exists?(File.join(path, ".git"))
         @log.debug "checkout #{branch}"
-        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} checkout #{branch}")
-        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} branch --set-upstream-to=origin/#{branch} #{branch}")
+        
+        git(path, "checkout #{branch}")
+        git(path, "branch --set-upstream-to=origin/#{branch} #{branch}")
 
         if File.exists?(File.join(path, ".gitmodules"))
           in_dir(path) {
@@ -220,9 +225,13 @@ module CsBuilder
 
         @log.info "[update_repo] path: #{path}, branch: #{branch}"
         @log.debug "reset hard to #{branch}"
-        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} reset --hard HEAD")
-        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} checkout #{branch}")
-        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} pull origin #{branch}")
+        
+        git(path, "clean -fd")
+        git(path, "reset --hard HEAD")
+        git(path, "checkout #{branch}")
+        git(path, "fetch origin #{branch}")
+        git(path, "reset --hard origin/#{branch}")
+
         if File.exists? "#{path}/.gitmodules"
           in_dir(path){
             @log.debug "update all the submodules in #{path}"
