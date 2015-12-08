@@ -22,8 +22,8 @@ module CsBuilder
       end
 
 
-      def artifacts(uid, format) 
-        Dir["#{@paths.artifacts}/**/#{uid}.#{format}"] 
+      def artifacts(uid) 
+        Dir["#{@paths.artifacts}/**/#{uid}*"] 
       end
 
       def binary_archive(uid)

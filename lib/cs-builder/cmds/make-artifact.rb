@@ -39,12 +39,14 @@ module CsBuilder
 
           @log.debug("build uid set to: #{uid}, format: #{format}")
 
-          @config.artifacts(uid, format).each{ |p|
+          @config.artifacts(uid).each{ |p|
+            @log.info("force:true -> rm: #{p}")
             FileUtils.rm_rf(p, :verbose => true) if force
           }
 
-          if(@config.artifacts(uid, format).length > 0 and !force)
-            @log.debug "artifacts exist for #{uid}"
+          if(@config.artifacts(uid).length > 0 and !force)
+            @log. info "artifacts exist for #{uid}"
+            {:path => @config.artifacts(uid)[0], :skipped => true}
           else
             @log.debug "build repo for #{uid}"
             build_repo
@@ -57,12 +59,13 @@ module CsBuilder
             artifact_version = path.match(/.*#{artifact[:path]}/)[1]
             @log.debug "artifact-version: #{artifact_version}" 
             @log.debug "paths: #{paths}"
-            artifact_path =  File.join(@config.paths.artifacts, artifact_version, "#{uid}.#{format}")
+            suffix = File.extname(path)
+            artifact_path =  File.join(@config.paths.artifacts, artifact_version, "#{uid}#{suffix}")
             FileUtils.mkdir_p(File.dirname(artifact_path), :verbose => true) 
             FileUtils.mv(path, artifact_path) 
+            @log.debug "get binaries path for #{uid}"
+            {:path => artifact_path, :forced => force }
           end
-          @log.debug "get binaries path for #{uid}"
-          artifact_path
         }
       end
 
