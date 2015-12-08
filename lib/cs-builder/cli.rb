@@ -17,6 +17,22 @@ module CsBuilder
   class CLI < Thor
 
     include CsBuilder::Docs
+    
+    desc "make-artifact-git", "clone if needed, update, run command that creates an archive"
+    option :git, :type => :string, :required => true
+    option :branch, :type => :string, :required => true
+    option :artifact, :type => :string, :required => true
+    option :cmd, :type => :string, :default => "play dist"
+    option :log_level, :type => :string, :default => "INFO"
+    option :force, :type => :boolean, :default => false
+    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
+    long_desc Docs.docs("make-artifact-git")
+    def make_artifact_git
+      puts options
+      cmd = Commands::MakeArtifactGit.new(options[:log_level], options[:config_dir])
+      out = cmd.run(options)
+      puts out
+    end
 
     desc "build-from-git", "clone if needed, update, build and create an archive"
     option :git, :type => :string, :required => true
