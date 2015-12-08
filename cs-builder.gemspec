@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 require File.expand_path('../lib/cs-builder/version', __FILE__)
 
-name = "cs-builder"
+name = "cs-builder-two"
 
 Gem::Specification.new do |gem|
   gem.authors       = ["edeustace"]

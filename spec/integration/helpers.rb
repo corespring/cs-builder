@@ -51,6 +51,13 @@ module Helpers
       out
     end
     
+    def prepare_tmp_project(name) 
+      FileUtils.rm_rf("spec/tmp")
+      config_dir = "spec/tmp/#{name}" 
+      new_dir = copy_project_to_tmp(default_config_dir, name) 
+      {:config_dir => config_dir, :project_dir => new_dir}
+    end
+
     def build_git(name, shell_cmds, formula)
       FileUtils.rm_rf("spec/tmp")
       config_dir = "spec/tmp/#{name}" 

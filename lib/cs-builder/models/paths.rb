@@ -22,6 +22,11 @@ module CsBuilder
         raise "@branch is nil" if @branch.nil?
       end
 
+      # Note: artifacts don't have branch directories
+      def artifacts
+        File.join(@root, "artifacts", @org, @repo)
+      end
+
       def repo
         make("repos")
       end

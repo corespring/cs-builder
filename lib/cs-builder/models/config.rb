@@ -21,6 +21,11 @@ module CsBuilder
         raise "not defined"
       end
 
+
+      def artifacts(uid, format) 
+        Dir["#{@paths.artifacts}/**/#{uid}.#{format}"] 
+      end
+
       def binary_archive(uid)
         File.join(@paths.binaries, "#{uid}.tgz")
       end

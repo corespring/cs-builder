@@ -62,6 +62,7 @@ module CsBuilder
         mkdir_if_needed(File.join(@config_dir, "repos") )
         mkdir_if_needed(File.join(@config_dir, "slugs") )
         mkdir_if_needed(File.join(@config_dir, "binaries") )
+        mkdir_if_needed(File.join(@config_dir, "artifacts") )
       end
 
 
