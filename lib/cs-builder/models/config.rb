@@ -1,5 +1,6 @@
 require_relative "../git/git-helper"
 require_relative "./paths"
+require_relative "../log/logger"
 
 
 module CsBuilder
@@ -49,9 +50,35 @@ module CsBuilder
 
     end
 
+    module GitConfigBuilder  
+      include CsBuilder::Log
+      
+      def self.from_opts(config_dir, options)
+
+        git = options[:git]
+
+        @@log.debug("options[:org].nil? #{options[:org].nil?}") 
+        
+        org = options.has_key?(:org) ? options[:org] : GitUrlParser.org(git)
+        repo = options.has_key?(:repo) ? options[:repo] : GitUrlParser.repo(git)
+
+        @@log.debug "org: #{org}, repo: #{repo}, branch: #{options[:branch]}"
+        
+        Models::GitConfig.new(
+          config_dir,
+          options[:git],
+          org,
+          repo,
+          options[:branch],
+          options[:cmd],
+          options[:build_assets]
+        )
+      end
+    end
+
     class GitConfig < Config
 
-      include Git::GitHelper
+      include Git
 
       attr_accessor :git
       def initialize(root, external_src, org, repo, branch, build_cmd, build_assets)
@@ -61,7 +88,7 @@ module CsBuilder
       end
 
       def uid
-        git_uid(@paths.repo)
+        GitHelper.git_uid(@paths.repo)
       end
 
     end

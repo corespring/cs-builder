@@ -34,6 +34,56 @@ module CsBuilder
       puts out
     end
 
+=begin 
+    ### Snapshot deploy
+​
+```shell
+​
+    cs-builder new-deploy-slug \
+    --git=repo \
+    # get the tip of branch hf
+    # look for the commit_hash in artifacts in corespring/corespring-api
+    # it'll find 5.0.1-SNAPSHOT/XXXXXXX.zip and deploy that (or raise an error if it can't)
+    # as below check that the sha hasn't already been deployed
+    --branch=hf \ 
+    --app=corespring-app-qa
+```
+​
+​
+### Release deploy
+​
+```shell
+    
+​
+    ## we're looking to deploy 5.0.1 to X. Check if the server already has version 5.0.1.
+    ## -> get the sha of the tag, then use the heroku rest api to check the deployed sha.
+    ## if it's the same and --force=false then stop.
+    ## if --force=true then deploy all the same.
+    cs-builder new-deploy-slug \
+    --git=repo \
+    # for a release we have a specific version that we want to deploy this will find that exact version.
+    # also check that this repo has a tag v5.0.1
+    --version=5.0.1 \
+    --app=corespring-app-qa
+```
+=end
+    
+    desc "deploy-artifact", "deploys an artifact to heroku"
+    option :git, :type => :string, :required => true
+    option :branch, :type => :string, :required => false 
+    option :version, :type => :string, :required => false 
+    option :artifact_format, :type => :string, :required => true 
+    option :app, :type => :string, :required => false 
+    option :log_level, :type => :string, :default => "INFO"
+    option :force, :type => :boolean, :default => false
+    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
+    long_desc Docs.docs("deploy-artifact")
+    def deploy_artifact
+      cmd = Commands::DeployArtifact.new(options[:log_level], options[:config_dir])
+      out = cmd.run(options)
+      puts out
+    end
+
     desc "build-from-git", "clone if needed, update, build and create an archive"
     option :git, :type => :string, :required => true
     option :branch, :type => :string, :required => true

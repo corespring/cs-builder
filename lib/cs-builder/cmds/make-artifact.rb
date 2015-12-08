@@ -30,18 +30,17 @@ module CsBuilder
         run_with_lock(@config.paths.lock_file("build")) {
 
           @log.debug "install external src"
-          install_external_src_to_repo(@config.paths.repo, @config.git, @config.branch, @log)
+          install_external_src_to_repo
           @log.debug "update repo"
-          update_repo(@config.paths.repo, @config.branch, @log)
+          update_repo
           @log.debug "get uid"
           uid = build_uid
-          format = artifact[:format]
 
-          @log.debug("build uid set to: #{uid}, format: #{format}")
+          @log.debug("build uid set to: #{uid}")
 
           @config.artifacts(uid).each{ |p|
-            @log.info("force:true -> rm: #{p}")
-            FileUtils.rm_rf(p, :verbose => true) if force
+            @log.info("force:true -> rm: #{p}") if force
+            FileUtils.rm_rf(p, :verbose => false) if force
           }
 
           if(@config.artifacts(uid).length > 0 and !force)
@@ -50,19 +49,19 @@ module CsBuilder
           else
             @log.debug "build repo for #{uid}"
             build_repo
-            @log.debug "find the artifact for uid: #{uid}, format: #{format}"
+            @log.debug "find the built artifact for uid: #{uid}, using: #{artifact[:path]}"
             search_path = "#{@config.paths.repo}/#{artifact[:path].gsub(/\(.*\)/, "*")}"
             @log.debug "search path: #{search_path}"
             paths = Dir[search_path] 
-            raise "Can't find artifact at: #{search_path}" if paths.length == 0
-            path = paths[0] 
-            artifact_version = path.match(/.*#{artifact[:path]}/)[1]
+            raise "[make-artifact] Can't find artifact at: #{search_path}" if paths.length == 0
+            built_path = paths[0] 
+            artifact_version = built_path.match(/.*#{artifact[:path]}/)[1]
             @log.debug "artifact-version: #{artifact_version}" 
             @log.debug "paths: #{paths}"
-            suffix = File.extname(path)
+            suffix = File.extname(built_path)
             artifact_path =  File.join(@config.paths.artifacts, artifact_version, "#{uid}#{suffix}")
-            FileUtils.mkdir_p(File.dirname(artifact_path), :verbose => true) 
-            FileUtils.mv(path, artifact_path) 
+            FileUtils.mkdir_p(File.dirname(artifact_path), :verbose => false) 
+            FileUtils.mv(built_path, artifact_path) 
             @log.debug "get binaries path for #{uid}"
             {:path => artifact_path, :forced => force }
           end
@@ -89,8 +88,7 @@ module CsBuilder
     class MakeArtifactGit < MakeArtifactBase
 
       include CsBuilder::Git
-      include CsBuilder::Git::GitHelper
-
+      
       def initialize(level, config_dir)
         super('make-artifact-git', level, config_dir)
       end
@@ -104,28 +102,17 @@ module CsBuilder
         }
         run_build(cfg, artifact_config, force: options[:force] || false)
       end
+      
+      def install_external_src_to_repo
+        GitHelper.install_external_src_to_repo(@config.paths.repo, @config.git, @config.branch, @log)
+      end
+
+      def update_repo
+        GitHelper.update_repo(@config.paths.repo, @config.branch, @log)
+      end
 
       def config_from_opts(options)
-
-        git = options[:git]
-
-        @log.debug(">>> options: #{options}")
-        @log.debug("options[:org].nil? #{options[:org].nil?}") 
-        
-        org = options.has_key?(:org) ? options[:org] : GitUrlParser.org(git)
-        repo = options.has_key?(:repo) ? options[:repo] : GitUrlParser.repo(git)
-
-        @log.debug "org: #{org}, repo: #{repo}, branch: #{options[:branch]}"
-        
-        Models::GitConfig.new(
-          @config_dir,
-          options[:git],
-          org,
-          repo,
-          options[:branch],
-          options[:cmd],
-          options[:build_assets]
-        )
+        GitConfigBuilder.from_opts(@config_dir, options)
       end
 
       def build_uid

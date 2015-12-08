@@ -1,16 +1,14 @@
 module CsBuilder
   module Git
-    module GitHelper
+    module GitHelper extend CsBuilder::ShellRunner
 
-      include CsBuilder::ShellRunner
-      
-      def git_uid(repo_path)
+      def self.git_uid(repo_path)
         tag = commit_tag(repo_path) 
         hash = commit_hash(repo_path) 
         tag.nil? ? hash : tag 
       end 
 
-      def commit_tag(path)
+      def self.commit_tag(path)
         tag = run_git(path, "tag --contains HEAD").strip.chomp
         if tag.empty?
           nil
@@ -19,14 +17,13 @@ module CsBuilder
         end
       end
       
-      def commit_hash(path)
+      def self.commit_hash(path)
         sha = run_git(path, "rev-parse --short HEAD").strip
         raise "no sha" if sha.nil? or sha.empty?
         sha
       end
 
-
-      def install_external_src_to_repo(path, git_repo, branch, log)
+      def self.install_external_src_to_repo(path, git_repo, branch, log)
         log.info "path: #{path}, branch: #{branch}"
         FileUtils.mkdir_p(path, :verbose => true ) unless File.exists?(path)
         run_shell_cmd("git clone #{git_repo} #{path}") unless File.exists?(File.join(path, ".git"))
@@ -43,8 +40,7 @@ module CsBuilder
         end
       end
 
-
-      def update_repo(path, branch, log)
+      def self.update_repo(path, branch, log)
         log.info "[update_repo] path: #{path}, branch: #{branch}"
         log.debug "reset hard to #{branch}"
         
@@ -66,7 +62,7 @@ module CsBuilder
 
       private 
 
-      def run_git(path, cmd) 
+      def self.run_git(path, cmd) 
         `git --git-dir=#{path}/.git --work-tree=#{path} #{cmd}`
       end
 

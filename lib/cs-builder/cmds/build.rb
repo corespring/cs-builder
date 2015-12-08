@@ -168,78 +168,19 @@ module CsBuilder
       end
 
       def config_from_opts(options)
-
-        git = options[:git]
-
-        @log.debug(">>> options: #{options}")
-        @log.debug("options[:org].nil? #{options[:org].nil?}") 
-        
-        org = options.has_key?(:org) ? options[:org] : GitUrlParser.org(git)
-        repo = options.has_key?(:repo) ? options[:repo] : GitUrlParser.repo(git)
-
-        @log.debug "org: #{org}, repo: #{repo}, branch: #{options[:branch]}"
-        
-        Models::GitConfig.new(
-          @config_dir,
-          options[:git],
-          org,
-          repo,
-          options[:branch],
-          options[:cmd],
-          options[:build_assets]
-        )
+        GitConfigBuilder.from_opts(@config_dir, options)
       end
 
       def build_uid
         @config.uid
       end
 
-      def git(path, cmd) 
-        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} #{cmd}")
-      end
-
       def install_external_src_to_repo
-        path = @config.paths.repo
-        branch = @config.branch
-        git = @config.git
-        @log.info "path: #{path}, branch: #{branch}, git: #{git}"
-        FileUtils.mkdir_p(path, :verbose => true ) unless File.exists?(path)
-        @log.debug "clone #{git}"
-        run_shell_cmd("git clone #{git} #{path}") unless File.exists?(File.join(path, ".git"))
-        @log.debug "checkout #{branch}"
-        
-        git(path, "checkout #{branch}")
-        git(path, "branch --set-upstream-to=origin/#{branch} #{branch}")
-
-        if File.exists?(File.join(path, ".gitmodules"))
-          in_dir(path) {
-            @log.debug "Init the submodules in #{path}"
-            run_shell_cmd("git submodule init")
-          }
-        end
+        GitHelper.install_external_src_to_repo(@config.paths.repo, @config.git, @config.branch, @log)
       end
 
       def update_repo
-        branch = @config.branch
-        path = File.expand_path(@config.paths.repo)
-
-        @log.info "[update_repo] path: #{path}, branch: #{branch}"
-        @log.debug "reset hard to #{branch}"
-        
-        git(path, "clean -fd")
-        git(path, "reset --hard HEAD")
-        git(path, "checkout #{branch}")
-        git(path, "fetch origin #{branch}")
-        git(path, "reset --hard origin/#{branch}")
-
-        if File.exists? "#{path}/.gitmodules"
-          in_dir(path){
-            @log.debug "update all the submodules in #{path}"
-            run_shell_cmd("git submodule foreach git clean -fd")
-            run_shell_cmd("git pull --recurse-submodules")
-            run_shell_cmd("git submodule update --recursive")
-          }
-        end
+        GitHelper.update_repo(@config.paths.repo, @config.branch, @log)
       end
 
     end
