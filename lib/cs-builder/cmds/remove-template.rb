@@ -4,8 +4,8 @@ module CsBuilder
   module Commands
     class RemoveTemplate < CoreCommand
 
-      def initialize(level, config_dir)
-        super('remove_templates', level, config_dir)
+      def initialize(config_dir)
+        super('remove_templates', config_dir)
       end
 
       def run(options)

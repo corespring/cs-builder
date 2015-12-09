@@ -15,8 +15,8 @@ module CsBuilder
       include CsBuilder::Runner
       include CsBuilder::Io::SafeFileRemoval
 
-      def initialize(log_name, log_level, config_dir)
-        super(log_name, log_level, config_dir)
+      def initialize(log_name, config_dir)
+        super(log_name, config_dir)
       end
 
       def runner_log(msg)
@@ -119,8 +119,8 @@ module CsBuilder
 
       include CsBuilder::Models
 
-      def initialize(level, config_dir)
-        super('build-from-file', level, config_dir)
+      def initialize(config_dir)
+        super('build-from-file', config_dir)
       end
 
       def run(options)
@@ -159,8 +159,8 @@ module CsBuilder
 
       include CsBuilder::Git
 
-      def initialize(level, config_dir)
-        super('build-from-git', level, config_dir)
+      def initialize(config_dir)
+        super('build-from-git', config_dir)
       end
 
       def run(options)

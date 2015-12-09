@@ -2,22 +2,69 @@ module CsBuilder
   module Log 
 
     require 'log4r'
+    require 'yaml'
+
     include Log4r
 
-    def self.included(base)
-      add_logger(base)
+    def self.str_to_log_level(s)
+      case s.upcase
+      when "FATAL"
+        return 5
+      when "ERROR"
+        return 4
+      when "WARN"
+        return 3
+      when "INFO"
+        return 2
+      when "DEBUG"
+        return 1
+      else
+        return 2
+      end
     end
 
-    def self.add_logger(base)
-      name = base.to_s
-      logger = Log4r::Logger[name] || Log4r::Logger.new(name)
-      logger.outputters << Log4r::StdoutOutputter.new('log_stdout') #, :level => Log4r::WARN )
-      logger.level = 1
-      base.class_variable_set(:@@log, logger)
-      base.class_eval do 
-      def logger; self.class.logger; end
-      def self.logger; class_variable_get(:@@log); end
+    @@log_config = {
+      "default" => self.str_to_log_level("FATAL"),
+    }
+
+    @@loggers = {}
+
+    Log4r.define_levels(*Log4r::Log4rConfig::LogLevels)
+    
+    def self.load_config(path)
+
+      full_path = File.expand_path(path)
+      
+      if File.exists? full_path
+        puts "full path: #{full_path}"
+        cnf = YAML::load_file(full_path)
+        cnf.each{ |k,v|
+          @@log_config[k] = self.str_to_log_level(v)
+        }
+
+        @@loggers.each{ |k,v| 
+          l = @@log_config[k] || @@log_config["default"]
+          v.level = l 
+        }
+      else
+        puts "Failed to load log config from: #{full_path}"
+      end
     end
-  end
-  end
+
+    def self.get_logger(name)
+
+      format = PatternFormatter.new(:pattern => "[%l] [%c] %m")
+      if @@loggers[name].nil?
+        log_level = @@log_config[name] || @@log_config["default"]
+        @@loggers[name] = Log4r::Logger.new(name)
+        @@loggers[name].outputters << Log4r::StdoutOutputter.new('log_stdout') #, :level => Log4r::WARN )
+        @@loggers[name].outputters.each{ |o|
+          o.formatter = format
+        }
+        @@loggers[name].level = log_level
+      end
+
+      @@loggers[name]
+    end
+end
 end

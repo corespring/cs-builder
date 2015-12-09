@@ -1,5 +1,4 @@
-require 'log4r'
-require 'log4r/outputter/datefileoutputter'
+require_relative '../log/logger'
 require_relative '../shell/runner'
 
 module CsBuilder
@@ -8,17 +7,13 @@ module CsBuilder
 
       include CsBuilder::ShellRunner
 
+      include CsBuilder::Log
+
       @config_dir = File.expand_path("~/.cs-builder")
 
-      Log4r.define_levels(*Log4r::Log4rConfig::LogLevels)
-
-      def initialize(name, level, config_dir, init: true)
-
+      def initialize(name, config_dir, init: true)
         @config_dir = config_dir
-        log_level = str_to_log_level(level)
-        @log = Log4r::Logger.new(name)
-        @log.outputters << Log4r::StdoutOutputter.new('log_stdout') #, :level => Log4r::WARN )
-        @log.level = log_level
+        @log = Log.get_logger(name)
         @log.debug("config_dir: #{@config_dir}")
         init_build_dir if init
       end
@@ -65,23 +60,6 @@ module CsBuilder
         mkdir_if_needed(File.join(@config_dir, "artifacts") )
       end
 
-
-      def str_to_log_level(s)
-        case s.upcase
-        when "FATAL"
-          return 5
-        when "ERROR"
-          return 4
-        when "WARN"
-          return 3
-        when "INFO"
-          return 2
-        when "DEBUG"
-          return 1
-        else
-          return 2
-        end
-      end
     end
   end
 end

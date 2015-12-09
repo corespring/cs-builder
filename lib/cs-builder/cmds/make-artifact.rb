@@ -15,12 +15,12 @@ module CsBuilder
       include CsBuilder::Runner
       include CsBuilder::Io::SafeFileRemoval
 
-      def initialize(log_name, log_level, config_dir)
-        super(log_name, log_level, config_dir)
+      def initialize(log_name, config_dir)
+        super(log_name, config_dir)
       end
 
       def runner_log(msg)
-        @log.debug(msg)
+        @log.info(msg)
       end
 
       protected
@@ -89,8 +89,8 @@ module CsBuilder
 
       include CsBuilder::Git
       
-      def initialize(level, config_dir)
-        super('make-artifact-git', level, config_dir)
+      def initialize(config_dir)
+        super('make-artifact-git', config_dir)
       end
       
       def run(options)

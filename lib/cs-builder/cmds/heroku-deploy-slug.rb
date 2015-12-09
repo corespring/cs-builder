@@ -20,9 +20,9 @@ module CsBuilder
       include Heroku::SlugHelper
       include Io::FileLock
 
-      def initialize(level, config_dir, stack)
+      def initialize(config_dir, stack)
 	      @stack = stack
-        super('heroku_deploy_slug', level, config_dir)
+        super('heroku_deploy_slug', config_dir)
       end
 
       def run(options)

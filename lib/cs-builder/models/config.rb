@@ -51,13 +51,14 @@ module CsBuilder
     end
 
     module GitConfigBuilder  
-      include CsBuilder::Log
-      
+     
+      @@log = Log.get_logger('git-config') 
+
       def self.from_opts(config_dir, options)
 
         git = options[:git]
 
-        @@log.debug("options[:org].nil? #{options[:org].nil?}") 
+        @@log.debug("options: #{options}") 
         
         org = options.has_key?(:org) ? options[:org] : GitUrlParser.org(git)
         repo = options.has_key?(:repo) ? options[:repo] : GitUrlParser.repo(git)

@@ -1,10 +1,13 @@
 require_relative '../helpers'
 require 'cs-builder/cmds/make-artifact'
+require 'cs-builder/log/logger'
 
 describe CsBuilder::Commands::MakeArtifactGit do
 
   include Helpers::Integration
-    
+  
+  CsBuilder::Log.load_config(File.expand_path("spec/log-config.yml"))
+
   context "with a node app" do 
 
     before(:each) do 
@@ -33,14 +36,14 @@ describe CsBuilder::Commands::MakeArtifactGit do
       EOF
 
       run_shell_cmds(@result[:project_dir], @cmds)
-      mk_result = MakeArtifactGit.new("DEBUG", @result[:config_dir]).run(@opts)
+      mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
       mk_result[:path].should eql(File.join(@result[:config_dir], "artifacts/org/test-repo/0.0.1/v0.0.1.tgz"))
     end
     
     it "build and move the node app artifact to artifacts/org/repo/version/sha.tgz", 
       :node => true do
       run_shell_cmds(@result[:project_dir], @cmds)
-      mk_result = MakeArtifactGit.new("DEBUG", @result[:config_dir]).run(@opts)
+      mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
       File.dirname(mk_result[:path]).should eql(File.join(@result[:config_dir], "artifacts/org/test-repo/0.0.1"))
     end
 
@@ -48,8 +51,8 @@ describe CsBuilder::Commands::MakeArtifactGit do
       :skip => true, 
       :node => true do 
       run_shell_cmds(@result[:project_dir], @cmds)
-      MakeArtifactGit.new("DEBUG", @result[:config_dir]).run(@opts)
-      mk_result = MakeArtifactGit.new("DEBUG", @result[:config_dir]).run(@opts)
+      MakeArtifactGit.new(@result[:config_dir]).run(@opts)
+      mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
       mk_result[:skipped].should eql(true)
     end
     
@@ -57,9 +60,9 @@ describe CsBuilder::Commands::MakeArtifactGit do
       :force => true, 
       :node => true do 
       run_shell_cmds(@result[:project_dir], @cmds)
-      MakeArtifactGit.new("DEBUG", @result[:config_dir]).run(@opts)
+      MakeArtifactGit.new(@result[:config_dir]).run(@opts)
       @opts[:force] = true
-      mk_result = MakeArtifactGit.new("DEBUG", @result[:config_dir]).run(@opts)
+      mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
       mk_result[:forced].should eql(true)
     end
 
@@ -89,7 +92,7 @@ describe CsBuilder::Commands::MakeArtifactGit do
     
     it "builds and move the play app artifact", :play => true do
       run_shell_cmds(@result[:project_dir], @cmds)
-      mk_result = MakeArtifactGit.new("DEBUG", @result[:config_dir]).run(@opts)
+      mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
       File.dirname(mk_result[:path]).should eql(File.join(@result[:config_dir], "artifacts/org/test-repo/1.0-SNAPSHOT"))
     end
     
@@ -99,7 +102,7 @@ describe CsBuilder::Commands::MakeArtifactGit do
       git tag v1.0.0
       EOF
       run_shell_cmds(@result[:project_dir], @cmds)
-      mk_result = MakeArtifactGit.new("DEBUG", @result[:config_dir]).run(@opts)
+      mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
       mk_result[:path].should eql(File.join(@result[:config_dir], "artifacts/org/test-repo/1.0-SNAPSHOT/v1.0.0.zip"))
     end
   end

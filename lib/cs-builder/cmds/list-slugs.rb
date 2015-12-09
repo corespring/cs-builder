@@ -5,8 +5,8 @@ module CsBuilder
 
     class ListSlugs < CoreCommand
 
-      def initialize(level, config_dir)
-        super('list_slugs', level, config_dir)
+      def initialize(config_dir)
+        super('list_slugs', config_dir)
       end
 
       def run(options)

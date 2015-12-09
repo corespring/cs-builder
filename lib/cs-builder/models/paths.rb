@@ -1,15 +1,11 @@
-require 'log4r'
-
+require_relative '../log/logger'
 module CsBuilder
 
   module Models
 
     class Paths
       def initialize(root, org, repo, branch)
-        @log = Log4r::Logger.new('paths')
-        @log.outputters << Log4r::StdoutOutputter.new('log_stdout') #, :level => Log4r::WARN )
-        @log.level = 1
-        @log.debug('init')
+        @log = CsBuilder::Log.get_logger('paths')
         @root = root
         @org = org
         @repo = repo

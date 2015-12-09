@@ -2,6 +2,8 @@ require 'thor'
 
 Dir[File.dirname(__FILE__) + '/cmds/*.rb'].each {|file| require file }
 
+require_relative './log/logger'
+
 module CsBuilder
 
   module Docs
@@ -16,86 +18,52 @@ module CsBuilder
 
   class CLI < Thor
 
+    class_option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
+    class_option :log_config, :type => :string, :default => File.expand_path("~/.cs-builder/log-config.yml") 
+
     include CsBuilder::Docs
+
+    git_opts = {
+      :git => {:type => :string, :required => true},
+      :branch => {:type => :string, :required => true}
+    }
     
     desc "make-artifact-git", "clone if needed, update, run command that creates an archive"
-    option :git, :type => :string, :required => true
-    option :branch, :type => :string, :required => true
+    git_opts.each{|k,v| option(k,v)}
     option :artifact, :type => :string, :required => true
     option :cmd, :type => :string, :default => "play dist"
-    option :log_level, :type => :string, :default => "INFO"
     option :force, :type => :boolean, :default => false
-    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     long_desc Docs.docs("make-artifact-git")
     def make_artifact_git
-      puts options
-      cmd = Commands::MakeArtifactGit.new(options[:log_level], options[:config_dir])
+      CsBuilder::Log.load_config(options[:log_config])
+      cmd = Commands::MakeArtifactGit.new(options[:config_dir])
       out = cmd.run(options)
       puts out
     end
-
-=begin 
-    ### Snapshot deploy
-​
-```shell
-​
-    cs-builder new-deploy-slug \
-    --git=repo \
-    # get the tip of branch hf
-    # look for the commit_hash in artifacts in corespring/corespring-api
-    # it'll find 5.0.1-SNAPSHOT/XXXXXXX.zip and deploy that (or raise an error if it can't)
-    # as below check that the sha hasn't already been deployed
-    --branch=hf \ 
-    --app=corespring-app-qa
-```
-​
-​
-### Release deploy
-​
-```shell
-    
-​
-    ## we're looking to deploy 5.0.1 to X. Check if the server already has version 5.0.1.
-    ## -> get the sha of the tag, then use the heroku rest api to check the deployed sha.
-    ## if it's the same and --force=false then stop.
-    ## if --force=true then deploy all the same.
-    cs-builder new-deploy-slug \
-    --git=repo \
-    # for a release we have a specific version that we want to deploy this will find that exact version.
-    # also check that this repo has a tag v5.0.1
-    --version=5.0.1 \
-    --app=corespring-app-qa
-```
-=end
     
     desc "deploy-artifact", "deploys an artifact to heroku"
-    option :git, :type => :string, :required => true
-    option :branch, :type => :string, :required => false 
+    git_opts.each{|k,v| option(k,v)}
     option :version, :type => :string, :required => false 
     option :artifact_format, :type => :string, :required => true 
     option :app, :type => :string, :required => false 
-    option :log_level, :type => :string, :default => "INFO"
     option :force, :type => :boolean, :default => false
-    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     long_desc Docs.docs("deploy-artifact")
     def deploy_artifact
-      cmd = Commands::DeployArtifact.new(options[:log_level], options[:config_dir])
+      CsBuilder::Log.load_config(options[:log_config])
+      cmd = Commands::DeployArtifact.new(options[:config_dir])
       out = cmd.run(options)
       puts out
     end
 
     desc "build-from-git", "clone if needed, update, build and create an archive"
-    option :git, :type => :string, :required => true
-    option :branch, :type => :string, :required => true
+    git_opts.each{|k,v| option(k,v)}
     option :build_assets, :type => :array, :required => false
     option :cmd, :type => :string, :default => "play clean update compile stage"
-    option :log_level, :type => :string, :default => "INFO"
     option :force, :type => :boolean, :default => false
-    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     long_desc Docs.docs("build-from-git")
     def build_from_git
-      puts options
-      cmd = Commands::BuildFromGit.new(options[:log_level], options[:config_dir])
+      CsBuilder::Log.load_config(options[:log_config])
+      cmd = Commands::BuildFromGit.new(options[:config_dir])
       out = cmd.run(options)
       puts out
     end
@@ -108,13 +76,11 @@ module CsBuilder
     option :build_assets, :type => :array, :required => true
     option :cmd, :type => :string, :default => ""
     option :uid, :type => :string, :required => true
-    option :log_level, :type => :string, :default => "INFO"
     option :force, :type => :boolean, :default => false
-    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     long_desc Docs.docs("build-from-file")
     def build_from_file
-      puts options
-      cmd = Commands::BuildFromFile.new(options[:log_level], options[:config_dir])
+      CsBuilder::Log.load_config(options[:log_config])
+      cmd = Commands::BuildFromFile.new(options[:config_dir])
       out = cmd.run(options)
       puts out
     end
@@ -125,78 +91,61 @@ module CsBuilder
     option :org, :type => :string, :required => true
     option :repo, :type => :string, :required => true
     option :template, :type => :string, :default => "jdk-1.7"
-    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
-    option :log_level, :type => :string, :default => "INFO"
     option :force, :type => :boolean, :default => false
     long_desc Docs.docs("file-slug")
     def file_slug
-      cmd = Commands::MakeFileSlug.new(options[:log_level], options[:config_dir])
+      CsBuilder::Log.load_config(options[:log_config])
+      cmd = Commands::MakeFileSlug.new(options[:config_dir])
       out = cmd.run(options)
       puts "Done: #{out}"
     end
 
 
     desc "remove-config", "remove ~/.cs-build config folder (Can't undo!!)"
-    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
     def remove_config
+      CsBuilder::Log.load_config(options[:log_config])
       Commands::RemoveConfig.new(options[:config_dir]).run
     end
 
     desc "git-slug", "make a slug"
-    option :git, :type => :string, :required => true
-    option :branch, :type => :string, :required => true
+    git_opts.each{|k,v| option(k,v)}
     option :sha, :type => :string, :required => false
     option :template, :type => :string, :default => "jdk-1.7"
-    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
-    option :log_level, :type => :string, :default => "INFO"
     option :force, :type => :boolean, :default => false
     long_desc Docs.docs("git-slug")
     def git_slug
-      cmd = Commands::MakeGitSlug.new(options[:log_level], options[:config_dir])
+      CsBuilder::Log.load_config(options[:log_config])
+      cmd = Commands::MakeGitSlug.new(options[:config_dir])
       out = cmd.run(options)
 
       puts "Done: #{out}"
     end
 
-
     desc "list-slugs", "list all slugs"
-    option :git, :type => :string, :required => true
-    option :branch, :type => :string, :required => true
-    option :sha, :type => :string, :required => false
-    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
-    option :log_level, :type => :string, :default => "INFO"
     def list_slugs
-      cmd = Commands::ListSlugs.new(options[:log_level], options[:config_dir])
+      CsBuilder::Log.load_config(options[:log_config])
+      cmd = Commands::ListSlugs.new(options[:config_dir])
       cmd.run(options)
     end
 
     desc "remove template", "remove template"
     option :template, :type => :string, :required => true
-    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
-    option :log_level, :type => :string, :default => "INFO"
     def remove_template
-      cmd = Commands::RemoveTemplate.new(options[:log_level], options[:config_dir])
-      cmd.run(options)
-    end
-
-    desc "list templates", "list installed templates"
-    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
-    option :log_level, :type => :string, :default => "INFO"
-    def list_templates
-      cmd = Commands::ListTemplates.new(options[:log_level], options[:config_dir])
+      CsBuilder::Log.load_config(options[:log_config])
+      cmd = Commands::RemoveTemplate.new(options[:config_dir])
       cmd.run(options)
     end
 
     desc "heroku-deploy-slug", "deploy a slug"
+    git_opts.each{|k,v| option(k,v)}
     option :git, :type => :string, :required => true
     option :branch, :type => :string, :required => true
     option :heroku_app, :type => :string, :required => true
     option :commit_hash, :type => :string
-    option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
-    option :log_level, :type => :string, :default => "INFO"
     option :stack, :type => :string, :default => "cedar-14"
     def heroku_deploy_slug
-      cmd = Commands::HerokuDeploySlug.new(options[:log_level], options[:config_dir], options[:stack])
+      CsBuilder::Log.load_config(options[:log_config])
+      cmd = Commands::HerokuDeploySlug.new(options[:config_dir], options[:stack])
       puts cmd.run(options)
     end
 

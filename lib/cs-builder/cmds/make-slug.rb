@@ -13,8 +13,8 @@ module CsBuilder
       include CsBuilder::Io::SafeFileRemoval
       include CsBuilder::Io::FileLock
 
-      def initialize(level, config_dir, log_name: 'make_slug')
-        super(log_name, level, config_dir)
+      def initialize(config_dir, log_name: 'make_slug')
+        super(log_name, config_dir)
       end
 
       def run(options)
@@ -96,8 +96,8 @@ module CsBuilder
 
       include CsBuilder::Models
 
-      def initialize(level, config_dir)
-        super(level, config_dir, log_name: 'make_file_slug')
+      def initialize(config_dir)
+        super(config_dir, log_name: 'make_file_slug')
       end
 
       def build_slug(options)
@@ -125,8 +125,8 @@ module CsBuilder
       include CsBuilder::Git::GitHelper
       include CsBuilder::Git
 
-      def initialize(level, config_dir)
-        super(level, config_dir, log_name: 'make_git_slug')
+      def initialize(config_dir)
+        super(config_dir, log_name: 'make_git_slug')
       end
 
       def build_slug(options)

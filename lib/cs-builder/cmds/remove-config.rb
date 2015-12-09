@@ -6,7 +6,7 @@ module CsBuilder
     class RemoveConfig < CoreCommand
 
       def initialize(config_dir)
-        super('remove_config', 'DEBUG', config_dir, init: false)
+        super('remove_config', config_dir, init: false)
       end
 
       def run

@@ -63,7 +63,7 @@ module CsBuilder
       private 
 
       def self.run_git(path, cmd) 
-        `git --git-dir=#{path}/.git --work-tree=#{path} #{cmd}`
+        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} #{cmd}")
       end
 
     end
