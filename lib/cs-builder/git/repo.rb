@@ -42,7 +42,7 @@ module CsBuilder
       
       attr_accessor :org, :repo, :branch 
       def initialize(root, url, org, repo, branch)
-        @paths = Paths.new(root, org, repo, branch)
+        @root = root
         @url = url
         @branch = branch
         @org = org
@@ -51,24 +51,24 @@ module CsBuilder
       end
 
       def path
-        @paths.repo
+        Paths.repo(@root, @org, @repo, @branch)
       end
 
       def lock_file
-        @paths.lock_file("repo")
+        Paths.lock_file(@root, @org, @repo, @branch, "repo")
       end
 
       def clone
-        GitHelper.clone_repo(@paths.repo, @url, @branch)
+        GitHelper.clone_repo(path, @url, @branch)
       end
 
       def update
-        GitHelper.update_repo(@paths.repo, @url, @branch)
+        GitHelper.update_repo(path, @url, @branch)
       end
 
       def hash_and_tag
-        hash = GitHelper.commit_hash(@paths.repo)
-        tag = GitHelper.commit_tag(@paths.repo)
+        hash = GitHelper.commit_hash(path)
+        tag = GitHelper.commit_tag(path)
         HashAndTag.new(hash, tag: tag)
       end
     
