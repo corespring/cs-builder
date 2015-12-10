@@ -1,13 +1,14 @@
 require_relative '../log/logger'
 require_relative '../shell/runner'
+require_relative '../io/utils'
 
 module CsBuilder
   module Commands
     class CoreCommand
 
       include CsBuilder::ShellRunner
-
       include CsBuilder::Log
+      include CsBuilder::IO::Utils
 
       @config_dir = File.expand_path("~/.cs-builder")
 
@@ -23,21 +24,6 @@ module CsBuilder
       def run_cmd(cmd, strip_ansi: true)
         @log.debug "[run] -> #{cmd}"
         run_shell_cmd(cmd, strip_ansi: strip_ansi)
-      end
-
-      def in_dir(dir)
-        current = File.expand_path(Dir.pwd)
-        Dir.chdir(dir)
-        @log.debug("[in_dir] current dir #{Dir.pwd}")
-        yield
-        Dir.chdir(current)
-        @log.debug("[in_dir] back to: #{Dir.pwd}")
-      end
-
-      def mkdir_if_needed(p)
-        unless File.directory? p
-          FileUtils.mkdir(p)
-        end
       end
 
       private

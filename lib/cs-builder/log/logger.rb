@@ -30,7 +30,18 @@ module CsBuilder
     @@loggers = {}
 
     Log4r.define_levels(*Log4r::Log4rConfig::LogLevels)
-    
+  
+    def self.set_config(cnf)
+      cnf.each{ |k,v|
+        @@log_config[k] = self.str_to_log_level(v)
+      }
+
+      @@loggers.each{ |k,v| 
+        l = @@log_config[k] || @@log_config["default"]
+        v.level = l 
+      }
+    end    
+
     def self.load_config(path)
 
       full_path = File.expand_path(path)
@@ -38,14 +49,7 @@ module CsBuilder
       if File.exists? full_path
         puts "full path: #{full_path}"
         cnf = YAML::load_file(full_path)
-        cnf.each{ |k,v|
-          @@log_config[k] = self.str_to_log_level(v)
-        }
-
-        @@loggers.each{ |k,v| 
-          l = @@log_config[k] || @@log_config["default"]
-          v.level = l 
-        }
+        set_config(cnf)
       else
         puts "Failed to load log config from: #{full_path}"
       end

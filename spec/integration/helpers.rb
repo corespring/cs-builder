@@ -50,9 +50,16 @@ module Helpers
       puts "?? -> #{out}"
       out
     end
+
+    def create_tmp_config_dir(name)
+      tmp_path = "spec/tmp/#{name}"
+      FileUtils.rm_rf(tmp_path)
+      FileUtils.cp_r(default_config_dir, tmp_path)
+      tmp_path
+    end
     
     def prepare_tmp_project(name) 
-      FileUtils.rm_rf("spec/tmp")
+      FileUtils.rm_rf("spec/tmp/#{name}")
       config_dir = "spec/tmp/#{name}" 
       new_dir = copy_project_to_tmp(default_config_dir, name) 
       {:config_dir => config_dir, :project_dir => new_dir}

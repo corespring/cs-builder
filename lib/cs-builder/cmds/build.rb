@@ -3,6 +3,7 @@ require_relative '../git/git-parser'
 require_relative '../models/config'
 require_relative '../runner'
 require_relative '../io/safe-file-removal'
+require_relative '../io/archive'
 
 
 module CsBuilder
@@ -14,6 +15,7 @@ module CsBuilder
 
       include CsBuilder::Runner
       include CsBuilder::Io::SafeFileRemoval
+      include CsBuilder::IO::Archive
 
       def initialize(log_name, config_dir)
         super(log_name, config_dir)
@@ -86,24 +88,8 @@ module CsBuilder
       end
 
       def prepare_binaries(uid)
-        binary_folder = @config.binary_folder(uid)
         archive = @config.binary_archive(uid)
-        @log.debug("[prepare_binaries] repo: #{@config.paths.repo} -> #{archive}")
-        @log.debug("binary_folder: #{binary_folder}")
-        FileUtils.mkdir_p binary_folder
-
-        @config.build_assets.each{ |asset|
-          from = "#{@config.paths.repo}/#{asset}"
-          to = "#{binary_folder}/#{asset}"
-          FileUtils.mkdir_p( File.dirname(to), :verbose => true)
-          FileUtils.cp_r(from, to, :verbose => true)
-        }
-
-        system("tar", "czvf", archive, "-C", binary_folder, ".",
-               [:out, :err] => "/dev/null")
-
-        FileUtils.rm_rf(binary_folder, :verbose => true)
-        archive
+        Archive.create(@config.paths.repo, archive, @config.build_assets)
       end
 
       def binaries_path(uid)
