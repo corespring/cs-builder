@@ -1,4 +1,4 @@
-require_relative '../integration/helpers'
+require_relative '../integration/helpers/integration'
 require 'cs-builder/log/logger'
 
 module Helpers
@@ -6,7 +6,7 @@ module Helpers
 
     include Helpers::Integration
 
-    CsBuilder::Log.set_config({"default" => "DEBUG"})
+    CsBuilder::Log.set_config({"default" => "DEBUG", "slug-builder" => "DEBUG"})
     
     def build_deploy_and_load_example(name, cmd, assets, template, stack)
 

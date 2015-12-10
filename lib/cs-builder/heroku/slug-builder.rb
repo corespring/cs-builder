@@ -20,6 +20,8 @@ module CsBuilder
         @@log.info("building slug..")
         @@log.debug("stack: #{stack}, artifact: #{artifact}, out_path: #{out_path}")
 
+        raise "out_path must end with .tgz" if File.extname(out_path) != ".tgz"
+        
         check_file(artifact)
         check_file(stack)
 
@@ -30,7 +32,7 @@ module CsBuilder
           out_path
         else
           with_file_lock(artifact){
-            opts = {:force => force}
+            opts = {:force => force, :root_dir => "app"}
             Archive.merge(out_path, opts, stack, artifact)
           }
         end

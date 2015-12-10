@@ -1,18 +1,24 @@
+require_relative '../log/logger'
+
 module CsBuilder
 
   module Io
  
     module FileLock
+
+      @@log = CsBuilder::Log.get_logger('file-lock')
+
       def with_file_lock(path)
         raise "File doesn't exist #{path}" unless File.exists?(path)
         file = File.open(path, File::RDWR|File::CREAT, 0644)
-        file.flock(File::LOCK_EX)
+        @@log.info( "locking: #{path} with #{File::LOCK_SH}")
+        file.flock(File::LOCK_SH)
         begin
           yield
         rescue => e
           raise e
         ensure
-          puts "releasing: #{path}"
+          @@log.info( "releasing lock on: #{path}")
           file.flock(File::LOCK_UN)
         end
       end

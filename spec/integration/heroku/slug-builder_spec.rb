@@ -3,7 +3,8 @@ require 'cs-builder/log/logger'
 require 'cs-builder/io/archive'
 require 'cs-builder/templates'
 require 'tmpdir'
-require_relative '../helpers'
+require_relative '../helpers/integration'
+require_relative '../helpers/dir'
 
 describe CsBuilder::Heroku::SlugBuilder do 
 
@@ -13,7 +14,8 @@ describe CsBuilder::Heroku::SlugBuilder do
     "slug-builder" => "DEBUG",
     "archive" => "DEBUG",
     "shell" => "DEBUG",
-    "spec" => "DEBUG"
+    "spec" => "DEBUG",
+    "file-lock" => "INFO"
     })
 
   def create_node_artifact_from_example(name)
@@ -42,6 +44,10 @@ describe CsBuilder::Heroku::SlugBuilder do
       out_path = File.join(tmp, "out.tgz")
       slug_path = CsBuilder::Heroku::SlugBuilder.mk_slug(@node_archive, node_app, out_path)
       File.exists?(slug_path).should eql(true)
+      expanded = Dir.mktmpdir("slug_expanded")
+      `tar xzvf #{slug_path} -C #{expanded}`
+      Helpers::Dir.entries(expanded).should eql(["app"])
+      Helpers::Dir.entries("#{expanded}/app").should include("index.js", "Procfile")
     end
   end
 end

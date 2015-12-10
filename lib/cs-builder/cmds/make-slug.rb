@@ -3,7 +3,7 @@ require_relative '../git/git-parser'
 require_relative '../git/git-helper'
 require_relative '../models/paths'
 require_relative '../io/safe-file-removal'
-require_relative '../io/file-lock'
+require_relative '../heroku/slug-from-template'
 
 module CsBuilder
   module Commands
@@ -11,85 +11,26 @@ module CsBuilder
     class MakeSlug < CoreCommand
 
       include CsBuilder::Io::SafeFileRemoval
-      include CsBuilder::Io::FileLock
 
       def initialize(config_dir, log_name: 'make_slug')
         super(log_name, config_dir)
       end
 
       def run(options)
-        @log.info "running MakeSlug"
-        template = options[:template]
-        init_template(template)
-        build_slug(options)
-      end
-
-      def init_template(name)
-        if !File.exists?(template_archive(name))
-          @log.info "need to install the template for #{name}.. please wait..."
-          install_template(name)
-        else
-          @log.debug("Formula already exists for #{name}")
-        end
-      end
-
-      def formula(name)
-        File.expand_path(File.join(@config_dir, "templates", "formulas", name))
-      end
-
-      def template_archive(name)
-        File.join(@config_dir, "templates", "built", "#{name}.tgz")
-      end
-
-      def install_template(name)
-        @log.debug "need to install template, looking for a formla for #{name}"
-        script = formula("#{name}.formula")
-        raise "No formula found for #{script}" unless File.exists? script
-        mkdir_if_needed(File.join(@config_dir, "templates", "built"))
-        in_dir(File.dirname(script)){
-          File.chmod(0755, "#{name}.formula")
-          @log.debug "running formula: #{name}.formula - this will install the template for #{name} - this is a one-time process ... please wait"
-          run_cmd "./#{name}.formula ../built"
-        }
-      end
-
-      def build_slug(options)
-        @log.debug "[build_slug] options: #{options}"
+        @log.info "[run] MakeSlug..."
+        @log.debug "[run] options: #{options}"
         template = options[:template]
         binary = options[:binary]
-        archive = template_archive(template)
-        raise "Archive doesn't exist: #{archive}" unless File.exists? archive
         output = options[:output]
-        output_dir = output.gsub(".tgz", "")
-        app_path = File.join(output_dir, "app")
-
-        @log.debug "binary path to add to tar: #{binary}"
-
-        if File.exists?(output) and !options[:force]
-          @log.info "File #{output} already exists"
-          output
-        else
-          with_file_lock(binary){
-            FileUtils.mkdir_p app_path, :verbose => true
-            @log.debug "extract #{archive} -> #{app_path}"
-            run_shell_cmd("tar xvf #{archive} -C #{app_path}")
-            @log.debug "extract #{binary} -> #{app_path}"
-            run_shell_cmd("tar xvf #{binary} -C #{app_path}")
-            @log.debug "compress folder to a new archive: #{output}"
-            #Note: the './app' is significant here
-            run_shell_cmd("tar czvf #{output} -C #{output_dir} ./app")
-            FileUtils.rm_rf output_dir, :verbose => true
-          }
-        end
-
-        remove_old_slugs(output)
+        slug_path = CsBuilder::Heroku::SlugFromTemplate.mk_slug(
+          binary,
+          output,
+          template,
+          File.join(@config_dir, "templates"),
+          options[:force])
+        safely_remove_all_except(slug_path)
         output
       end
-
-      def remove_old_slugs(latest_slug)
-        safely_remove_all_except(latest_slug)
-      end
-
     end
 
     class MakeFileSlug < MakeSlug

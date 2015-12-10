@@ -1,6 +1,7 @@
 require 'cs-builder/io/archive'
 require 'cs-builder/log/logger'
 require 'tmpdir'
+require_relative '../helpers/dir'
 
 describe CsBuilder::IO::Archive do  
 
@@ -52,6 +53,12 @@ EOF
 
   describe "merge" do 
 
+    before(:all) do 
+      @one = create_archive("one.txt")
+      @two = create_archive("two.txt")
+      @three = create_archive("three.txt")
+    end
+    
     def create_archive(name)
       dir = Dir.mktmpdir("tmp_dir")
       write_to_file(dir, name, name)
@@ -62,15 +69,22 @@ EOF
     end
 
     it "merges archives together" do 
-      one = create_archive("one.txt")
-      two = create_archive("two.txt")
-      three = create_archive("three.txt")
       out = Dir.mktmpdir("output_")
-      merged = CsBuilder::IO::Archive.merge(out, {:force => false}, one, two, three)
+      merged = CsBuilder::IO::Archive.merge(out, {:force => false}, @one, @two, @three)
       File.exists?(merged).should eql(true)
       expanded_dir = Dir.mktmpdir("expanded_")
       `tar xzvf #{merged} -C #{expanded_dir}`
-      Dir.entries(expanded_dir).reject{|p| p == "." or p == ".."}.should eql(["one.txt", "two.txt", "three.txt"]) 
+      Helpers::Dir.entries(expanded_dir).should eql(["one.txt", "two.txt", "three.txt"]) 
+    end
+
+    it "puts the contents in the root_dir" do 
+      out = Dir.mktmpdir("output_")
+      merged = CsBuilder::IO::Archive.merge(out, {:root_dir => "app", :force => false}, @one, @two, @three)
+      File.exists?(merged).should eql(true)
+      expanded_dir = Dir.mktmpdir("expanded_")
+      `tar xzvf #{merged} -C #{expanded_dir}`
+      Helpers::Dir.entries(expanded_dir).should eql(["app"])
+      Helpers::Dir.entries("#{expanded_dir}/app").should eql(["one.txt", "two.txt", "three.txt"]) 
     end
   end
 end

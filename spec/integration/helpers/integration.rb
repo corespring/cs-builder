@@ -17,7 +17,7 @@ module Helpers
 
     def default_config_dir
       this_dir = File.expand_path(File.dirname(__FILE__))
-     "#{this_dir}/../../.default-config/."
+     "#{this_dir}/../../../.default-config/."
     end
 
     def add_default_config(path)

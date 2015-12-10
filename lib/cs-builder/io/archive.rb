@@ -47,6 +47,8 @@ module CsBuilder
 
         force = opts.has_key?(:force) and opts[:force] == true
 
+        root_dir = (opts.has_key?(:root_dir) and !opts[:root_dir].empty?) ? opts[:root_dir] : nil
+
         archives.each{|a|
           raise "archive doesn't exist: #{a}" unless File.exists?(a)
           raise "archive must be a .tgz: #{a}" unless File.extname(a) == ".tgz"
@@ -60,17 +62,17 @@ module CsBuilder
         if(File.exists?(final_path) and !force)
           @@log.warn("That archive already exists - skipping")
         else
-          FileUtils.mkdir_p(tmp_dir, :verbose => @@log.debug?)
+          archive_root = root_dir.nil? ? tmp_dir : File.join(tmp_dir, root_dir)
+          FileUtils.mkdir_p(archive_root, :verbose => @@log.debug?)
 
           archives.each{|a|
-            @@log.info("extract #{a} -> #{tmp_dir}")
-            run_shell_cmd("tar xzvf #{a} -C #{tmp_dir}")
+            @@log.info("extract #{a} -> #{archive_root}")
+            run_shell_cmd("tar xzvf #{a} -C #{archive_root}")
           }
 
           @@log.debug "compress folder to a new archive: #{final_path}"
-          custom_path = opts.has_key?(:custom_path) ? opts[:custom_path] : "." 
-          cmd = "tar czvf #{final_path} -C #{tmp_dir}"
-          cmd << " #{custom_path}" unless custom_path.empty?
+          tar_root = root_dir.nil? ? "." : "./#{root_dir}"
+          cmd = "tar czvf #{final_path} -C #{tmp_dir} #{tar_root}"
           @@log.debug("cmd: #{cmd}")
           run_shell_cmd(cmd)
           FileUtils.rm_rf tmp_dir, :verbose => true
