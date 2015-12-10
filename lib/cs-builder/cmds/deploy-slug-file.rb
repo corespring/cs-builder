@@ -31,7 +31,7 @@ module CsBuilder
         sha = options[:version]
         description = options[:description]
 
-        @log.debug "slug: #{slug}, uid: #{uid}, sha: #{sha}, description: #{description}, stack: #{@stack}"
+        @log.debug "slug: #{slug}, sha: #{sha}, description: #{description}, stack: #{@stack}"
         raise "Can't find slug to deploy #{slug}" unless File.exists? slug
 
         with_file_lock(slug){
@@ -41,7 +41,8 @@ module CsBuilder
             app, 
             sha, 
             description, 
-            @stack)
+            @stack,
+            force: options[:force])
         }
       end
 

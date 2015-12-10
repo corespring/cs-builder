@@ -42,7 +42,6 @@ module CsBuilder
       #
       def self.merge(out_path, opts, *archives)
         final_path =  File.extname(out_path) == ".tgz" ? out_path : "#{out_path}.tgz"
-        puts "? final_path: #{final_path}, out_path: #{out_path}"
         tmp_dir = final_path.gsub(".tgz", "")
 
         force = opts.has_key?(:force) and opts[:force] == true

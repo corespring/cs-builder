@@ -23,5 +23,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency "thor"
   gem.add_dependency "log4r", '~> 1.1.10'
   gem.add_dependency "rest-client", '~> 1.6.7'
+  gem.add_dependency "platform-api", '~> 0.3.0'
 
 end

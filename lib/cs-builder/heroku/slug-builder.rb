@@ -25,10 +25,13 @@ module CsBuilder
         check_file(artifact)
         check_file(stack)
 
-        FileUtils.rm_rf(out_path) if force
+        if force
+          @@log.debug("[force=true] removing: #{out_path}")
+          FileUtils.rm_rf(out_path, :verbose => @@log.debug?)
+        end
 
         if File.exists?(out_path) and !force
-          @@log.warn "File #{output} already exists - skipping"
+          @@log.warn "File #{out_path} already exists - skipping"
           out_path
         else
           with_file_lock(artifact){
