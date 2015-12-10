@@ -21,16 +21,15 @@ module Helpers
     end
 
     def add_default_config(path)
-      FileUtils.cp_r(".default-config", path, :verbose => true)
+      FileUtils.cp_r(default_config_dir, path, :verbose => true)
     end
 
     def copy_project_to_tmp(config_dir, project)
       path = File.expand_path(File.join(config_dir, "example-projects", project))
-      base = File.join(Dir.tmpdir, "cs-builder-integration-tests")
-      FileUtils.rm_rf(base)
-      FileUtils.mkdir_p(base)
-      out = File.join(base, project) 
-      FileUtils.cp_r(path, out)
+      tmp_dir = Dir.mktmpdir("cs-builder-integration-tests")
+      FileUtils.cp_r(path, tmp_dir)
+      out = File.join(tmp_dir, project)
+      raise "cp failed for #{path} -> #{out}" unless File.exists?(out)
       out
     end
 
@@ -102,13 +101,13 @@ module Helpers
 
       FileUtils.rm_rf(config_dir)
 
-      add_default_config(config_dir)
+      config_dir = "spec/tmp/#{name}" 
+      tmp_project = copy_project_to_tmp(default_config_dir, name) 
+
+      puts "tmp_project: #{tmp_project}"
 
       file_opts = {
-        :external_src =>
-          File.expand_path(
-            File.join(config_dir, "example-projects", name)
-        ),
+        :external_src => tmp_project,
         :org => "org",
         :repo => name,
         :branch => "master",
@@ -136,11 +135,19 @@ module Helpers
       puts "MakeSlug result: #{out}"
       deployer = HerokuDeployer.new
       # TODO - make heroku app configurable
-      deployer.deploy(slug_path, SlugHelper.processes_from_slug(slug_path), heroku_app, file_opts[:uid], stack)
+      deployer.deploy(
+        slug_path, 
+        SlugHelper.processes_from_slug(slug_path), 
+        heroku_app, 
+        file_opts[:uid], 
+        "my new app",
+        stack)
 
       # give the app some time to boot up
       sleep 4
-      RestClient.get("http://#{heroku_app}.herokuapp.com")
+      url = "http://#{heroku_app}.herokuapp.com"
+      puts "Ping the url: #{url}"
+      RestClient.get(url)
     end
 
   end

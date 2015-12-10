@@ -6,16 +6,25 @@
 ##
 
 
+
 out_dir = ARGV[0]
 version = ARGV[1]
 
-version = {
+
+versions = {
   "1.8" => "http://heroku-jdk.s3.amazonaws.com/openjdk1.8.0_b107.tar.gz",
   "1.7" => "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz"
 }
 
-puts "out dir: #{out_dir}"
-puts "jdk: #{version}"
+raise "Can't find jdk url for: #{version}, supported versions: #{versions.keys.join(", ")}" unless versions.has_key?(version)
+
+archive_name = "jdk-#{version}.tgz"
+out_path = "#{out_dir}/#{archive_name}"
+
+puts "---------------------- Installing JDK from formula ---------------------"
+puts "-- version: #{version}"
+puts "-- will create template here: #{out_path}"
+puts "------------------------------------------------------------------------"
 
 `rm -fr tmp`
 `mkdir tmp`
@@ -39,9 +48,8 @@ File.open("tmp/.profile.d/jvmcommon.sh", 'w') { |file|
   file.write "export JAVA_TOOL_OPTIONS=\"$JAVA_TOOL_OPTIONS -Djava.rmi.server.useCodebaseOnly=true\""
 }
 
-`tar czvf jdk-#{version}.tgz -C tmp .`
-`mv jdk-#{version}.tgz #{out_dir}/jdk-#{version}.tgz`
-
+`tar czvf #{archive_name} -C tmp .`
+`mv #{archive_name} #{out_path}`
 `rm -fr tmp`
 
-puts "Done"
+puts "--------------------------- Done -------------------------------------"
