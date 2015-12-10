@@ -9,7 +9,7 @@ module CsBuilder
   module Docs
     def self.docs(name)
       here = File.dirname(__FILE__)
-      IO.read(File.join(here, "..", "..", "docs", "#{name}.md"))
+      ::IO.read(File.join(here, "..", "..", "docs", "#{name}.md"))
     end
   end
 

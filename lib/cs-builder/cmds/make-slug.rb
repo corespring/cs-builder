@@ -10,7 +10,7 @@ module CsBuilder
 
     class MakeSlug < CoreCommand
 
-      include CsBuilder::Io::SafeFileRemoval
+      include CsBuilder::IO::SafeFileRemoval
 
       def initialize(config_dir, log_name: 'make_slug')
         super(log_name, config_dir)

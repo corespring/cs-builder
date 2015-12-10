@@ -7,13 +7,13 @@ module CsBuilder
   module Heroku
     module SlugFromTemplate
 
-      extend CsBuilder::Io::FileLock
+      extend CsBuilder::IO::FileLock
       
       @@log = CsBuilder::Log.get_logger('slug-from-template')
 
       def self.mk_slug(artifact, out_path, template, templates_dir, force)
 
-        
+
         @@log.debug "[mk_slug] artifact: #{artifact}, out_path: #{out_path}, template: #{template}, templates_dir: #{templates_dir}, force: #{force}"
         stack_archive = Templates.new(templates_dir).get_archive_path(template)
         with_file_lock(artifact){

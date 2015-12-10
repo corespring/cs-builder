@@ -13,7 +13,7 @@ module CsBuilder
     class DeployArtifact < CoreCommand
 
       include CsBuilder::Runner
-      include CsBuilder::Io::SafeFileRemoval
+      include CsBuilder::IO::SafeFileRemoval
 
       def initialize(log_name, config_dir)
         super(log_name, config_dir)

@@ -14,7 +14,7 @@ module CsBuilder
     class BaseBuild < CoreCommand
 
       include CsBuilder::Runner
-      include CsBuilder::Io::SafeFileRemoval
+      include CsBuilder::IO::SafeFileRemoval
       include CsBuilder::IO
 
       def initialize(log_name, config_dir)

@@ -7,7 +7,7 @@ module CsBuilder
 
      module SlugBuilder
 
-      extend CsBuilder::Io::FileLock
+      extend CsBuilder::IO::FileLock
       include CsBuilder::IO
       
       @@log = CsBuilder::Log.get_logger('slug-builder')
