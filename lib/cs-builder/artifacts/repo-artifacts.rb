@@ -1,7 +1,7 @@
 require_relative '../log/logger'
 
 module CsBuilder
-  module Models
+  module Artifacts
 
     class RepoArtifacts
 
