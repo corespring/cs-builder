@@ -1,6 +1,10 @@
+require_relative '../log/logger'
 module CsBuilder
   module Git
+
     module GitHelper extend CsBuilder::ShellRunner
+
+      @@log = Log.get_logger('git-helper')
 
       def self.git_uid(repo_path)
         tag = commit_tag(repo_path) 
@@ -23,26 +27,26 @@ module CsBuilder
         sha
       end
 
-      def self.install_external_src_to_repo(path, git_repo, branch, log)
-        log.info "path: #{path}, branch: #{branch}"
+      def self.clone_repo(path, git_repo, branch)
+        @@log.info "path: #{path}, branch: #{branch}"
         FileUtils.mkdir_p(path, :verbose => true ) unless File.exists?(path)
         run_shell_cmd("git clone #{git_repo} #{path}") unless File.exists?(File.join(path, ".git"))
-        log.debug "checkout #{branch}"
+        @@log.debug "checkout #{branch}"
         
         run_git(path, "checkout #{branch}")
         run_git(path, "branch --set-upstream-to=origin/#{branch} #{branch}")
 
         if File.exists?(File.join(path, ".gitmodules"))
           in_dir(path) {
-            log.debug "Init the submodules in #{path}"
+            @@log.debug "Init the submodules in #{path}"
             run_shell_cmd("git submodule init")
           }
         end
       end
 
-      def self.update_repo(path, branch, log)
-        log.info "[update_repo] path: #{path}, branch: #{branch}"
-        log.debug "reset hard to #{branch}"
+      def self.update_repo(path, branch)
+        @@log.info "[update_repo] path: #{path}, branch: #{branch}"
+        @@log.debug "reset hard to #{branch}"
         
         run_git(path, "clean -fd")
         run_git(path, "reset --hard HEAD")
@@ -52,7 +56,7 @@ module CsBuilder
 
         if File.exists? "#{path}/.gitmodules"
           in_dir(path){
-            log.debug "update all the submodules in #{path}"
+            @@log.debug "update all the submodules in #{path}"
             run_shell_cmd("git submodule foreach git clean -fd")
             run_shell_cmd("git pull --recurse-submodules")
             run_shell_cmd("git submodule update --recursive")

@@ -3,6 +3,7 @@ require_relative '../git/git-parser'
 require_relative '../models/config'
 require_relative '../runner'
 require_relative '../io/safe-file-removal'
+require_relative '../init'
 
 
 module CsBuilder
@@ -10,115 +11,67 @@ module CsBuilder
 
     include Models
 
-    class MakeArtifactBase < CoreCommand
+    class MakeArtifactGit
 
       include CsBuilder::Runner
       include CsBuilder::IO::SafeFileRemoval
-
-      def initialize(log_name, config_dir)
-        super(log_name, config_dir)
-      end
-
-      def runner_log(msg)
-        @log.info(msg)
-      end
-
-      protected
-      def run_build(config, artifact, force: false)
-        @config = config
-
-        run_with_lock(@config.paths.lock_file("build")) {
-
-          @log.debug "install external src"
-          install_external_src_to_repo
-          @log.debug "update repo"
-          update_repo
-          @log.debug "get uid"
-          uid = build_uid
-
-          @log.debug("build uid set to: #{uid}")
-
-          @config.artifacts(uid).each{ |p|
-            @log.info("force:true -> rm: #{p}") if force
-            FileUtils.rm_rf(p, :verbose => false) if force
-          }
-
-          if(@config.artifacts(uid).length > 0 and !force)
-            @log. info "artifacts exist for #{uid}"
-            {:path => @config.artifacts(uid)[0], :skipped => true}
-          else
-            @log.debug "build repo for #{uid}"
-            build_repo
-            @log.debug "find the built artifact for uid: #{uid}, using: #{artifact[:path]}"
-            search_path = "#{@config.paths.repo}/#{artifact[:path].gsub(/\(.*\)/, "*")}"
-            @log.debug "search path: #{search_path}"
-            paths = Dir[search_path] 
-            raise "[make-artifact] Can't find artifact at: #{search_path}" if paths.length == 0
-            built_path = paths[0] 
-            artifact_version = built_path.match(/.*#{artifact[:path]}/)[1]
-            @log.debug "artifact-version: #{artifact_version}" 
-            @log.debug "paths: #{paths}"
-            suffix = File.extname(built_path)
-            artifact_path =  File.join(@config.paths.artifacts, artifact_version, "#{uid}#{suffix}")
-            FileUtils.mkdir_p(File.dirname(artifact_path), :verbose => false) 
-            FileUtils.mv(built_path, artifact_path) 
-            @log.debug "get binaries path for #{uid}"
-            {:path => artifact_path, :forced => force }
-          end
-        }
-      end
-
-      def build_uid
-        raise "not defined"
-      end
-
-      def build_repo
-        if @config.build_cmd.empty? or @config.build_cmd.nil?
-          @log.debug "no build command to run - skipping"
-        else
-          in_dir(@config.paths.repo){
-            @log.debug( "run: #{@config.build_cmd}")
-            run_cmd @config.build_cmd
-          }
-        end
-      end
-
-    end
-
-    class MakeArtifactGit < MakeArtifactBase
-
       include CsBuilder::Git
-      
+
       def initialize(config_dir)
-        super('make-artifact-git', config_dir)
+        CsBuilder::Init.init_cs_builder_dir(config_dir)
+        @config_dir = config_dir
       end
       
       def run(options)
-        cfg = config_from_opts(options)
+        @repo = Repo.new(@config_dir, options[:git], options[:branch])
+        @artifacts = RepoArtifacts.new(@config_dir, @repo, options[:cmd], options[:artifact])
+
         @log.debug("[run] cfg: #{cfg}")
-        artifact_config = {
-          :format => options[:artifact_format],
-          :path => options[:artifact]
+
+        run_with_lock(@repo.lock_file) {
+          @log.debug "clone repo"
+          @repo.clone
+          @log.debug "update repo"
+          @repo.update
+          hash_and_tag = @repo.hash_and_tag 
+
+          if(force)
+            @artifacts.rm_artifact(hash_and_tag) 
+          end
+
+          if(@artifacts.has_artifacts?(hash_and_tag) and !force)
+            @log. info "artifacts exist for #{uid}"
+            {:path => @artifacts.artifacts(uid)[0], :skipped => true}
+           else
+              @log.debug "build repo for #{uid}"
+              result = @artifacts.build
+              stored_path = @artifacts.move_to_store(
+                result[:artifact],
+                result[:version],
+                result[:extname],
+                hash_and_tag)
+             
+             result.merge({
+              :hash => hash_and_tag.hash,
+              :tag => hash_and_tag.tag,
+              :path => stored_path, 
+              :forced => force })
+           end
         }
-        run_build(cfg, artifact_config, force: options[:force] || false)
-      end
-      
-      def install_external_src_to_repo
-        GitHelper.install_external_src_to_repo(@config.paths.repo, @config.git, @config.branch, @log)
       end
 
-      def update_repo
-        GitHelper.update_repo(@config.paths.repo, @config.branch, @log)
-      end
-
-      def config_from_opts(options)
-        GitConfigBuilder.from_opts(@config_dir, options)
-      end
-
-      def build_uid
-        @config.uid
-      end
+      # def build_repo
+      #   if @config.build_cmd.empty? or @config.build_cmd.nil?
+      #     @log.debug "no build command to run - skipping"
+      #   else
+      #     in_dir(@config.paths.repo){
+      #       @log.debug( "run: #{@config.build_cmd}")
+      #       run_cmd @config.build_cmd
+      #     }
+      #   end
+      # end
 
     end
+
   end
 end

@@ -4,6 +4,11 @@ module CsBuilder
   module Models
 
     class Paths
+
+      def self.artifact(root, org, repo)
+        File.join(root, "artifacts", org, repo)
+      end
+
       def initialize(root, org, repo, branch)
         @log = CsBuilder::Log.get_logger('paths')
         @root = root
@@ -16,11 +21,6 @@ module CsBuilder
         raise "@org is nil" if @org.nil?
         raise "@repo is nil" if @repo.nil?
         raise "@branch is nil" if @branch.nil?
-      end
-
-      # Note: artifacts don't have branch directories
-      def artifacts
-        File.join(@root, "artifacts", @org, @repo)
       end
 
       def repo

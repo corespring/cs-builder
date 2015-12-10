@@ -6,6 +6,10 @@ module CsBuilder
 
       REGEX = /git@.*?:(.*?)\/(.*?).git/
 
+      def self.org_and_repo(s)
+        [org(s), repo(s)]
+      end
+
       def self.org(s)
         m = REGEX.match(s)
         m[1]

@@ -30,7 +30,7 @@ module CsBuilder
         run_with_lock(@config.paths.lock_file("deploy-artifact")) {
 
           @log.debug "install external src"
-          install_external_src_to_repo
+          clone_repo
           @log.debug "update repo"
           update_repo
           @log.debug "get uid"
@@ -65,8 +65,8 @@ module CsBuilder
         run_build(cfg, artifact_config, force: options[:force] || false)
       end
       
-      def install_external_src_to_repo
-        GitHelper.install_external_src_to_repo(@config.paths.repo, @config.git, @config.branch, @log)
+      def clone_repo
+        GitHelper.clone_repo(@config.paths.repo, @config.git, @config.branch, @log)
       end
 
       def update_repo

@@ -13,7 +13,6 @@ module CsBuilder
     end
   end
 
-
   include Commands
 
   class CLI < Thor
@@ -28,7 +27,7 @@ module CsBuilder
       :git => {:type => :string, :required => true, :desc => "the git repo to clone (eg: git@github.com:org/repo.git) (note: url is used to create :org and :repo)"},
       :branch => {:type => :string, :required => true, :desc => "the branch of the git repo to checkout (eg: master)"}
     }
-    
+   
     desc "make-artifact-git", "create an artifact from a git repo and branch"
     git_opts.each{|k,v| option(k,v)}
     option :org, :type => :string, :desc => "override the org (derived from --git)"
@@ -60,7 +59,7 @@ module CsBuilder
 
     desc "make-slug-from-artifact", "create a heroku slug from an artifact"
     option :artifact, :type => :string, :required => true, :desc => "The path to the artifact"
-    option :platform, :type => :string, :required => true, :desc => "The platform to use (jdk1.7, jdk1.8, ...)"
+    option :platform, :type => :string, :required => true, :desc => "The platform to use (jdk-1.7, jdk-1.8, ...)"
     option :out, :type => :string, :required => true, :desc => "Where to save the slug"
     option :force, :type => :boolean, :default => false
     def make_slug_from_artifact
@@ -83,20 +82,6 @@ module CsBuilder
       out = cmd.run(options)
       puts "deployed to: #{options[:app]}"
     end
-    
-    # desc "deploy-artifact", "deploys an artifact to heroku"
-    # git_opts.each{|k,v| option(k,v)}
-    # option :version, :type => :string, :required => false 
-    # option :artifact_format, :type => :string, :required => true 
-    # option :app, :type => :string, :required => false 
-    # option :force, :type => :boolean, :default => false
-    # long_desc Docs.docs("deploy-artifact")
-    # def deploy_artifact
-    #   CsBuilder::Log.load_config(options[:log_config])
-    #   cmd = Commands::DeployArtifact.new(options[:config_dir])
-    #   out = cmd.run(options)
-    #   puts out
-    # end
 
     desc "build-from-git", "clone if needed, update, build and create an archive"
     git_opts.each{|k,v| option(k,v)}

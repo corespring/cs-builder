@@ -32,7 +32,7 @@ module CsBuilder
         run_with_lock(@config.paths.lock_file("build")) {
 
           @log.debug "install external src"
-          install_external_src_to_repo
+          clone_repo
           @log.debug "update repo"
           update_repo
           @log.debug "get uid"
@@ -60,7 +60,7 @@ module CsBuilder
         }
       end
 
-      def install_external_src_to_repo
+      def clone_repo
         raise "not defined"
       end
 
@@ -128,7 +128,7 @@ module CsBuilder
         )
       end
 
-      def install_external_src_to_repo
+      def clone_repo
         FileUtils.mkdir_p(File.dirname(@config.paths.repo), :verbose => true )
         FileUtils.cp_r(@config.external_src, @config.paths.repo, :verbose => true)
       end
@@ -163,8 +163,8 @@ module CsBuilder
         @config.uid
       end
 
-      def install_external_src_to_repo
-        GitHelper.install_external_src_to_repo(@config.paths.repo, @config.git, @config.branch, @log)
+      def clone_repo
+        GitHelper.clone_repo(@config.paths.repo, @config.git, @config.branch, @log)
       end
 
       def update_repo
