@@ -15,7 +15,7 @@ module CsBuilder
 
       include CsBuilder::Runner
       include CsBuilder::Io::SafeFileRemoval
-      include CsBuilder::IO::Archive
+      include CsBuilder::IO
 
       def initialize(log_name, config_dir)
         super(log_name, config_dir)
@@ -89,7 +89,9 @@ module CsBuilder
 
       def prepare_binaries(uid)
         archive = @config.binary_archive(uid)
-        Archive.create(@config.paths.repo, archive, @config.build_assets)
+        archive_path = IO::Archive.create(@config.paths.repo, archive, @config.build_assets)
+        raise "Archive #{archive_path} doesn't exist" unless File.exists?(archive_path)
+        @log.debug("created archive here: #{archive_path}, archive in: #{archive}")
       end
 
       def binaries_path(uid)

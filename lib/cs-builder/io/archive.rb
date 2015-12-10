@@ -27,10 +27,13 @@ module CsBuilder
           FileUtils.cp_r(from, to, :verbose => @@log.debug?)
         }
 
-        system("tar", "czvf", out_path, "-C", binary_folder, ".",
-               [:out, :err] => "/dev/null")
-
+        parent = File.dirname(out_path)
+        FileUtils.mkdir_p(parent)
+        raise "Parent directory doesn't exist: #{parent}" unless File.exists?(parent) and File.directory?(parent)
+        cmd = "tar czvf #{out_path} -C #{binary_folder} ."
+        run_shell_cmd(cmd)
         FileUtils.rm_rf(binary_folder, :verbose => @@log.debug?)
+        raise "Failed to create Archive: #{out_path}" unless File.exists?(out_path)
         out_path
       end
 

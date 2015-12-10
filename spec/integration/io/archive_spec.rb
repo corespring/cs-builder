@@ -35,6 +35,19 @@ describe CsBuilder::IO::Archive do
 EOF
       contents.should eql(expected.chomp)
     end
+
+    it "creates the parent directory of the out path if it doesn't exist" do 
+      dir = Dir.mktmpdir("spec_")
+      write_to_file(dir, "one.txt", "one")
+      write_to_file(dir,"two.txt", "two")
+      destination_dir = Dir.mktmpdir("destination_")
+      destination = File.join(destination_dir, "some", "dir", "out.tgz")
+      File.exists?(destination).should eql(false)
+      File.exists?(File.dirname(destination)).should eql(false)
+      CsBuilder::IO::Archive.create(dir, destination, ["one.txt"])
+      File.exists?(destination).should eql(true)
+      File.exists?(File.dirname(destination)).should eql(true)
+    end
   end
 
   describe "merge" do 
