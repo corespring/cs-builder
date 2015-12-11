@@ -1,7 +1,10 @@
 require_relative './log/logger'
+require_relative './io/utils'
 
 module CsBuilder
   module Init
+
+    extend CsBuilder::IO::Utils
 
     Default_Config = "#{File.expand_path(File.dirname(__FILE__))}/../../.default-config/."
 
@@ -9,25 +12,25 @@ module CsBuilder
     
     def self.init_cs_builder_dir(dir)
 
-      if(dir_inited?(path))
+      full_dir = File.expand_path(dir)
+      if(dir_inited?(full_dir))
         @@log.debug "dir already exists - no need to create it"
       else
-        @@log.debug "dir doesn't exist - #{path}"
-        @@log.debug("mkdir: #{path}")
-        full_path = File.expand_path(path)
-        FileUtils.mkdir_p(full_path)
-        FileUtils.cp_r(Default_Config, full_path)
+        @@log.debug "dir doesn't exist - #{full_dir}"
+        @@log.debug("mkdir: #{full_dir}")
+        FileUtils.mkdir_p(full_dir)
+        FileUtils.cp_r(Default_Config, full_dir)
       end
 
       # create some dirs if needed
-      mkdir_if_needed(File.join(full_path, "repos") )
-      mkdir_if_needed(File.join(full_path, "slugs") )
-      mkdir_if_needed(File.join(full_path, "binaries") )
-      mkdir_if_needed(File.join(full_path, "artifacts") )
+      mkdir_if_needed(File.join(full_dir, "repos") )
+      mkdir_if_needed(File.join(full_dir, "slugs") )
+      mkdir_if_needed(File.join(full_dir, "binaries") )
+      mkdir_if_needed(File.join(full_dir, "artifacts") )
     end
 
-    def self.dir_inited?(path)
-      File.exists?(path)
+    def self.dir_inited?(dir)
+      File.exists?(dir)
     end
   end
 end

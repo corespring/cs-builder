@@ -48,14 +48,15 @@ module CsBuilder
         @org = org
         @repo = repo
         @branch = branch
+        @paths = Paths.new(@root, @org, @repo, @branch)
       end
 
       def path
-        Paths.repo(@root, @org, @repo, @branch)
+        @paths.repo
       end
 
       def lock_file
-        Paths.lock_file(@root, @org, @repo, @branch, "repo")
+        @paths.lock_file("repo")
       end
 
       def clone
@@ -69,7 +70,7 @@ module CsBuilder
       def hash_and_tag
         hash = GitHelper.commit_hash(path)
         tag = GitHelper.commit_tag(path)
-        HashAndTag.new(hash, tag: tag)
+        HashAndTag.new(hash,tag)
       end
     
     end

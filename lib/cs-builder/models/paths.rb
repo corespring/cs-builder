@@ -5,18 +5,6 @@ module CsBuilder
 
     class Paths
 
-      def self.artifact(root, org, repo)
-        File.join(root, "artifacts", org, repo)
-      end
-      
-      def self.repo(root, org, repo, branch)
-        File.join(root, "repos", org, repo, branch)
-      end
-
-      def self.lock_file(root, org, repo, branch, name)
-        File.join(root, org, repo, branch, "#{name}.lock")
-      end
-
       def initialize(root, org, repo, branch)
         @log = CsBuilder::Log.get_logger('paths')
         @root = root
@@ -31,6 +19,10 @@ module CsBuilder
         raise "@branch is nil" if @branch.nil?
       end
 
+      def artifacts
+        File.join(@root, "artifacts", @org, @repo)
+      end
+      
       def repo
         make("repos")
       end

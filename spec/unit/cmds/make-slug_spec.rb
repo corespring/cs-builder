@@ -44,7 +44,7 @@ describe MakeSlug do
     add_template(config_dir, "test-template")
 
     binary = mk_binary
-    cmd = MakeSlug.new("DEBUG", File.expand_path(config_dir))
+    cmd = MakeSlug.new(File.expand_path(config_dir))
 
     FileUtils.mkdir_p("#{config_dir}/slugs/org/repo/branch")
     `echo "I'll be removed" >> #{config_dir}/slugs/org/repo/branch/removeme`

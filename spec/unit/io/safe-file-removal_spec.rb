@@ -1,7 +1,7 @@
 require 'cs-builder/io/file-lock'
 require 'cs-builder/io/safe-file-removal'
 
-include CsBuilder::Io
+include CsBuilder::IO
 
 include SafeFileRemoval
 

@@ -8,7 +8,7 @@ describe CsBuilder::Artifacts::RepoArtifacts do
 
     it "should init" do 
       a = RepoArtifacts.new("", "", "", "")
-      a.nil? should eql(false)
+      a.should_not be_nil 
     end
   end
 end

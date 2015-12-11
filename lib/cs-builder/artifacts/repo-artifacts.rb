@@ -10,6 +10,7 @@ module CsBuilder
         @repo = repo  
         @cmd = cmd
         @artifact_pattern = artifact_pattern
+        @paths = Paths.new(root, @repo.org, @repo.repo, @repo.branch)
       end
 
       def artifact_glob
@@ -41,7 +42,7 @@ module CsBuilder
       end
 
       def move_to_store(artifact, version, extname, hash_and_tag)
-        base_path = Paths.artifact(@root, @repo.org, @repo.repo)
+        base_path = @paths.artifacts
         store_path =  File.join(base_path, version, "#{hash_and_tag.to_simple}#{extname}")
         @log.debug("store_path: #{store_path}")
         FileUtils.mkdir_p(File.dirname(store_path), :verbose => @log.debug?) 
@@ -70,7 +71,7 @@ module CsBuilder
 
       private 
       def artifacts(hash_and_tag)
-        base_path = Paths.artifact(@root, @repo.org, @repo.repo)
+        base_path = @paths.artifacts
         Dir["#{base_path}/**/#{hash_and_tag.to_simple}.tgz"]
       end
 

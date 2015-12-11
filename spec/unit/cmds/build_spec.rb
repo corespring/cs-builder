@@ -8,7 +8,7 @@ describe BuildFromFile do
     config_dir = path
     FileUtils.rm_rf(config_dir)
     FileUtils.mkdir_p(config_dir)
-    cmd = BuildFromFile.new("DEBUG", File.expand_path(config_dir))
+    cmd = BuildFromFile.new(File.expand_path(config_dir))
     uid = "build-1"
     out = cmd.run({
       :org => "org",

@@ -3,13 +3,14 @@ require_relative '../shell/runner'
 require_relative '../io/utils'
 require_relative '../init'
 
+include CsBuilder
+
 module CsBuilder
   module Commands
     class CoreCommand
 
       include CsBuilder::ShellRunner
       include CsBuilder::Log
-      include CsBuilder::Init
       include CsBuilder::IO::Utils
 
       @config_dir = File.expand_path("~/.cs-builder")
@@ -18,7 +19,7 @@ module CsBuilder
         @config_dir = config_dir
         @log = Log.get_logger(name)
         @log.debug("config_dir: #{@config_dir}")
-        Init.int_cs_builder_dir(@config_dir) if init
+        Init.init_cs_builder_dir(@config_dir) if init
       end
 
       protected
