@@ -20,12 +20,29 @@ module OptsHelper
     out
   end
 
-  def org_repo(required, override: false)
-    opts({
-      :org => {:type => :string, :default => nil, :required => required, :desc => "#{ override ? "override " : ""}the org"},
-      :repo => {:type => :string,:default => nil, :required => required, :desc => "#{ override ? "override " : ""}the repo"},
-      }) 
+  def add_opts(scope, opts)
+
+    opts.each{ |k,v| 
+      scope[k] = Thor::Option.new(k, v)
+    }
+
   end
+
+  def org_repo(required, override: false)
+    { :org => 
+      { :type => :string, 
+        :default => nil, 
+        :required => required, 
+        :desc => "#{ override ? "override " : ""}the org"},
+      :repo => 
+      { :type => 
+        :string,
+        :required => required, 
+        :desc => "#{ override ? "override " : ""}the repo"},
+    } 
+  end
+
+  def merge(*hashes)
 end
 
 module CsBuilder
@@ -47,49 +64,52 @@ module CsBuilder
     include CsBuilder::Docs
     extend OptsHelper 
   
-    # git_opts = opts({ 
-    #   :git => {:type => :string, :required => true, :desc => "the git repo to clone (eg: git@github.com:org/repo.git) (note: url is used to create :org and :repo)"},
-    #   :branch => {:type => :string, :required => true, :desc => "the branch of the git repo to checkout (eg: master)"}
-    # })
+    git_opts = { 
+      :git => {:type => :string, :required => true, :desc => "the git repo to clone (eg: git@github.com:org/repo.git) (note: url is used to create :org and :repo)"},
+      :branch => {:type => :string, :required => true, :desc => "the branch of the git repo to checkout (eg: master)"}
+     }
    
-    # heroku_opts = opts({
-    #   :heroku_app => {:type => :string, :required => true},
-    #   :heroku_stack => {:type => :string, :required => true}
-    # })
+    heroku_opts = {
+      :heroku_app => {:type => :string, :required => true},
+      :heroku_stack => {:type => :string, :required => true}
+    }
 
-    # platform = opts({ 
-    #   :platform => {
-    #     :type => :string, 
-    #     :required => true, 
-    #     :desc => "The platform to use (jdk-1.7, jdk-1.8, ...)"
-    #   }
-    # })
+    platform = { 
+       :platform => {
+         :type => :string, 
+         :required => true, 
+         :desc => "The platform to use (jdk-1.7, jdk-1.8, ...)"
+       }
+    }
 
-     desc "make-artifact-git", "create an artifact from a git repo and branch"
-     method_options(org_repo(false, override:true))
-     option :cmd, :type => :string, :required => true, :desc => "this command is run against the project and it must create a .tgz of your project"
-     option :artifact, :type => :string, :required => true, :desc => "a regex pattern to find the artifact and derive the :tag (eg: dist/my-app-(.*).tgz)"
-     option :tag, :type => :string, :desc => "override the version derived from the regex group in --artifact"
-     option :force, :type => :boolean, :default => false
-     long_desc Docs.docs("make-artifact-git")
-     def make_artifact_git
-       CsBuilder::Log.load_config(options[:log_config])
-       cmd = Commands::MakeArtifactGit.new(options[:config_dir])
-       out = cmd.run(options)
-       puts out
-     end
+    force = {:type => :boolean, :default => false}
 
-    # desc "make-slug-from-artifact", "create a heroku slug from an artifact"
-    # option :artifact_file, :type => :string, :required => true, :desc => "The path to the artifact"
-    # option :platform, :type => :string, :required => true, :desc => "The platform to use (jdk-1.7, jdk-1.8, ...)"
-    # option :out, :type => :string, :required => true, :desc => "Where to save the slug"
-    # option :force, :type => :boolean, :default => false
-    # def make_slug_from_artifact
-    #   CsBuilder::Log.load_config(options[:log_config])
-    #   cmd = Commands::MakeSlugFromArtifact.new(options[:config_dir])
-    #   out = cmd.run(options)
-    #   puts "done."
-    # end
+    desc "make-artifact-git", "create an artifact from a git repo and branch and store it for later use"
+    add_opts(options, git_opts)
+    add_opts(options, org_repo(false, override:true))
+    option :cmd, :type => :string, :required => true, :desc => "this command is run against the project and it must create a .tgz of your project"
+    option :artifact_pattern, :type => :string, :required => true, :desc => "a regex pattern to find the artifact and derive the :tag (eg: dist/my-app-(.*).tgz)"
+    option :tag, :type => :string, :desc => "override the version derived from the regex group in --artifact"
+    option :force, force 
+    long_desc Docs.docs("make-artifact-git")
+    def make_artifact_git
+      CsBuilder::Log.load_config(options[:log_config])
+      cmd = Commands::MakeArtifactGit.new(options[:config_dir])
+      out = cmd.run(options)
+      puts out
+    end
+
+    desc "make-slug-from-artifact", "create a heroku slug from an artifact"
+    add_opts(options, platform)
+    option :artifact_file, :type => :string, :required => true, :desc => "The path to the artifact"
+    option :out_path, :type => :string, :required => true, :desc => "Where to save the slug"
+    option :force, force 
+    def make_slug_from_artifact
+     CsBuilder::Log.load_config(options[:log_config])
+     cmd = Commands::MakeSlugFromArtifact.new(options[:config_dir])
+     out = cmd.run(options)
+     puts "done."
+    end
    
     # desc "make-slug-and-deploy-from-branch", "Gets the sha/tag from the head of the repo branch, looks for the artifact, slugs it, deploys it"
     # method_options(heroku_opts)
