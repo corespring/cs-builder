@@ -6,43 +6,36 @@ require_relative './log/logger'
 
 module OptsHelper 
 
-  def opts(h)
-    out = {}
-
-    out[:type] = :string # {:type => :string}
-    # h.each{ |k,v|
-
-    #   puts "k: #{k}"
-    #   puts "v : #{v}"
-    #   out[k] = v #Thor::Option::new(k, v)
-    # }
-    puts "...> #{out}"
-    out
-  end
-
-  def add_opts(scope, opts)
-
-    opts.each{ |k,v| 
-      scope[k] = Thor::Option.new(k, v)
-    }
-
-  end
-
-  def org_repo(required, override: false)
-    { :org => 
-      { :type => :string, 
-        :default => nil, 
-        :required => required, 
-        :desc => "#{ override ? "override " : ""}the org"},
-      :repo => 
-      { :type => 
-        :string,
-        :required => required, 
-        :desc => "#{ override ? "override " : ""}the repo"},
-    } 
+  def inner_merge(hashes, acc)
+    if(hashes.length == 0)
+      acc
+    else 
+      acc = acc.merge(hashes.shift)
+      inner_merge(hashes, acc)
+    end
   end
 
   def merge(*hashes)
+    inner_merge(hashes, {})
+  end
+
+  def add_opts(scope, *opts)
+    merged = merge(*opts)
+    merged.each{ |k,v| 
+      scope[k] = Thor::Option.new(k, v)
+    }
+  end
+
+  def str(d: "", r:false, f: nil)
+    {:type => :string, :required => r, :desc => d, :default => f}
+  end
+
+  def org_repo(required, override: false)
+    { 
+      :org => str(r: required, d: "#{override ? "override " : ""}the org"),
+      :repo => str(r: required, d: "#{override ? "override " : ""}the repo")
+    } 
+  end
 end
 
 module CsBuilder
@@ -58,104 +51,91 @@ module CsBuilder
 
   class CLI < Thor
 
-    class_option :config_dir, :type => :string, :default => File.expand_path("~/.cs-builder")
-    class_option :log_config, :type => :string, :default => File.expand_path("~/.cs-builder/log-config.yml") 
+    extend OptsHelper 
+    
+    class_option :config_dir, str(f: File.expand_path("~/.cs-builder"))
+    class_option :log_config, str(f: File.expand_path("~/.cs-builder/log-config.yml"))
 
     include CsBuilder::Docs
-    extend OptsHelper 
   
-    git_opts = { 
-      :git => {:type => :string, :required => true, :desc => "the git repo to clone (eg: git@github.com:org/repo.git) (note: url is used to create :org and :repo)"},
-      :branch => {:type => :string, :required => true, :desc => "the branch of the git repo to checkout (eg: master)"}
-     }
+    git = { 
+      :git => str(r:true, d: "the git repo (eg: git@github.com:org/repo.git) (note: url is used to create :org and :repo)"),
+      :branch => str(r:true, d: "the git branch (eg: master)")
+    }
    
-    heroku_opts = {
-      :heroku_app => {:type => :string, :required => true},
-      :heroku_stack => {:type => :string, :required => true}
+    heroku = {
+      :heroku_app => str(r:true),
+      :heroku_stack => str(r:true, f: "cedar-14")
     }
 
     platform = { 
-       :platform => {
-         :type => :string, 
-         :required => true, 
-         :desc => "The platform to use (jdk-1.7, jdk-1.8, ...)"
-       }
+     :platform => str(d: "The platform to use (jdk-1.7, jdk-1.8, ...)", r: true)
     }
 
     force = {:type => :boolean, :default => false}
 
-    desc "make-artifact-git", "create an artifact from a git repo and branch and store it for later use"
-    add_opts(options, git_opts)
-    add_opts(options, org_repo(false, override:true))
-    option :cmd, :type => :string, :required => true, :desc => "this command is run against the project and it must create a .tgz of your project"
-    option :artifact_pattern, :type => :string, :required => true, :desc => "a regex pattern to find the artifact and derive the :tag (eg: dist/my-app-(.*).tgz)"
-    option :tag, :type => :string, :desc => "override the version derived from the regex group in --artifact"
+    desc "artifact-mk-from-git", "create an artifact from a git repo and branch and store it for later use"
+    add_opts(options, git, org_repo(false, override:true))
+    option :cmd, str(r:true, d: "this command is run against the project and it must create a .tgz of your project")
+    option :artifact_pattern, str(r:true, d: "a regex pattern to find the artifact and derive the :tag (eg: dist/my-app-(.*).tgz)")
+    option :tag, str(d: "override the version derived from the regex group in --artifact")
     option :force, force 
     long_desc Docs.docs("make-artifact-git")
-    def make_artifact_git
+    def artifact_mk_from_git
       CsBuilder::Log.load_config(options[:log_config])
-      cmd = Commands::MakeArtifactGit.new(options[:config_dir])
+      cmd = Commands::Artifacts::MkFromGit.new(options[:config_dir])
       out = cmd.run(options)
       puts out
     end
-
-    desc "make-slug-from-artifact", "create a heroku slug from an artifact"
-    add_opts(options, platform)
-    option :artifact_file, :type => :string, :required => true, :desc => "The path to the artifact"
-    option :out_path, :type => :string, :required => true, :desc => "Where to save the slug"
-    option :force, force 
-    def make_slug_from_artifact
-     CsBuilder::Log.load_config(options[:log_config])
-     cmd = Commands::MakeSlugFromArtifact.new(options[:config_dir])
-     out = cmd.run(options)
-     puts "done."
-    end
    
-    # desc "make-slug-and-deploy-from-branch", "Gets the sha/tag from the head of the repo branch, looks for the artifact, slugs it, deploys it"
-    # method_options(heroku_opts)
-    # method_options(git_opts)
-    # method_options(platform)
-    # method_options(org_repo(false, override: true))
-    # option :force, :type => :boolean, :default => false
-    # method_options(heroku_opts)
-    # def make_slug_and_deploy_git
-    #   puts "todo..."
-    # end  
+    desc "artifact-deploy-from-branch", "Gets the sha/tag from the head of the repo branch, looks for the artifact, slugs it, deploys it"
+    add_opts(options, git, heroku, platform, org_repo(false, override:true))
+    option :force, :type => :boolean, :default => false
+    def artifact_deploy_from_branch
+      cmd = Commands::Artifacts::DeployFromBranch.new(options[:config_dir])
+      puts "todo..."
+    end  
 
-    # desc "make-slug-and-deploy-from-tag", "Looks for an artifact with the given tag, slugifys it, deploys it."
-    # method_options(heroku_opts)
-    # method_options(platform)
-    # method_options(org_repo(true))
-    # option :force, :type => :boolean, :default => false
-    # option :tag,:type => :string
-    # def make_slug_and_deploy
-    # end
-    
+    desc "artifact-deploy-from-tag", "Looks for an artifact with the given tag, slugifys it, deploys it."
+    add_opts(options, heroku, platform, org_repo(true))
+    option :force, force
+    option :tag, str(r:true, d: "The tag/version to look for")
+    def artifact_deploy_from_tag
+    end
 
+    desc "artifact-deploy-from-file", "deploy from an artifact file"
+    add_opts(options, heroku, platform)
+    option :force, force
+    option :artifact_file, str(r:true)
+    option :tag, str(r:true) 
+    option :sha, str
+    def artifact_deploy_from_file
+    end
 
-    # desc "make-slug-and-deploy-from-file", "make a slug from the artifact and deploy it"
-    # method_options(heroku_opts)
-    # method_options(platform)
-    # option :artifact_file, :type => :string, :required => true
-    # option :tag,:type => :string, :required => true
-    # option :sha,:type => :string
-    # def make_slug_and_deploy_from_file
-    # end
+    desc "slug-mk-from-artifact-file", "create a heroku slug from an artifact"
+    add_opts(options, platform)
+    option :artifact_file, str(r:true, d: "The path to the artifact")
+    option :out_path, str(r:true, d: "Where to save the slug")
+    option :force, force 
+    def slug_mk_from_artifact_file
+      CsBuilder::Log.load_config(options[:log_config])
+      cmd = Commands::MakeSlugFromArtifact.new(options[:config_dir])
+      out = cmd.run(options)
+      puts "done."
+    end
 
-
-    # desc "deploy-slug-file", "create a heroku slug from an artifact"
-    # option :slug, :type => :string, :required => true, :desc => "The path to the slug"
-    # option :stack, :type => :string, :default => "cedar-14", :desc => "The heroku stack to use"
-    # option :app, :type => :string, :required => true, :desc => "The heroku app name"
-    # option :tag, :type => :string, :desc => "The version of the slug (typically a git tag or commit hash)"
-    # option :description, :type => :string, :desc => "A description", :default => "deploy"
-    # option :force, :type => :boolean, :default => false
-    # def deploy_slug_file
-    #   CsBuilder::Log.load_config(options[:log_config])
-    #   cmd = Commands::DeploySlugFile.new(options[:config_dir], options[:stack])
-    #   out = cmd.run(options)
-    #   puts "deployed to: #{options[:app]}"
-    # end
+    desc "slug-deploy-from-file", "create a heroku slug from an artifact"
+    add_opts(options, heroku)
+    option :slug_file, str(r:true, d: "The path to the slug")
+    option :tag, str(d: "The version of the slug (typically a git tag or commit hash)")
+    option :description, str(d: "A description", f: "deploy")
+    option :force, force 
+    def slug_deploy_from_file
+      CsBuilder::Log.load_config(options[:log_config])
+      cmd = Commands::DeploySlugFile.new(options[:config_dir], options[:stack])
+      out = cmd.run(options)
+      puts "deployed to: #{options[:app]}"
+    end
 
     # desc "build-from-git", "clone if needed, update, build and create an archive"
     # git_opts.each{|k,v| option(k,v)}
