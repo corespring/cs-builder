@@ -10,7 +10,6 @@ module CsBuilder
     class CoreCommand
 
       include CsBuilder::ShellRunner
-      include CsBuilder::Log
       include CsBuilder::IO::Utils
 
       @config_dir = File.expand_path("~/.cs-builder")

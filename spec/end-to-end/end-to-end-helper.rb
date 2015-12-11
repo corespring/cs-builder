@@ -21,7 +21,7 @@ module Helpers
       FileUtils.rm_rf(config_dir)
 
       config_dir = "spec/tmp/#{name}" 
-      tmp_project = copy_project_to_tmp(default_config_dir, name) 
+      tmp_project = copy_project_to_tmp(name) 
 
       puts "tmp_project: #{tmp_project}"
 

@@ -1,31 +1,35 @@
-require_relative '../helpers'
+require_relative '../helpers/integration'
 require 'cs-builder/cmds/make-artifact'
 require 'cs-builder/log/logger'
 
 describe CsBuilder::Commands::MakeArtifactGit do
 
   include Helpers::Integration
-  
-  CsBuilder::Log.load_config(File.expand_path("spec/log-config.yml"))
 
+  def init_example(example_project, cmd, artifact)
+    @result = prepare_tmp_project(example_project)
+    @opts = {
+      :git => @result[:project_dir],
+      :org => "org",
+      :repo => "test-repo",
+      :branch => "master",
+      :cmd => cmd,
+      :artifact => artifact 
+    }
+    
+    @cmds = <<-EOF
+      git init
+      git add .
+      git commit . -m "first commit"
+    EOF
+
+    @paths = Paths.new(@result[:config_dir], "org", "test-repo", "branch")
+  end
+  
   context "with a node app" do 
 
-    before(:each) do 
-      @result = prepare_tmp_project("node-4.2.3")
-      @opts = {
-        :git => @result[:project_dir],
-        :org => "org",
-        :repo => "test-repo",
-        :branch => "master",
-        :cmd => "npm pack",
-        :artifact => "an-example-cs-builder-app-(.*)\.tgz"
-      }
-      
-      @cmds = <<-EOF
-        git init
-        git add .
-        git commit . -m "first commit"
-      EOF
+    before(:each) do
+      init_example("node-4.2.3", "npm pack", "an-example-cs-builder-app-(.*)\.tgz") 
     end 
 
     it "build and move the node app artifact to artifacts/org/repo/version/tag.tgz",
@@ -37,14 +41,16 @@ describe CsBuilder::Commands::MakeArtifactGit do
 
       run_shell_cmds(@result[:project_dir], @cmds)
       mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
-      mk_result[:path].should eql(File.join(@result[:config_dir], "artifacts/org/test-repo/0.0.1/v0.0.1.tgz"))
+      expected = Dir["#{@paths.artifacts}/**/*.tgz"][0]
+      mk_result[:stored_path].should eql(expected)
     end
     
     it "build and move the node app artifact to artifacts/org/repo/version/sha.tgz", 
       :node => true do
       run_shell_cmds(@result[:project_dir], @cmds)
       mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
-      File.dirname(mk_result[:path]).should eql(File.join(@result[:config_dir], "artifacts/org/test-repo/0.0.1"))
+      expected = Dir["#{@paths.artifacts}/**/*.tgz"][0]
+      File.dirname(mk_result[:stored_path]).should eql(File.dirname(expected))
     end
 
     it "skips the build if the artifact is already there", 
@@ -71,29 +77,16 @@ describe CsBuilder::Commands::MakeArtifactGit do
   context "with a play app" do 
 
     before(:each) do 
-      @result = prepare_tmp_project("play-221")
-
-      @cmds = <<-EOF
-        git init
-        git add .
-        git commit . -m "first commit"
-        EOF
-
-      @opts = {
-        :git => @result[:project_dir],
-        :org => "org",
-        :repo => "test-repo",
-        :branch => "master",
-        :cmd => "java -version && play clean dist",
-        :artifact_format => "zip",
-        :artifact => "target/universal/play-221-(.*).zip"
-      }
+      init_example("play-221", 
+        "play clean universal:packageZipTarball",
+        "target/universal/play-221-(.*).tgz")
     end
     
     it "builds and move the play app artifact", :play => true do
       run_shell_cmds(@result[:project_dir], @cmds)
       mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
-      File.dirname(mk_result[:path]).should eql(File.join(@result[:config_dir], "artifacts/org/test-repo/1.0-SNAPSHOT"))
+      expected = Dir["#{@paths.artifacts}/**/*.tgz"][0]
+      File.dirname(mk_result[:stored_path]).should eql(File.dirname(expected))
     end
     
     it "builds and move the play app artifact", :play => true do
@@ -103,7 +96,8 @@ describe CsBuilder::Commands::MakeArtifactGit do
       EOF
       run_shell_cmds(@result[:project_dir], @cmds)
       mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
-      mk_result[:path].should eql(File.join(@result[:config_dir], "artifacts/org/test-repo/1.0-SNAPSHOT/v1.0.0.zip"))
+      expected = Dir["#{@paths.artifacts}/**/*.tgz"][0]
+      mk_result[:stored_path].should eql(expected)
     end
   end
 

@@ -64,7 +64,7 @@ module CsBuilder
       end
 
       def update
-        GitHelper.update_repo(path, @url, @branch)
+        GitHelper.update_repo(path, @branch)
       end
 
       def hash_and_tag

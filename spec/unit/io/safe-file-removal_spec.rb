@@ -41,7 +41,7 @@ describe SafeFileRemoval do
 
   end
 
-  it "should safely one file in dir - if all unlocked" do 
+  it "should safely remove one file in dir - if all unlocked" do 
 
     path = "spec/tmp/safe-dir"
 

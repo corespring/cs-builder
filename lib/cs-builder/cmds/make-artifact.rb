@@ -1,77 +1,49 @@
-require_relative './core-command'
+require_relative '../log/logger'
 require_relative '../git/git-parser'
-require_relative '../models/config'
+require_relative '../git/repo'
 require_relative '../runner'
-require_relative '../io/safe-file-removal'
+require_relative '../artifacts/repo-artifacts'
 require_relative '../init'
 
 
 module CsBuilder
   module Commands
 
-    include Models
-
     class MakeArtifactGit
 
       include CsBuilder::Runner
-      include CsBuilder::IO::SafeFileRemoval
       include CsBuilder::Git
+      include CsBuilder::Artifacts
 
       def initialize(config_dir)
         CsBuilder::Init.init_cs_builder_dir(config_dir)
         @config_dir = config_dir
+        @log = CsBuilder::Log.get_logger("make-artifact-git")
       end
       
       def run(options)
-        @repo = Repo.new(@config_dir, options[:git], options[:branch])
-        @artifacts = RepoArtifacts.new(@config_dir, @repo, options[:cmd], options[:artifact])
 
-        @log.debug("[run] cfg: #{cfg}")
+        @log.debug("options: #{options}")
+
+        git_url = options[:git]
+
+        org = options.has_key?(:org) ? options[:org] : GitUrlParser.org(git_url)
+        repo = options.has_key?(:repo) ? options[:repo] : GitUrlParser.repo(git_url)
+
+        @repo = Repo.new(@config_dir, git_url, org, repo, options[:branch])
+        @artifacts = RepoArtifacts.new(@config_dir, @repo, options[:cmd], options[:artifact])
 
         run_with_lock(@repo.lock_file) {
           @log.debug "clone repo"
           @repo.clone
           @log.debug "update repo"
           @repo.update
-          hash_and_tag = @repo.hash_and_tag 
-
-          if(force)
-            @artifacts.rm_artifact(hash_and_tag) 
-          end
-
-          if(@artifacts.has_artifacts?(hash_and_tag) and !force)
-            @log. info "artifacts exist for #{uid}"
-            {:path => @artifacts.artifacts(uid)[0], :skipped => true}
-           else
-              @log.debug "build repo for #{uid}"
-              result = @artifacts.build
-              stored_path = @artifacts.move_to_store(
-                result[:artifact],
-                result[:version],
-                result[:extname],
-                hash_and_tag)
-             
-             result.merge({
-              :hash => hash_and_tag.hash,
-              :tag => hash_and_tag.tag,
-              :path => stored_path, 
-              :forced => force })
-           end
+          force = options[:force] == true
+          result = @artifacts.build_and_move_to_store(force: force)
+          @log.debug("build result: #{result}")
+          result
         }
       end
-
-      # def build_repo
-      #   if @config.build_cmd.empty? or @config.build_cmd.nil?
-      #     @log.debug "no build command to run - skipping"
-      #   else
-      #     in_dir(@config.paths.repo){
-      #       @log.debug( "run: #{@config.build_cmd}")
-      #       run_cmd @config.build_cmd
-      #     }
-      #   end
-      # end
-
     end
-
   end
 end

@@ -3,6 +3,7 @@ require 'cs-builder/cmds/make-slug'
 require 'cs-builder/models/paths'
 require 'cs-builder/heroku/heroku-deployer'
 require 'cs-builder/heroku/slug-helper'
+require 'cs-builder/log/logger'
 require 'dotenv'
 
 include CsBuilder::Commands
@@ -13,6 +14,8 @@ include CsBuilder::Heroku::SlugHelper
 module Helpers
   module Integration
 
+    @@log = CsBuilder::Log.get_logger("integration-helper")
+
     Dotenv.load
 
     def default_config_dir
@@ -21,16 +24,24 @@ module Helpers
     end
 
     def add_default_config(path)
-      FileUtils.cp_r(default_config_dir, path, :verbose => true)
+      FileUtils.cp_r(default_config_dir, path, :verbose => @@log.debug?)
     end
 
-    def copy_project_to_tmp(config_dir, project)
-      path = File.expand_path(File.join(config_dir, "example-projects", project))
-      tmp_dir = Dir.mktmpdir("cs-builder-integration-tests")
-      FileUtils.cp_r(path, tmp_dir)
-      out = File.join(tmp_dir, project)
-      raise "cp failed for #{path} -> #{out}" unless File.exists?(out)
+    def get_example_project(project, config_dir: default_config_dir)
+      File.expand_path(File.join(config_dir, "example-projects", project))
+    end
+
+    def copy_example_project(project, to, config_dir: default_config_dir)
+      project_path = get_example_project(project)
+      out = File.join(to, project)
+      FileUtils.mkdir_p(File.dirname(to))
+      FileUtils.cp_r(project_path, to, :verbose => @@log.debug?)
       out
+    end
+
+    def copy_project_to_tmp(project)
+      tmp_dir = Dir.mktmpdir("cs-builder-integration-tests", :verbose => @@log.debug?)
+      copy_example_project(project, tmp_dir)
     end
 
     def run_shell_cmds(dir, cmds)
@@ -46,7 +57,7 @@ module Helpers
       Dir.chdir(dir)
       out = `./run.sh`
       Dir.chdir(pwd)
-      puts "?? -> #{out}"
+      @@log.info "?? -> #{out}"
       out
     end
 
@@ -60,18 +71,18 @@ module Helpers
     def prepare_tmp_project(name) 
       FileUtils.rm_rf("spec/tmp/#{name}")
       config_dir = "spec/tmp/#{name}" 
-      new_dir = copy_project_to_tmp(default_config_dir, name) 
+      new_dir = copy_project_to_tmp(name) 
       {:config_dir => config_dir, :project_dir => new_dir}
     end
 
     def build_git(name, shell_cmds, formula)
       FileUtils.rm_rf("spec/tmp")
       config_dir = "spec/tmp/#{name}" 
-      new_dir = copy_project_to_tmp(default_config_dir, name) 
+      new_dir = copy_project_to_tmp(name) 
 
       cmd_result = run_shell_cmds(new_dir, shell_cmds)
 
-      puts "new dir: #{new_dir}"
+      @@log.info "new dir: #{new_dir}"
 
       opts = {
         :git => new_dir,
