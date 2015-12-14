@@ -87,7 +87,7 @@ module CsBuilder
     end
 
     desc "artifact-list", "list available artifacts"
-    add_opts(git, org_repo(false))
+    add_opts(options, git, org_repo(false))
     def artifact_list
       CsBuilder::Log.load_config(options[:log_config])
       cmd = Commands::Artifacts::List.new(options[:config_dir])
