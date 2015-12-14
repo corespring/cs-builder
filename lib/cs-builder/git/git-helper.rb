@@ -27,6 +27,11 @@ module CsBuilder
         sha
       end
 
+      def self.has_tag?(path, tag)
+        `#{base_git(path)} tag --contains #{tag}`
+        $?.to_i == 0
+      end
+
       def self.clone_repo(path, git_repo, branch)
         @@log.info "path: #{path}, branch: #{branch}"
         FileUtils.mkdir_p(path, :verbose => true ) unless File.exists?(path)
@@ -66,8 +71,12 @@ module CsBuilder
 
       private 
 
+      def self.base_git(path)
+        "git --git-dir=#{path}/.git --work-tree=#{path}"
+      end
+
       def self.run_git(path, cmd) 
-        run_shell_cmd("git --git-dir=#{path}/.git --work-tree=#{path} #{cmd}")
+        run_shell_cmd("#{base_git(path)} #{cmd}")
       end
 
     end

@@ -26,13 +26,17 @@ describe CsBuilder::Artifacts::RepoArtifacts do
   git add .
   git commit . -m "first commit"
   EOF
+  
+  NODE = "node-0.10.20"
+  
+  PATTERN = "#{NODE}-(.*).tgz"
 
   def init_repo(cmds = DefaultCmds)
     @root = Dir.mktmpdir("repo_artifacts")
     @log.debug("@root: #{@root}")
     @paths = Paths.new(@root, "org", "repo", "branch")
     Init.init_cs_builder_dir(@root)
-    copy_example_project("node-0.10.20", @paths.repo)
+    copy_example_project(NODE, @paths.repo)
     run_shell_cmds(@paths.repo, cmds)
   end
 
@@ -41,31 +45,32 @@ describe CsBuilder::Artifacts::RepoArtifacts do
     before(:each) do 
       init_repo
       @repo = Repo.new(@root, "url", "org", "repo", "branch")
-      @re = RepoArtifacts.new(@root, @repo, "npm pack", "node-0.10.20-(.*).tgz")
-      @first_build = @re.build
+      @re = RepoArtifacts.new(@root, @repo)
+      @first_build = @re.build("npm pack", PATTERN)
     end
     
     it "builds the artifact and returns the build info" do 
       @first_build[:build_info].should include({
         :version => "0.0.1", 
         :extname => ".tgz", 
-        :artifact => "#{@repo.path}/node-0.10.20-0.0.1.tgz"
+        :path => "#{@repo.path}/node-0.10.20-0.0.1.tgz"
         })
     end
     
     it "skips the build if the artifact is there and force = false" do 
       stored_path = @re.move_to_store(@first_build[:build_info])
-      result = @re.build
+      result = @re.build("npm pack", PATTERN)
+
+      result[:existing_artifact][:path].should eql(stored_path)
       result.should include({
-        :existing_artifact => stored_path,
-        :skipped => true,
-        :forced => false
+        :forced => false,
+        :skipped => true
         })
     end
     
     it "re-builds if the artifact is there and force = true" do 
       stored_path = @re.move_to_store(@first_build[:build_info])
-      build_two = @re.build(force:true)
+      build_two = @re.build("npm pack", PATTERN, force:true)
       build_two.should include({
         :build_info => @first_build[:build_info],
         :skipped => false,
@@ -79,18 +84,22 @@ describe CsBuilder::Artifacts::RepoArtifacts do
     before(:each) do 
       init_repo
       @repo = Repo.new(@root, "url", "org", "repo", "branch")
-      @re = RepoArtifacts.new(@root, @repo, "npm pack", "node-0.10.20-(.*).tgz")
+      @re = RepoArtifacts.new(@root, @repo)
       @re.artifact(@repo.hash_and_tag).should be_nil 
     end
-
 
     it "returns nil for an unbuilt artifact" do
       @re.artifact(@repo.hash_and_tag).should be_nil 
     end
     
     it "returns the artifact" do
-      build_result = @re.build_and_move_to_store
-      @re.artifact(@repo.hash_and_tag).should eql("#{@paths.artifacts}/0.0.1/#{@repo.hash_and_tag.to_simple}.tgz") 
+      build_result = @re.build_and_move_to_store("npm pack", PATTERN)
+      @re.artifact(@repo.hash_and_tag).should include({
+        :path => "#{@paths.artifacts}/0.0.1/#{@repo.hash_and_tag.to_simple}.tgz",
+        :version => "0.0.1",
+        :hash => @repo.hash_and_tag.hash,
+        :tag => @repo.hash_and_tag.tag
+        }) 
     end
 
   end
@@ -100,7 +109,7 @@ describe CsBuilder::Artifacts::RepoArtifacts do
     before(:each) do 
       init_repo(DefaultCmds + "\ngit tag v0.0.1")
       @repo = Repo.new(@root, "url", "org", "repo", "branch")
-      @re = RepoArtifacts.new(@root, @repo, "npm pack", "node-0.10.20-(.*).tgz")
+      @re = RepoArtifacts.new(@root, @repo)
     end
    
     it "shouldn't have an artifact" do 
@@ -112,8 +121,13 @@ describe CsBuilder::Artifacts::RepoArtifacts do
     end
 
     it "returns the artifact" do
-      build_result = @re.build_and_move_to_store
-      @re.artifact(@repo.hash_and_tag).should eql("#{@paths.artifacts}/0.0.1/#{@repo.hash_and_tag.to_simple}.tgz") 
+      build_result = @re.build_and_move_to_store("npm pack", PATTERN)
+      @re.artifact(@repo.hash_and_tag).should include({
+        :version => "0.0.1",
+        :tag => "v0.0.1",
+        :hash => @repo.hash_and_tag.hash,
+        :path => "#{@paths.artifacts}/0.0.1/#{@repo.hash_and_tag.to_simple}.tgz"
+      }) 
     end
 
   end
@@ -122,8 +136,8 @@ describe CsBuilder::Artifacts::RepoArtifacts do
     before(:each) do 
       init_repo(DefaultCmds + "\ngit tag v0.0.1")
       @repo = Repo.new(@root, "url", "org", "repo", "branch")
-      @re = RepoArtifacts.new(@root, @repo, "npm pack", "node-0.10.20-(.*).tgz")
-      build_result = @re.build_and_move_to_store
+      @re = RepoArtifacts.new(@root, @repo)
+      build_result = @re.build_and_move_to_store("npm pack", PATTERN)
     end
    
     it "shouldn't have an artifact" do 

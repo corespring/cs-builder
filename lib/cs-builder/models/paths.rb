@@ -19,6 +19,10 @@ module CsBuilder
         raise "@branch is nil" if @branch.nil?
       end
 
+      def templates 
+        File.join(@root, "templates")
+      end
+      
       def artifacts
         File.join(@root, "artifacts", @org, @repo)
       end

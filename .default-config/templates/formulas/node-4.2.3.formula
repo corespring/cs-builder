@@ -1,0 +1,6 @@
+TEMPLATE_DIR=$1
+
+VERSION=4.2.3
+curl -O http://nodejs.org/dist/v$VERSION/node-v$VERSION-linux-x64.tar.gz
+
+mv node-v$VERSION-linux-x64.tar.gz $TEMPLATE_DIR/node-$VERSION.tgz

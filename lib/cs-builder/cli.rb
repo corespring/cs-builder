@@ -3,40 +3,7 @@ require 'thor'
 Dir[File.dirname(__FILE__) + '/cmds/*.rb'].each {|file| require file }
 
 require_relative './log/logger'
-
-module OptsHelper 
-
-  def inner_merge(hashes, acc)
-    if(hashes.length == 0)
-      acc
-    else 
-      acc = acc.merge(hashes.shift)
-      inner_merge(hashes, acc)
-    end
-  end
-
-  def merge(*hashes)
-    inner_merge(hashes, {})
-  end
-
-  def add_opts(scope, *opts)
-    merged = merge(*opts)
-    merged.each{ |k,v| 
-      scope[k] = Thor::Option.new(k, v)
-    }
-  end
-
-  def str(d: "", r:false, f: nil)
-    {:type => :string, :required => r, :desc => d, :default => f}
-  end
-
-  def org_repo(required, override: false)
-    { 
-      :org => str(r: required, d: "#{override ? "override " : ""}the org"),
-      :repo => str(r: required, d: "#{override ? "override " : ""}the repo")
-    } 
-  end
-end
+require_relative './opts-helper'
 
 module CsBuilder
 
@@ -92,15 +59,19 @@ module CsBuilder
     add_opts(options, git, heroku, platform, org_repo(false, override:true))
     option :force, :type => :boolean, :default => false
     def artifact_deploy_from_branch
+      CsBuilder::Log.load_config(options[:log_config])
       cmd = Commands::Artifacts::DeployFromBranch.new(options[:config_dir])
-      puts "todo..."
+      cmd.run(options)
     end  
 
-    desc "artifact-deploy-from-tag", "Looks for an artifact with the given tag, slugifys it, deploys it."
+    desc "artifact-deploy-from-tag", "Looks for an artifact with the given tag, slugifies it, deploys it."
     add_opts(options, heroku, platform, org_repo(true))
     option :force, force
     option :tag, str(r:true, d: "The tag/version to look for")
     def artifact_deploy_from_tag
+      CsBuilder::Log.load_config(options[:log_config])
+      cmd = Commands::Artifacts::DeployFromTag.new(options[:config_dir])
+      cmd.run(options)
     end
 
     desc "artifact-deploy-from-file", "deploy from an artifact file"
@@ -108,8 +79,20 @@ module CsBuilder
     option :force, force
     option :artifact_file, str(r:true)
     option :tag, str(r:true) 
-    option :sha, str
+    option :hash, str
     def artifact_deploy_from_file
+      CsBuilder::Log.load_config(options[:log_config])
+      cmd = Commands::Artifacts::DeployFromFile.new(options[:config_dir])
+      cmd.run(options)
+    end
+
+    desc "artifact-list", "list available artifacts"
+    add_opts(git, org_repo(false))
+    def artifact_list
+      CsBuilder::Log.load_config(options[:log_config])
+      cmd = Commands::Artifacts::List.new(options[:config_dir])
+      list = cmd.run(options)
+      puts list.join("\n")
     end
 
     desc "slug-mk-from-artifact-file", "create a heroku slug from an artifact"
@@ -136,100 +119,6 @@ module CsBuilder
       out = cmd.run(options)
       puts "deployed to: #{options[:app]}"
     end
-
-    # desc "build-from-git", "clone if needed, update, build and create an archive"
-    # git_opts.each{|k,v| option(k,v)}
-    # option :build_assets, :type => :array, :required => false
-    # option :cmd, :type => :string, :default => "play clean update compile stage"
-    # option :force, :type => :boolean, :default => false
-    # long_desc Docs.docs("build-from-git")
-    # def build_from_git
-    #   CsBuilder::Log.load_config(options[:log_config])
-    #   cmd = Commands::BuildFromGit.new(options[:config_dir])
-    #   out = cmd.run(options)
-    #   puts out
-    # end
-
-    # desc "build-from-file", "copy a local project, build and create an archive"
-    # option :external_src, :type => :string, :required => true
-    # option :org, :type => :string, :required => true
-    # option :repo, :type => :string, :required => true
-    # option :branch, :type => :string, :required => true
-    # option :build_assets, :type => :array, :required => true
-    # option :cmd, :type => :string, :default => ""
-    # option :uid, :type => :string, :required => true
-    # option :force, :type => :boolean, :default => false
-    # long_desc Docs.docs("build-from-file")
-    # def build_from_file
-    #   CsBuilder::Log.load_config(options[:log_config])
-    #   cmd = Commands::BuildFromFile.new(options[:config_dir])
-    #   out = cmd.run(options)
-    #   puts out
-    # end
-
-    # desc "file-slug", "make a slug from a binary"
-    # option :branch, :type => :string, :required => true
-    # option :uid, :type => :string, :required => true
-    # option :org, :type => :string, :required => true
-    # option :repo, :type => :string, :required => true
-    # option :template, :type => :string, :default => "jdk-1.7"
-    # option :force, :type => :boolean, :default => false
-    # long_desc Docs.docs("file-slug")
-    # def file_slug
-    #   CsBuilder::Log.load_config(options[:log_config])
-    #   cmd = Commands::MakeFileSlug.new(options[:config_dir])
-    #   out = cmd.run(options)
-    #   puts "Done: #{out}"
-    # end
-
-
-    # desc "remove-config", "remove ~/.cs-build config folder (Can't undo!!)"
-    # def remove_config
-    #   CsBuilder::Log.load_config(options[:log_config])
-    #   Commands::RemoveConfig.new(options[:config_dir]).run
-    # end
-
-    # desc "git-slug", "make a slug"
-    # git_opts.each{|k,v| option(k,v)}
-    # option :sha, :type => :string, :required => false
-    # option :template, :type => :string, :default => "jdk-1.7"
-    # option :force, :type => :boolean, :default => false
-    # long_desc Docs.docs("git-slug")
-    # def git_slug
-    #   CsBuilder::Log.load_config(options[:log_config])
-    #   cmd = Commands::MakeGitSlug.new(options[:config_dir])
-    #   out = cmd.run(options)
-
-    #   puts "Done: #{out}"
-    # end
-
-    # desc "list-slugs", "list all slugs"
-    # def list_slugs
-    #   CsBuilder::Log.load_config(options[:log_config])
-    #   cmd = Commands::ListSlugs.new(options[:config_dir])
-    #   cmd.run(options)
-    # end
-
-    # desc "remove template", "remove template"
-    # option :template, :type => :string, :required => true
-    # def remove_template
-    #   CsBuilder::Log.load_config(options[:log_config])
-    #   cmd = Commands::RemoveTemplate.new(options[:config_dir])
-    #   cmd.run(options)
-    # end
-
-    # desc "heroku-deploy-slug", "deploy a slug"
-    # git_opts.each{|k,v| option(k,v)}
-    # option :git, :type => :string, :required => true
-    # option :branch, :type => :string, :required => true
-    # option :heroku_app, :type => :string, :required => true
-    # option :commit_hash, :type => :string
-    # option :stack, :type => :string, :default => "cedar-14"
-    # def heroku_deploy_slug
-    #   CsBuilder::Log.load_config(options[:log_config])
-    #   cmd = Commands::HerokuDeploySlug.new(options[:config_dir], options[:stack])
-    #   puts cmd.run(options)
-    # end
 
   end
 end

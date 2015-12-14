@@ -1,4 +1,5 @@
 require_relative '../log/logger'
+require_relative './heroku-description'
 require 'json'
 require 'platform-api'
 require 'pp'
@@ -10,23 +11,18 @@ module CsBuilder
     # See: https://devcenter.heroku.com/articles/platform-api-deploying-slugs
     class HerokuDeployer
 
-      def initialize(options: {})
+      def initialize()
         @log = CsBuilder::Log.get_logger('heroku-deployer')
-        @options = options
         @heroku = PlatformAPI.connect_oauth(auth_token)
       end
-
 
       def deploy(slug, process_hash, app, commit_hash, description, stack, force: false)
 
         raise "Can't deploy - slug doesn't exist" unless File.exists? slug
 
-        current_commit_hash = nilify(get_current_commit_hash(app))
-        new_hash = nilify(commit_hash)
-        @log.info("current: #{current_commit_hash}, commit_hash: #{new_hash}, force: #{force}")
-
-        if(current_commit_hash == new_hash and !force)
-          @log.warn("The app already has this version #{new_hash} deployed, and force is set to #{force} - skipping")
+        if(already_deployed(app, commit_hash, description) and !force)
+          @log.warn("The app already has this version #{commit_hash}, #{description} deployed, and force is set to #{force} - skipping")
+          nil
         else
           create_slug_response = create_slug(app, process_hash, commit_hash, description, stack)
           @log.debug("create_slug_response: #{create_slug_response}")
@@ -42,6 +38,34 @@ module CsBuilder
 
       private
 
+      def already_deployed(app, commit_hash, description)
+
+        new_desc = HerokuDescription.from_json_string(description) 
+        
+        if(new_desc.nil?)
+          @log.warn("The description #{description} can't be read as a HerokuDescription")
+        end
+
+        current_desc = get_current_description(app)
+
+        @log.debug("current_desc: #{current_desc}, #{current_desc.class.name}")
+        @log.debug("new_desc: #{new_desc}, #{new_desc.class.name}")
+
+        if(current_desc.nil? and new_desc.nil?)
+          false
+        else
+          current_desc == new_desc
+        end
+      end
+
+      def get_current_description(app)
+        release = get_most_recent_release(app)
+        slug_id = release["slug"]["id"]
+        slug_info = @heroku.slug.info(app, slug_id)
+        @log.debug("slug: \n#{PP.pp(slug_info, "")}")
+        HerokuDescription.from_json_string(slug_info["commit_description"])
+      end
+
       def nilify(s)
         s.nil? ? s : s.empty? ? nil : s
       end
@@ -53,7 +77,6 @@ module CsBuilder
         if release.nil?
           ""
         else
-          # @log.debug("release: #{release}")
           slug_id = release["slug"]["id"]
           slug_info = @heroku.slug.info(app,slug_id)
           @log.debug("slug: \n#{PP.pp(slug_info, "")}")

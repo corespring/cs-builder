@@ -7,10 +7,11 @@ module CsBuilder
 
       # Get a hash from the Procfile yml file
       #
-      def self.processes_from_slug(slug)
-        `tar -zxvf #{slug} ./app/Procfile`
-        proc_yml = YAML.load_file('./app/Procfile')
-        FileUtils.rm_rf './app/Procfile'
+      def self.processes_from_slug(slug, procfile: "Procfile")
+        final_path = "./app/#{procfile}"
+        `tar -zxvf #{slug} #{final_path}`
+        proc_yml = YAML.load_file(final_path) 
+        FileUtils.rm_rf final_path 
         proc_yml
       end
   end

@@ -17,6 +17,10 @@ module CsBuilder
           "#{@tag}-#{@hash}"
         end
       end
+
+      def to_s 
+        self.to_simple
+      end
       
       def ==(other)
          self.to_simple == other.to_simple
@@ -65,6 +69,15 @@ module CsBuilder
 
       def update
         GitHelper.update_repo(path, @branch)
+      end
+
+      def has_tag?(tag)
+        GitHelper.has_tag?(path, tag)
+      end
+
+      def clone_and_update
+        clone 
+        update
       end
 
       def hash_and_tag

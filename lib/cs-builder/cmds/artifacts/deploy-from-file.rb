@@ -1,21 +1,35 @@
-require_relative '../../init'
 require_relative '../../log/logger'
+require_relative './deploy-cmd'
 
 module CsBuilder
   module Commands
     module Artifacts
-      class DeployFromFile
+
+      class DeployFromFile < DeployCommand
 
         def initialize(config_dir)
-          CsBuilder::Init.init_cs_builder_dir(config_dir)
-          @config_dir = config_dir
-          @log = CsBuilder::Log.get_logger(self.class.name)
+          super(config_dir)
+          @log = CsBuilder::Log.get_logger("deploy-from-file")
         end
-        
-        def run(options)
-          @log.debug("options: #{options}")
-        end
-      end
+      
+
+        def load_artifact(options)
+          path = options[:artifact_file]
+
+          hash = options.has_key?(:hash) ? options[:hash] : 'no-hash'
+          if File.exists?(path)
+            {
+              :path => path,
+              :hash => hash,
+              :tag => options[:tag],
+              :version => options[:tag].gsub("v", "")
+            }
+          end
+        end 
+
+      end        
+
     end
   end
 end
+

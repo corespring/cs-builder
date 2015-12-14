@@ -1,10 +1,13 @@
-require_relative '../helpers/integration'
-require 'cs-builder/cmds/make-artifact'
+require_relative '../../helpers/integration'
+require 'cs-builder/cmds/artifacts/mk-from-git'
 require 'cs-builder/log/logger'
 
-describe CsBuilder::Commands::MakeArtifactGit do
+include CsBuilder::Commands::Artifacts
+
+describe CsBuilder::Commands::Artifacts::MkFromGit do
 
   include Helpers::Integration
+
 
   def init_example(example_project, cmd, artifact)
     @result = prepare_tmp_project(example_project)
@@ -40,7 +43,7 @@ describe CsBuilder::Commands::MakeArtifactGit do
       EOF
 
       run_shell_cmds(@result[:project_dir], @cmds)
-      mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
+      mk_result = MkFromGit.new(@result[:config_dir]).run(@opts)
       expected = Dir["#{@paths.artifacts}/**/*.tgz"][0]
       mk_result[:stored_path].should eql(expected)
     end
@@ -48,7 +51,7 @@ describe CsBuilder::Commands::MakeArtifactGit do
     it "build and move the node app artifact to artifacts/org/repo/version/sha.tgz", 
       :node => true do
       run_shell_cmds(@result[:project_dir], @cmds)
-      mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
+      mk_result = MkFromGit.new(@result[:config_dir]).run(@opts)
       expected = Dir["#{@paths.artifacts}/**/*.tgz"][0]
       File.dirname(mk_result[:stored_path]).should eql(File.dirname(expected))
     end
@@ -57,8 +60,8 @@ describe CsBuilder::Commands::MakeArtifactGit do
       :skip => true, 
       :node => true do 
       run_shell_cmds(@result[:project_dir], @cmds)
-      MakeArtifactGit.new(@result[:config_dir]).run(@opts)
-      mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
+      MkFromGit.new(@result[:config_dir]).run(@opts)
+      mk_result = MkFromGit.new(@result[:config_dir]).run(@opts)
       mk_result[:skipped].should eql(true)
     end
     
@@ -66,9 +69,9 @@ describe CsBuilder::Commands::MakeArtifactGit do
       :force => true, 
       :node => true do 
       run_shell_cmds(@result[:project_dir], @cmds)
-      MakeArtifactGit.new(@result[:config_dir]).run(@opts)
+      MkFromGit.new(@result[:config_dir]).run(@opts)
       @opts[:force] = true
-      mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
+      mk_result = MkFromGit.new(@result[:config_dir]).run(@opts)
       mk_result[:forced].should eql(true)
     end
 
@@ -84,7 +87,7 @@ describe CsBuilder::Commands::MakeArtifactGit do
     
     it "builds and move the play app artifact", :play => true do
       run_shell_cmds(@result[:project_dir], @cmds)
-      mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
+      mk_result = MkFromGit.new(@result[:config_dir]).run(@opts)
       expected = Dir["#{@paths.artifacts}/**/*.tgz"][0]
       File.dirname(mk_result[:stored_path]).should eql(File.dirname(expected))
     end
@@ -95,7 +98,7 @@ describe CsBuilder::Commands::MakeArtifactGit do
       git tag v1.0.0
       EOF
       run_shell_cmds(@result[:project_dir], @cmds)
-      mk_result = MakeArtifactGit.new(@result[:config_dir]).run(@opts)
+      mk_result = MkFromGit.new(@result[:config_dir]).run(@opts)
       expected = Dir["#{@paths.artifacts}/**/*.tgz"][0]
       mk_result[:stored_path].should eql(expected)
     end
