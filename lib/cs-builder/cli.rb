@@ -1,6 +1,6 @@
 require 'thor'
 
-Dir[File.dirname(__FILE__) + '/cmds/*.rb'].each {|file| require file }
+Dir[File.dirname(__FILE__) + '/cmds/**/*.rb'].each {|file| require file }
 
 require_relative './log/logger'
 require_relative './opts-helper'
@@ -14,12 +14,13 @@ module CsBuilder
     end
   end
 
-  include Commands
 
   class CLI < Thor
 
     extend OptsHelper 
     
+    include CsBuilder::Commands
+
     class_option :config_dir, str(f: File.expand_path("~/.cs-builder"))
     class_option :log_config, str(f: File.expand_path("~/.cs-builder/log-config.yml"))
 
@@ -60,7 +61,7 @@ module CsBuilder
     option :force, :type => :boolean, :default => false
     def artifact_deploy_from_branch
       CsBuilder::Log.load_config(options[:log_config])
-      cmd = Commands::Artifacts::DeployFromBranch.new(options[:config_dir])
+      cmd = Artifacts::DeployFromBranch.new(options[:config_dir])
       cmd.run(options)
     end  
 
@@ -70,7 +71,7 @@ module CsBuilder
     option :tag, str(r:true, d: "The tag/version to look for")
     def artifact_deploy_from_tag
       CsBuilder::Log.load_config(options[:log_config])
-      cmd = Commands::Artifacts::DeployFromTag.new(options[:config_dir])
+      cmd = Artifacts::DeployFromTag.new(options[:config_dir])
       cmd.run(options)
     end
 
@@ -82,7 +83,7 @@ module CsBuilder
     option :hash, str
     def artifact_deploy_from_file
       CsBuilder::Log.load_config(options[:log_config])
-      cmd = Commands::Artifacts::DeployFromFile.new(options[:config_dir])
+      cmd = Artifacts::DeployFromFile.new(options[:config_dir])
       cmd.run(options)
     end
 
@@ -90,7 +91,7 @@ module CsBuilder
     add_opts(options, git, org_repo(false))
     def artifact_list
       CsBuilder::Log.load_config(options[:log_config])
-      cmd = Commands::Artifacts::List.new(options[:config_dir])
+      cmd = Artifacts::List.new(options[:config_dir])
       list = cmd.run(options)
       puts list.join("\n")
     end
@@ -102,7 +103,7 @@ module CsBuilder
     option :force, force 
     def slug_mk_from_artifact_file
       CsBuilder::Log.load_config(options[:log_config])
-      cmd = Commands::MakeSlugFromArtifact.new(options[:config_dir])
+      cmd = MakeSlugFromArtifact.new(options[:config_dir])
       out = cmd.run(options)
       puts "done."
     end
@@ -115,7 +116,7 @@ module CsBuilder
     option :force, force 
     def slug_deploy_from_file
       CsBuilder::Log.load_config(options[:log_config])
-      cmd = Commands::DeploySlugFile.new(options[:config_dir], options[:stack])
+      cmd = DeploySlugFile.new(options[:config_dir], options[:stack])
       out = cmd.run(options)
       puts "deployed to: #{options[:app]}"
     end

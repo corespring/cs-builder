@@ -57,7 +57,7 @@ describe CsBuilder::Commands::Artifacts::MkFromGit do
     end
 
     it "skips the build if the artifact is already there", 
-      :skip => true, 
+      :skipped => true, 
       :node => true do 
       shell_runs(@result[:project_dir], @cmds)
       MkFromGit.new(@result[:config_dir]).run(@opts)

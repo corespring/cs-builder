@@ -1,5 +1,8 @@
 require_relative './git-parser'
 require_relative './git-helper'
+require_relative '../models/paths'
+
+include CsBuilder::Models 
 
 module CsBuilder
   module Git
