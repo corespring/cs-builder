@@ -33,7 +33,8 @@ module CsBuilder
    
     heroku = {
       :heroku_app => str(r:true),
-      :heroku_stack => str(r:true, f: "cedar-14")
+      :heroku_stack => str(r:true, f: "cedar-14"),
+      :procfile => str(f: "Procfile", d: "The path to the Procfile")
     }
 
     platform = { 
@@ -45,14 +46,15 @@ module CsBuilder
     desc "artifact-mk-from-git", "create an artifact from a git repo and branch and store it for later use"
     add_opts(options, git, org_repo(false, override:true))
     option :cmd, str(r:true, d: "this command is run against the project and it must create a .tgz of your project")
-    option :artifact_pattern, str(r:true, d: "a regex pattern to find the artifact and derive the :tag (eg: dist/my-app-(.*).tgz)")
+    option :artifact, str(r:true, d: "a regex pattern to find the artifact and derive the :tag (eg: dist/my-app-(.*).tgz)")
     option :tag, str(d: "override the version derived from the regex group in --artifact")
     option :force, force 
     long_desc Docs.docs("make-artifact-git")
     def artifact_mk_from_git
-      CsBuilder::Log.load_config(options[:log_config])
-      cmd = Commands::Artifacts::MkFromGit.new(options[:config_dir])
-      out = cmd.run(options)
+      o = OptsHelper.symbols(options)
+      CsBuilder::Log.load_config(o[:log_config])
+      cmd = Commands::Artifacts::MkFromGit.new(o[:config_dir])
+      out = cmd.run(o)
       puts out
     end
    
@@ -60,9 +62,12 @@ module CsBuilder
     add_opts(options, git, heroku, platform, org_repo(false, override:true))
     option :force, :type => :boolean, :default => false
     def artifact_deploy_from_branch
-      CsBuilder::Log.load_config(options[:log_config])
-      cmd = Artifacts::DeployFromBranch.new(options[:config_dir])
-      cmd.run(options)
+      o = OptsHelper.symbols(options)
+
+      puts ">> #{o}"
+      CsBuilder::Log.load_config(o[:log_config])
+      cmd = Commands::Artifacts::DeployFromBranch.new(o[:config_dir])
+      cmd.run(o)
     end  
 
     desc "artifact-deploy-from-tag", "Looks for an artifact with the given tag, slugifies it, deploys it."
@@ -70,9 +75,10 @@ module CsBuilder
     option :force, force
     option :tag, str(r:true, d: "The tag/version to look for")
     def artifact_deploy_from_tag
-      CsBuilder::Log.load_config(options[:log_config])
-      cmd = Artifacts::DeployFromTag.new(options[:config_dir])
-      cmd.run(options)
+      o = OptsHelper.symbols(options)
+      CsBuilder::Log.load_config(o[:log_config])
+      cmd = Commands::Artifacts::DeployFromTag.new(o[:config_dir])
+      cmd.run(o)
     end
 
     desc "artifact-deploy-from-file", "deploy from an artifact file"
@@ -82,17 +88,19 @@ module CsBuilder
     option :tag, str(r:true) 
     option :hash, str
     def artifact_deploy_from_file
-      CsBuilder::Log.load_config(options[:log_config])
-      cmd = Artifacts::DeployFromFile.new(options[:config_dir])
-      cmd.run(options)
+      o = OptsHelper.symbols(options)
+      CsBuilder::Log.load_config(o[:log_config])
+      cmd = Commands::Artifacts::DeployFromFile.new(o[:config_dir])
+      cmd.run(o)
     end
 
     desc "artifact-list", "list available artifacts"
     add_opts(options, git, org_repo(false))
     def artifact_list
-      CsBuilder::Log.load_config(options[:log_config])
-      cmd = Artifacts::List.new(options[:config_dir])
-      list = cmd.run(options)
+      o = OptsHelper.symbols(options)
+      CsBuilder::Log.load_config(o[:log_config])
+      cmd = Commands::Artifacts::List.new(o[:config_dir])
+      list = cmd.run(o)
       puts list.join("\n")
     end
 
@@ -102,9 +110,10 @@ module CsBuilder
     option :out_path, str(r:true, d: "Where to save the slug")
     option :force, force 
     def slug_mk_from_artifact_file
-      CsBuilder::Log.load_config(options[:log_config])
-      cmd = MakeSlugFromArtifact.new(options[:config_dir])
-      out = cmd.run(options)
+      o = OptsHelper.symbols(options)
+      CsBuilder::Log.load_config(o[:log_config])
+      cmd = MakeSlugFromArtifact.new(o[:config_dir])
+      out = cmd.run(o)
       puts "done."
     end
 
@@ -115,9 +124,10 @@ module CsBuilder
     option :description, str(d: "A description", f: "deploy")
     option :force, force 
     def slug_deploy_from_file
-      CsBuilder::Log.load_config(options[:log_config])
-      cmd = DeploySlugFile.new(options[:config_dir], options[:stack])
-      out = cmd.run(options)
+      o = OptsHelper.symbols(options)
+      CsBuilder::Log.load_config(o[:log_config])
+      cmd = DeploySlugFile.new(o[:config_dir], o[:stack])
+      out = cmd.run(o)
       puts "deployed to: #{options[:app]}"
     end
 

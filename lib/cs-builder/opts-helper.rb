@@ -1,6 +1,19 @@
 require 'thor'
 
+
 module OptsHelper 
+
+
+  def self.symbols(h)
+    c = h.clone
+    puts "H? #{c}"
+    if c.nil?
+      raise "hash is nil?"
+    else 
+      out = c.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+      out
+    end
+  end
 
   def inner_merge(hashes, acc)
     if(hashes.length == 0)

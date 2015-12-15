@@ -1,14 +1,17 @@
+require_relative '../log/logger'
+
 module CsBuilder
   module InOut
     module Utils
       
       def in_dir(dir)
+        @@log = CsBuilder::Log.get_logger("in_dir")       
         current = File.expand_path(Dir.pwd)
         Dir.chdir(dir)
-        @log.debug("[in_dir] current dir #{Dir.pwd}")
+        @@log.debug("current dir #{Dir.pwd}")
         yield
         Dir.chdir(current)
-        @log.debug("[in_dir] back to: #{Dir.pwd}")
+        @@log.debug("back to: #{Dir.pwd}")
       end
 
       def mkdir_if_needed(p)

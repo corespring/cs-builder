@@ -14,7 +14,7 @@ module CsBuilder
 
       include Heroku
       
-      include Git 
+      include CsBuilder::Git 
 
       include CsBuilder::Artifacts 
 
@@ -112,9 +112,9 @@ module CsBuilder
           org = org_from_opts(options)
           repo = repo_from_opts(options)
           branch = options[:branch]
-          @repo = Repo.new(@config_dir, git_url, org, repo, branch)
+          @repo = Git::Repo.new(@config_dir, git_url, org, repo, branch)
           @repo.clone_and_update
-          @artifacts = RepoArtifacts.new(@config_dir, @repo)
+          @artifacts = Artifacts::RepoArtifacts.new(@config_dir, @repo)
           find_artifact_from_repo_artifacts(options, @repo, @artifacts)
         end
 
