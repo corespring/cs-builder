@@ -3,6 +3,13 @@ require 'open3'
 
 module CsBuilder
 
+=begin
+  This runner uses popen3 so you have access to the stderr
+  Which is nicer.. but it's hanging atm.
+  Could it be related to this: 
+  http://stackoverflow.com/questions/8952043/how-to-fix-hanging-popen3-in-ruby
+  ?
+=end
   module NewShellRunner
     
     @@log = CsBuilder::Log.get_logger('shell')
