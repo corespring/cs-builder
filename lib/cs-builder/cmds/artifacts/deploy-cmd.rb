@@ -4,6 +4,7 @@ require_relative '../../heroku/slug-from-template'
 require_relative '../../heroku/heroku-deployer'
 require_relative '../../heroku/heroku-description'
 require_relative '../../git/repo'
+require_relative '../../git/git-parser'
 require_relative '../../artifacts/repo-artifacts'
 
 require 'tmpdir'
@@ -135,15 +136,14 @@ module CsBuilder
               :org => org,
               :branch => options[:branch]
           })
-
         end
 
         def org_from_opts(options)
-          options.has_key?(:org) ? options[:org] : GitUrlParser.org(git_url)
+          options.has_key?(:org) ? options[:org] : Git::GitUrlParser.org(git_url)
         end
         
         def repo_from_opts(options)
-          options.has_key?(:repo) ? options[:repo] : GitUrlParser.org(git_url)
+          options.has_key?(:repo) ? options[:repo] : Git::GitUrlParser.org(git_url)
         end
 
       end
