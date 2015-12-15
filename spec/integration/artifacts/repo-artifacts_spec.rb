@@ -38,7 +38,7 @@ describe CsBuilder::Artifacts::RepoArtifacts do
     @paths = Paths.new(@root, "org", "repo", "branch")
     Init.init_cs_builder_dir(@root)
     copy_example_project(NODE, @paths.repo)
-    shell_runs(@paths.repo, cmds)
+    run_shell_cmds(@paths.repo, cmds)
   end
 
   describe "build" do 

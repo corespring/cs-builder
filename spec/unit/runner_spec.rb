@@ -28,6 +28,21 @@ describe Runner do
     end
   end
 
+  # Note this test needs to run :expect - but for backwards compatibility 
+  # we run :should
+  before(:all) do 
+    RSpec.configure do |c|
+      c.expect_with(:rspec) { |c| c.syntax = :expect } 
+
+    end
+  end
+
+  after(:all) do 
+    RSpec.configure do |c|
+      c.expect_with(:rspec) { |c| c.syntax = :should } 
+    end
+  end
+
   it "should throw an error on the 2nd call for the same lock path" do
 
     error = TestRunner.new.runner_error("spec/tmp/one.lock")

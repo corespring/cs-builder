@@ -5,6 +5,7 @@ require 'cs-builder/heroku/heroku-deployer'
 require 'cs-builder/heroku/slug-helper'
 require 'cs-builder/log/logger'
 require 'dotenv'
+require 'tmpdir'
 
 include CsBuilder::Commands
 include CsBuilder::Models
@@ -40,9 +41,7 @@ module Helpers
       copy_example_project(project, tmp_dir)
     end
 
-    def shell_runs(dir, cmds)
-      puts "??"
-
+    def run_shell_cmds(dir, cmds)
       pwd = Dir.pwd
       script = <<-EOF
       #!/usr/bin/env bash

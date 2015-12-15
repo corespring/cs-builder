@@ -1,4 +1,4 @@
 default: "WARN"
 $: "INFO"
 deploy-command: "DEBUG"
-shell: "DEBUG"
+shell: "error"

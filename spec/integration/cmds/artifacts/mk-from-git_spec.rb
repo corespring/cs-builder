@@ -42,7 +42,7 @@ describe CsBuilder::Commands::Artifacts::MkFromGit do
       git tag v0.0.1
       EOF
 
-      shell_runs(@result[:project_dir], @cmds)
+      run_shell_cmds(@result[:project_dir], @cmds)
       mk_result = MkFromGit.new(@result[:config_dir]).run(@opts)
       expected = Dir["#{@paths.artifacts}/**/*.tgz"][0]
       mk_result[:stored_path].should eql(expected)
@@ -50,7 +50,7 @@ describe CsBuilder::Commands::Artifacts::MkFromGit do
     
     it "build and move the node app artifact to artifacts/org/repo/version/sha.tgz", 
       :node => true do
-      shell_runs(@result[:project_dir], @cmds)
+      run_shell_cmds(@result[:project_dir], @cmds)
       mk_result = MkFromGit.new(@result[:config_dir]).run(@opts)
       expected = Dir["#{@paths.artifacts}/**/*.tgz"][0]
       File.dirname(mk_result[:stored_path]).should eql(File.dirname(expected))
@@ -59,7 +59,7 @@ describe CsBuilder::Commands::Artifacts::MkFromGit do
     it "skips the build if the artifact is already there", 
       :skipped => true, 
       :node => true do 
-      shell_runs(@result[:project_dir], @cmds)
+      run_shell_cmds(@result[:project_dir], @cmds)
       MkFromGit.new(@result[:config_dir]).run(@opts)
       mk_result = MkFromGit.new(@result[:config_dir]).run(@opts)
       mk_result[:skipped].should eql(true)
@@ -68,7 +68,7 @@ describe CsBuilder::Commands::Artifacts::MkFromGit do
     it "doesn't skip the build if the artifact is already there and force = true", 
       :force => true, 
       :node => true do 
-      shell_runs(@result[:project_dir], @cmds)
+      run_shell_cmds(@result[:project_dir], @cmds)
       MkFromGit.new(@result[:config_dir]).run(@opts)
       @opts[:force] = true
       mk_result = MkFromGit.new(@result[:config_dir]).run(@opts)
@@ -86,7 +86,7 @@ describe CsBuilder::Commands::Artifacts::MkFromGit do
     end
     
     it "builds and move the play app artifact", :play => true do
-      shell_runs(@result[:project_dir], @cmds)
+      run_shell_cmds(@result[:project_dir], @cmds)
       mk_result = MkFromGit.new(@result[:config_dir]).run(@opts)
       expected = Dir["#{@paths.artifacts}/**/*.tgz"][0]
       File.dirname(mk_result[:stored_path]).should eql(File.dirname(expected))
@@ -97,7 +97,7 @@ describe CsBuilder::Commands::Artifacts::MkFromGit do
       @cmds << <<-EOF
       git tag v1.0.0
       EOF
-      shell_runs(@result[:project_dir], @cmds)
+      run_shell_cmds(@result[:project_dir], @cmds)
       mk_result = MkFromGit.new(@result[:config_dir]).run(@opts)
       expected = Dir["#{@paths.artifacts}/**/*.tgz"][0]
       mk_result[:stored_path].should eql(expected)

@@ -37,13 +37,13 @@ describe CsBuilder::Commands::Artifacts::List do
 
     it "return an empty list",
       :node => true do
-      shell_runs(@result[:project_dir], @cmds)
+      run_shell_cmds(@result[:project_dir], @cmds)
       list = List.new(@result[:config_dir]).run(@opts)
       list.should eql([])
     end
 
     it "should return 1 tgz" do 
-      shell_runs(@result[:project_dir], @cmds)
+      run_shell_cmds(@result[:project_dir], @cmds)
       mk_result = MkFromGit.new(@result[:config_dir]).run(@opts)
       list = List.new(@result[:config_dir]).run(@opts)
       list.length.should eql(1)

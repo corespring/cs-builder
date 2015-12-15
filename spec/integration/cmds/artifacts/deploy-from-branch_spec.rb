@@ -37,7 +37,7 @@ describe CsBuilder::Commands::Artifacts::DeployFromBranch do
       git commit . -m "first commit"
     EOF
     
-    shell_runs(@result[:project_dir], @cmds)
+    run_shell_cmds(@result[:project_dir], @cmds)
 
     @paths = Paths.new(@result[:config_dir], "org", "test-repo", "branch")
   end

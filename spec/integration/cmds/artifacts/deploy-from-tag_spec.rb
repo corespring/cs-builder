@@ -34,7 +34,7 @@ describe CsBuilder::Commands::Artifacts::DeployFromTag do
       git tag v0.0.1
     EOF
 
-    shell_runs(@result[:project_dir], @cmds)
+    run_shell_cmds(@result[:project_dir], @cmds)
 
     @paths = Paths.new(@result[:config_dir], "org", "test-repo", "branch")
   end

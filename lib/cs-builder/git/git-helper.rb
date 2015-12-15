@@ -1,17 +1,15 @@
 require_relative '../log/logger'
 require_relative '../shell/runner'
+require_relative '../in-out/utils'
+
 module CsBuilder
   module Git
 
-    module GitHelper extend CsBuilder::ShellRunner
+    module GitHelper 
+      extend CsBuilder::ShellRunner
+      extend CsBuilder::InOut::Utils
 
       @@log = Log.get_logger('git-helper')
-
-      def self.git_uid(repo_path)
-        tag = commit_tag(repo_path) 
-        hash = commit_hash(repo_path) 
-        tag.nil? ? hash : tag 
-      end 
 
       def self.commit_tag(path)
         tag = run_git(path, "tag --contains HEAD").strip.chomp
@@ -29,8 +27,12 @@ module CsBuilder
       end
 
       def self.has_tag?(path, tag)
-        `#{base_git(path)} tag --contains #{tag}`
-        $?.to_i == 0
+        begin
+          shell_run("#{base_git(path)} tag --contains #{tag}")
+          true
+        rescue => e
+          false
+        end
       end
 
       def self.clone_repo(path, git_repo, branch)
@@ -78,9 +80,7 @@ module CsBuilder
 
       def self.run_git(path, cmd) 
         full_cmd = "#{base_git(path)} #{cmd}"
-        puts "full: #{full_cmd}"
         out = shell_run(full_cmd)
-        puts "out: #{}"
         out
       end
 

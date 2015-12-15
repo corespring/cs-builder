@@ -24,7 +24,7 @@ describe CsBuilder do
     git commit . -m "commit"
     EOF
 
-    shell_runs(@prep[:project_dir], cmds)
+    run_shell_cmds(@prep[:project_dir], cmds)
     
     shared = {
       :git => @prep[:project_dir],
