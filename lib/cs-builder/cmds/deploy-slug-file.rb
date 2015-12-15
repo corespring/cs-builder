@@ -17,7 +17,7 @@ module CsBuilder
       include Git
       include Heroku
       include Heroku::SlugHelper
-      include IO::FileLock
+      include InOut::FileLock
 
       def initialize(config_dir, stack)
         @stack = stack
