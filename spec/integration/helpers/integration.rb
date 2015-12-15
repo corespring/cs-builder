@@ -1,5 +1,3 @@
-require 'cs-builder/cmds/build'
-require 'cs-builder/cmds/make-slug'
 require 'cs-builder/models/paths'
 require 'cs-builder/heroku/heroku-deployer'
 require 'cs-builder/heroku/slug-helper'
@@ -7,7 +5,6 @@ require 'cs-builder/log/logger'
 require 'dotenv'
 require 'tmpdir'
 
-include CsBuilder::Commands
 include CsBuilder::Models
 include CsBuilder::Heroku
 include CsBuilder::Heroku::SlugHelper

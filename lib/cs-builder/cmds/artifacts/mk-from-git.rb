@@ -14,7 +14,8 @@ module CsBuilder
         include CsBuilder::Git
         include CsBuilder::Artifacts
 
-        def initialize(config_dir)
+        def initialize(config_dir, bu)
+          @bu = bu
           CsBuilder::Init.init_cs_builder_dir(config_dir)
           @config_dir = config_dir
           @log = CsBuilder::Log.get_logger("make-artifact-git")
@@ -43,6 +44,11 @@ module CsBuilder
               options[:artifact], 
               force: force)
             @log.debug("build result: #{result}")
+
+            if options[:back_up_if_tagged]
+              @bu.backup(org, repo, result) 
+            end
+
             result
           }
         end

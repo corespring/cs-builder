@@ -2,6 +2,9 @@ require_relative '../log/logger'
 require_relative '../in-out/utils'
 require_relative '../shell/runner'
 require_relative '../models/paths'
+require_relative './artifact-paths'
+
+include CsBuilder::Artifacts::ArtifactPaths
 
 module CsBuilder
   module Artifacts
@@ -40,7 +43,7 @@ module CsBuilder
         if(has_artifact?(ht) and !force)
           @log.warn("artifact for #{ht} already exists: #{artifact(ht)} - skipping") 
           {
-            :existing_artifact => artifact(ht), 
+            :build_info => artifact(ht), 
             :skipped => true, 
             :forced => force
           }
@@ -73,8 +76,8 @@ module CsBuilder
       end
 
       def move_to_store(path:, version:, extname:, hash_and_tag:)
-        base_path = @paths.artifacts
-        store_path =  File.join(base_path, version, "#{hash_and_tag.to_simple}#{extname}")
+        key = ArtifactPaths.mk(@repo.org, @repo.repo, version, hash_and_tag, extname)
+        store_path = "#{@paths.artifacts_root}/#{key}"
         @log.debug("store_path: #{store_path}")
         FileUtils.mkdir_p(File.dirname(store_path), :verbose => @log.debug?) 
         FileUtils.mv(path, store_path) 
@@ -92,8 +95,7 @@ module CsBuilder
 
         unless path.nil?
           version = read_version_from_artifact(path) 
-          {:path => path, :hash => hash_and_tag.hash, 
-            :tag => hash_and_tag.tag, :version => version} 
+          {:path => path, :hash_and_tag => hash_and_tag, :version => version} 
         end
 
       end
@@ -104,7 +106,7 @@ module CsBuilder
         unless path.nil?
           ht = HashAndTag.from_simple(File.basename(path, ".tgz"))
           version = read_version_from_artifact(path)
-          {:path => path, :hash => ht.hash, :tag => ht.tag, :version => version}
+          {:path => path, :hash_and_tag => ht, :version => version}
         end
       end
       

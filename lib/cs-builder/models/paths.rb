@@ -22,9 +22,13 @@ module CsBuilder
       def templates 
         File.join(@root, "templates")
       end
-      
+     
+      def artifacts_root
+        File.join(@root, "artifacts")
+      end 
+
       def artifacts
-        File.join(@root, "artifacts", @org, @repo)
+        File.join(artifacts_root, @org, @repo)
       end
       
       def repo

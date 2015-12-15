@@ -37,7 +37,7 @@ module CsBuilder
 
       def self.clone_repo(path, git_repo, branch)
         @@log.info "path: #{path}, branch: #{branch}"
-        FileUtils.mkdir_p(path, :verbose => @@log.debug? ) unless File.exists?(path)
+        FileUtils.mkdir_p(path, :verbose => @@log.debug?) unless File.exists?(path)
 
         unless File.exists?(File.join(path, ".git"))
           @@log.info("--> clone #{git_repo}, #{path}")

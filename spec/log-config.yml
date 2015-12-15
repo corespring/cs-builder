@@ -1,3 +1,2 @@
-default: "WARN"
-git-helper: "debug"
-deploy-command: "debug"
+default: "info"
+repo-artifacts: "debug"

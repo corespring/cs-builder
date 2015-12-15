@@ -52,6 +52,7 @@ module CsBuilder
     option :artifact, str(r:true, d: "a regex pattern to find the artifact and derive the :tag (eg: dist/my-app-(.*).tgz)")
     option :tag, str(d: "override the version derived from the regex group in --artifact")
     option :force, force 
+    option :back_up_if_tagged, :type => :boolean, :default => true
     long_desc Docs.docs("make-artifact-git")
     def artifact_mk_from_git
       o = OptsHelper.symbols(options)

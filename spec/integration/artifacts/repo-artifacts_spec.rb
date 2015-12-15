@@ -62,7 +62,7 @@ describe CsBuilder::Artifacts::RepoArtifacts do
       stored_path = @re.move_to_store(@first_build[:build_info])
       result = @re.build("npm pack", PATTERN)
 
-      result[:existing_artifact][:path].should eql(stored_path)
+      result[:build_info][:path].should eql(stored_path)
       result.should include({
         :forced => false,
         :skipped => true

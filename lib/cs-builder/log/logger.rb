@@ -61,7 +61,7 @@ module CsBuilder
       if @@loggers[name].nil?
         log_level = @@log_config[name] || @@log_config["default"]
         @@loggers[name] = Log4r::Logger.new(name)
-        @@loggers[name].outputters << Log4r::StdoutOutputter.new('log_stdout') #, :level => Log4r::WARN )
+        @@loggers[name].outputters << Log4r::Outputter.stdout
         @@loggers[name].outputters.each{ |o|
           o.formatter = format
         }
