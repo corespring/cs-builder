@@ -6,7 +6,6 @@ module OptsHelper
 
   def self.symbols(h)
     c = h.clone
-    puts "H? #{c}"
     if c.nil?
       raise "hash is nil?"
     else 

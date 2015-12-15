@@ -9,15 +9,13 @@ require_relative '../../artifacts/repo-artifacts'
 
 require 'tmpdir'
 
+include Heroku
+include Git 
+include Artifacts 
+
 module CsBuilder
   module Commands
     module Artifacts
-
-      include Heroku
-      
-      include CsBuilder::Git 
-
-      include CsBuilder::Artifacts 
 
       class DeployCommand
 
@@ -113,9 +111,12 @@ module CsBuilder
           org = org_from_opts(options)
           repo = repo_from_opts(options)
           branch = options[:branch]
-          @repo = Git::Repo.new(@config_dir, git_url, org, repo, branch)
+
+          @repo = Repo.new(@config_dir, git_url, org, repo, branch)
           @repo.clone_and_update
-          @artifacts = Artifacts::RepoArtifacts.new(@config_dir, @repo)
+          @artifacts = RepoArtifacts.new(@config_dir, @repo)
+          @_log.debug("find artifact from: #{org}, #{repo}, #{branch}")
+
           find_artifact_from_repo_artifacts(options, @repo, @artifacts)
         end
 
@@ -139,11 +140,11 @@ module CsBuilder
         end
 
         def org_from_opts(options)
-          options.has_key?(:org) ? options[:org] : Git::GitUrlParser.org(git_url)
+          options.has_key?(:org) ? options[:org] : Git::GitUrlParser.org(options[:git])
         end
         
         def repo_from_opts(options)
-          options.has_key?(:repo) ? options[:repo] : Git::GitUrlParser.org(git_url)
+          options.has_key?(:repo) ? options[:repo] : Git::GitUrlParser.repo(options[:git])
         end
 
       end

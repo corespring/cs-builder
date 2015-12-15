@@ -37,8 +37,13 @@ module CsBuilder
 
       def self.clone_repo(path, git_repo, branch)
         @@log.info "path: #{path}, branch: #{branch}"
-        FileUtils.mkdir_p(path, :verbose => true ) unless File.exists?(path)
-        shell_run("git clone #{git_repo} #{path}") unless File.exists?(File.join(path, ".git"))
+        FileUtils.mkdir_p(path, :verbose => @@log.debug? ) unless File.exists?(path)
+
+        unless File.exists?(File.join(path, ".git"))
+          @@log.info("--> clone #{git_repo}, #{path}")
+          shell_run("git clone #{git_repo} #{path}") unless File.exists?(File.join(path, ".git"))
+        end
+
         @@log.debug "checkout #{branch}"
         
         run_git(path, "checkout #{branch}")
@@ -54,7 +59,7 @@ module CsBuilder
 
       def self.update_repo(path, branch)
         @@log.info "[update_repo] path: #{path}, branch: #{branch}"
-        @@log.debug "reset hard to #{branch}"
+        @@log.debug "[update_repo] running `reset --hard HEAD` on branch: #{branch}"
         
         run_git(path, "clean -fd")
         run_git(path, "reset --hard HEAD")

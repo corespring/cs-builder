@@ -27,6 +27,12 @@ module CsBuilder
       mkdir_if_needed(File.join(full_dir, "slugs") )
       mkdir_if_needed(File.join(full_dir, "binaries") )
       mkdir_if_needed(File.join(full_dir, "artifacts") )
+
+      templates_dir = File.join(full_dir, "templates")
+
+      unless File.exists?(templates_dir)
+        FileUtils.cp_r(File.join(Default_Config, "templates"), templates_dir) 
+      end
     end
 
     def self.dir_inited?(dir)

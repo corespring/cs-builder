@@ -1,4 +1,3 @@
 default: "WARN"
-$: "INFO"
-deploy-command: "DEBUG"
-shell: "error"
+git-helper: "debug"
+deploy-command: "debug"

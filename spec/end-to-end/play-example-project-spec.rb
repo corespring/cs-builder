@@ -22,7 +22,6 @@ describe CsBuilder do
     run_shell_cmds(@prep[:project_dir], cmds)
     
     Helpers::EndToEnd.build_and_deploy_app(
-      app: APP, 
       config_dir: @prep[:config_dir], 
       git_dir: @prep[:project_dir],
       cmd: "play universal:packageZipTarball", 

@@ -21,7 +21,7 @@ module CsBuilder
         raise "Can't deploy - slug doesn't exist" unless File.exists? slug
 
         if(already_deployed(app, commit_hash, description) and !force)
-          @log.warn("The app already has this version #{commit_hash}, #{description} deployed, and force is set to #{force} - skipping")
+          @log.warn("The app: '#{app}', already has this version: '#{commit_hash}', #{description} deployed, and force is set to #{force} - skipping")
           nil
         else
           create_slug_response = create_slug(app, process_hash, commit_hash, description, stack)

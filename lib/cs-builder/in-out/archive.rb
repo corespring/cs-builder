@@ -74,7 +74,7 @@ module CsBuilder
           cmd = "tar czvf #{final_path} -C #{tmp_dir} #{tar_root}"
           @@log.debug("cmd: #{cmd}")
           shell_run(cmd)
-          FileUtils.rm_rf tmp_dir, :verbose => true
+          FileUtils.rm_rf tmp_dir, :verbose => @@log.debug? 
           raise "failed to create tgz" unless File.exists?(final_path)
         end
         final_path

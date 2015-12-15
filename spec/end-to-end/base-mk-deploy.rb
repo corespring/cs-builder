@@ -3,22 +3,24 @@ require 'cs-builder/cli'
 module Helpers
   module EndToEnd
     def self.build_and_deploy_app( 
-      app:,
       config_dir:,
       git_dir:,
       cmd:,
       artifact:,
       heroku_app:,
       platform:,
-      procfile: "Procfile"
+      procfile: "Procfile",
+      org: nil,
+      repo: nil
       )
 
     common = [
+       "--log-config=spec/log-config.yml",
        "--config-dir=#{config_dir}",
        "--git=#{git_dir}",
-       "--org=test-org",
-       "--repo=repo",
-       "--branch=master"]
+       org.nil? ? nil :  "--org=test-org" ,
+       repo.nil? ? nil : "--repo=repo",
+       "--branch=master"].compact
 
     mk_args =  ["artifact-mk-from-git"] + 
       common + 

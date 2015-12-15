@@ -5,6 +5,11 @@ Dir[File.dirname(__FILE__) + '/cmds/**/*.rb'].each {|file| require file }
 require_relative './log/logger'
 require_relative './opts-helper'
 
+
+include CsBuilder::Log
+include CsBuilder::Commands
+include CsBuilder::Commands::Artifacts
+
 module CsBuilder
 
   module Docs
@@ -19,8 +24,6 @@ module CsBuilder
 
     extend OptsHelper 
     
-    include CsBuilder::Commands
-
     class_option :config_dir, str(f: File.expand_path("~/.cs-builder"))
     class_option :log_config, str(f: File.expand_path("~/.cs-builder/log-config.yml"))
 
@@ -52,8 +55,8 @@ module CsBuilder
     long_desc Docs.docs("make-artifact-git")
     def artifact_mk_from_git
       o = OptsHelper.symbols(options)
-      CsBuilder::Log.load_config(o[:log_config])
-      cmd = Commands::Artifacts::MkFromGit.new(o[:config_dir])
+      Log.load_config(o[:log_config])
+      cmd = MkFromGit.new(o[:config_dir])
       out = cmd.run(o)
       puts out
     end
@@ -63,11 +66,10 @@ module CsBuilder
     option :force, :type => :boolean, :default => false
     def artifact_deploy_from_branch
       o = OptsHelper.symbols(options)
-
-      puts ">> #{o}"
-      CsBuilder::Log.load_config(o[:log_config])
-      cmd = Commands::Artifacts::DeployFromBranch.new(o[:config_dir])
-      cmd.run(o)
+      Log.load_config(o[:log_config])
+      cmd = DeployFromBranch.new(o[:config_dir])
+      out = cmd.run(o)
+      puts out
     end  
 
     desc "artifact-deploy-from-tag", "Looks for an artifact with the given tag, slugifies it, deploys it."
@@ -76,8 +78,8 @@ module CsBuilder
     option :tag, str(r:true, d: "The tag/version to look for")
     def artifact_deploy_from_tag
       o = OptsHelper.symbols(options)
-      CsBuilder::Log.load_config(o[:log_config])
-      cmd = Commands::Artifacts::DeployFromTag.new(o[:config_dir])
+      Log.load_config(o[:log_config])
+      cmd = DeployFromTag.new(o[:config_dir])
       cmd.run(o)
     end
 
@@ -89,8 +91,8 @@ module CsBuilder
     option :hash, str
     def artifact_deploy_from_file
       o = OptsHelper.symbols(options)
-      CsBuilder::Log.load_config(o[:log_config])
-      cmd = Commands::Artifacts::DeployFromFile.new(o[:config_dir])
+      Log.load_config(o[:log_config])
+      cmd = DeployFromFile.new(o[:config_dir])
       cmd.run(o)
     end
 
@@ -98,8 +100,8 @@ module CsBuilder
     add_opts(options, git, org_repo(false))
     def artifact_list
       o = OptsHelper.symbols(options)
-      CsBuilder::Log.load_config(o[:log_config])
-      cmd = Commands::Artifacts::List.new(o[:config_dir])
+      Log.load_config(o[:log_config])
+      cmd = List.new(o[:config_dir])
       list = cmd.run(o)
       puts list.join("\n")
     end
@@ -111,7 +113,7 @@ module CsBuilder
     option :force, force 
     def slug_mk_from_artifact_file
       o = OptsHelper.symbols(options)
-      CsBuilder::Log.load_config(o[:log_config])
+      Log.load_config(o[:log_config])
       cmd = MakeSlugFromArtifact.new(o[:config_dir])
       out = cmd.run(o)
       puts "done."
@@ -125,7 +127,7 @@ module CsBuilder
     option :force, force 
     def slug_deploy_from_file
       o = OptsHelper.symbols(options)
-      CsBuilder::Log.load_config(o[:log_config])
+      Log.load_config(o[:log_config])
       cmd = DeploySlugFile.new(o[:config_dir], o[:stack])
       out = cmd.run(o)
       puts "deployed to: #{options[:app]}"
