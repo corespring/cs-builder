@@ -1,5 +1,5 @@
 module CsBuilder
-  module IO
+  module InOut
     module Utils
       
       def in_dir(dir)

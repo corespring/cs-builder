@@ -1,4 +1,5 @@
 require_relative './git-parser'
+require_relative './git-helper'
 
 module CsBuilder
   module Git

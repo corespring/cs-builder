@@ -1,4 +1,5 @@
 require_relative '../log/logger'
+require_relative '../shell/runner'
 module CsBuilder
   module Git
 
@@ -22,9 +23,9 @@ module CsBuilder
       end
       
       def self.commit_hash(path)
-        sha = run_git(path, "rev-parse --short HEAD").strip
+        sha = run_git(path, "rev-parse --short HEAD")
         raise "no sha" if sha.nil? or sha.empty?
-        sha
+        sha.strip
       end
 
       def self.has_tag?(path, tag)
@@ -35,7 +36,7 @@ module CsBuilder
       def self.clone_repo(path, git_repo, branch)
         @@log.info "path: #{path}, branch: #{branch}"
         FileUtils.mkdir_p(path, :verbose => true ) unless File.exists?(path)
-        run_shell_cmd("git clone #{git_repo} #{path}") unless File.exists?(File.join(path, ".git"))
+        shell_run("git clone #{git_repo} #{path}") unless File.exists?(File.join(path, ".git"))
         @@log.debug "checkout #{branch}"
         
         run_git(path, "checkout #{branch}")
@@ -44,7 +45,7 @@ module CsBuilder
         if File.exists?(File.join(path, ".gitmodules"))
           in_dir(path) {
             @@log.debug "Init the submodules in #{path}"
-            run_shell_cmd("git submodule init")
+            shell_run("git submodule init")
           }
         end
       end
@@ -62,9 +63,9 @@ module CsBuilder
         if File.exists? "#{path}/.gitmodules"
           in_dir(path){
             @@log.debug "update all the submodules in #{path}"
-            run_shell_cmd("git submodule foreach git clean -fd")
-            run_shell_cmd("git pull --recurse-submodules")
-            run_shell_cmd("git submodule update --recursive")
+            shell_run("git submodule foreach git clean -fd")
+            shell_run("git pull --recurse-submodules")
+            shell_run("git submodule update --recursive")
           }
         end
       end
@@ -76,7 +77,11 @@ module CsBuilder
       end
 
       def self.run_git(path, cmd) 
-        run_shell_cmd("#{base_git(path)} #{cmd}")
+        full_cmd = "#{base_git(path)} #{cmd}"
+        puts "full: #{full_cmd}"
+        out = shell_run(full_cmd)
+        puts "out: #{}"
+        out
       end
 
     end

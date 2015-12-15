@@ -1,6 +1,6 @@
 require 'cs-builder/templates'
 require 'cs-builder/log/logger'
-require_relative './helpers'
+require_relative './helpers/integration'
 
 describe CsBuilder::Templates do 
 

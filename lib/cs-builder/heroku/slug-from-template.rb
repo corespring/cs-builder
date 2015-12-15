@@ -1,5 +1,5 @@
 require_relative '../log/logger'
-require_relative '../io/file-lock'
+require_relative '../in-out/file-lock'
 require_relative '../templates'
 require_relative '../heroku/slug-builder'
 
@@ -7,7 +7,7 @@ module CsBuilder
   module Heroku
     module SlugFromTemplate
 
-      extend CsBuilder::IO::FileLock
+      extend CsBuilder::InOut::FileLock
       
       @@log = CsBuilder::Log.get_logger('slug-from-template')
 

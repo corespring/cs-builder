@@ -1,5 +1,5 @@
 module Helpers
-  module Dir
+  module Directory
 
     def self.entries(path)
       ::Dir.entries(path).reject{|p| p == "." or p == ".."}

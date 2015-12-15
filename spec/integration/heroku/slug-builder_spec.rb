@@ -1,10 +1,10 @@
 require 'cs-builder/heroku/slug-builder'
 require 'cs-builder/log/logger'
-require 'cs-builder/io/archive'
+require 'cs-builder/in-out/archive'
 require 'cs-builder/templates'
 require 'tmpdir'
 require_relative '../helpers/integration'
-require_relative '../helpers/dir'
+require_relative '../helpers/directory'
 
 describe CsBuilder::Heroku::SlugBuilder do 
 
@@ -21,7 +21,7 @@ describe CsBuilder::Heroku::SlugBuilder do
   def create_node_artifact_from_example(name)
     dir = File.join(default_config_dir, "example-projects", name)
     out = File.join(Dir.mktmpdir("slug_builder_"), "node-app.tgz")
-    CsBuilder::IO::Archive.create(dir, out, ["Procfile", "index.js"])
+    CsBuilder::InOut::Archive.create(dir, out, ["Procfile", "index.js"])
     out
   end
 
@@ -46,8 +46,8 @@ describe CsBuilder::Heroku::SlugBuilder do
       File.exists?(slug_path).should eql(true)
       expanded = Dir.mktmpdir("slug_expanded")
       `tar xzvf #{slug_path} -C #{expanded}`
-      Helpers::Dir.entries(expanded).should eql(["app"])
-      Helpers::Dir.entries("#{expanded}/app").should include("index.js", "Procfile")
+      Helpers::Directory.entries(expanded).should eql(["app"])
+      Helpers::Directory.entries("#{expanded}/app").should include("index.js", "Procfile")
     end
   end
 end

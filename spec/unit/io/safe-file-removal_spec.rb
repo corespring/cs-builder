@@ -1,7 +1,7 @@
-require 'cs-builder/io/file-lock'
-require 'cs-builder/io/safe-file-removal'
+require 'cs-builder/in-out/file-lock'
+require 'cs-builder/in-out/safe-file-removal'
 
-include CsBuilder::IO
+include CsBuilder::InOut
 
 include SafeFileRemoval
 

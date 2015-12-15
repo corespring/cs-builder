@@ -14,7 +14,7 @@ describe "Jdk 1.7 Formula" do
       FileUtils.rm_rf(spec_dir)
       FileUtils.mkdir_p(File.dirname(spec_dir))
       FileUtils.cp_r(".default-config", spec_dir)
-      FileUtils.mkdir(File.join(spec_dir, "templates", "built"))
+      FileUtils.mkdir_p(File.join(spec_dir, "templates", "built"))
       Dir.chdir(File.join(spec_dir, "templates", "formulas"))
 
       `./jdk-1.7.formula ../built`
@@ -27,7 +27,7 @@ describe "Jdk 1.7 Formula" do
       Dir.chdir("out")
 
       expected_contents.each do  |path, contents|
-        IO.read(path).should eql(contents)
+        IO.read(path).chomp.should eql(contents.chomp)
       end
 
       File.directory?(".jdk").should eql(true)

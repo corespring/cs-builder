@@ -1,6 +1,6 @@
 module CsBuilder
 
-  module IO
+  module InOut
 
     module SafeFileRemoval
 

@@ -37,7 +37,7 @@ describe CsBuilder::Commands::Artifacts::DeployFromBranch do
       git commit . -m "first commit"
     EOF
     
-    run_shell_cmds(@result[:project_dir], @cmds)
+    shell_runs(@result[:project_dir], @cmds)
 
     @paths = Paths.new(@result[:config_dir], "org", "test-repo", "branch")
   end
@@ -50,7 +50,7 @@ describe CsBuilder::Commands::Artifacts::DeployFromBranch do
       :repo => "test-repo",
       :branch => "master",
       :cmd  => "npm pack",
-      :artifact => "an-example-cs-builder-app-(.*).tgz"
+      :artifact => "node-4.2.3-(.*).tgz"
     })
   end
 

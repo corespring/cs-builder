@@ -1,13 +1,14 @@
 require_relative '../log/logger'
-require_relative '../io/utils'
+require_relative '../in-out/utils'
 require_relative '../shell/runner'
+require_relative '../models/paths'
 
 module CsBuilder
   module Artifacts
 
     class RepoArtifacts
 
-      include IO::Utils 
+      include InOut::Utils 
       include ShellRunner
 
 
@@ -51,7 +52,7 @@ module CsBuilder
               FileUtils.rm_rf(a, :verbose => @log.debug?)
             }
 
-            run_shell_cmd cmd
+            shell_run cmd
           }
 
           @log.debug "find the built artifact for hash_and_tag : #{ht}, using: #{pattern}"

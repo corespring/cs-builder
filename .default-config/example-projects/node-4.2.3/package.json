@@ -1,6 +1,6 @@
 {
   "organization" : "corespring",
-  "name" : "an-example-cs-builder-app",
+  "name" : "node-4.2.3",
   "version" : "0.0.1",
   "files" : [
    "Procfile", "index.js"

@@ -1,1 +1,1 @@
-web: target/universal/stage/bin/play-221 -Dhttp.port=${PORT}
+web: bin/play-221 -Dhttp.port=${PORT}

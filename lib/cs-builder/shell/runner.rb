@@ -8,11 +8,11 @@ module CsBuilder
     
     @@shell_log = CsBuilder::Log.get_logger('$')
 
-    def run_shell_cmd(cmd, strip_ansi: true)
+    def shell_run(cmd, strip_ansi: true)
       @@log.debug("dir: #{Dir.pwd}, cmd: #{cmd}, strip_ansi: #{strip_ansi}")
       strip_ansi = strip_ansi || true
       out = []
-      ::IO.popen(cmd) do |io|
+      IO.popen(cmd) do |io|
         while line = io.gets
           cleaned = line.chomp
           cleaned.gsub!(/\e\[[^m]*m/, '') if strip_ansi

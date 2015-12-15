@@ -23,10 +23,6 @@ module Helpers
      "#{this_dir}/../../../.default-config/."
     end
 
-    def add_default_config(path)
-      FileUtils.cp_r(default_config_dir, path, :verbose => @@log.debug?)
-    end
-
     def get_example_project(project, config_dir: default_config_dir)
       File.expand_path(File.join(config_dir, "example-projects", project))
     end
@@ -44,7 +40,8 @@ module Helpers
       copy_example_project(project, tmp_dir)
     end
 
-    def run_shell_cmds(dir, cmds)
+    def shell_runs(dir, cmds)
+      puts "??"
 
       pwd = Dir.pwd
       script = <<-EOF
@@ -74,46 +71,6 @@ module Helpers
       new_dir = copy_project_to_tmp(name) 
       {:config_dir => config_dir, :project_dir => new_dir}
     end
-
-    def build_git(name, shell_cmds, formula)
-      FileUtils.rm_rf("spec/tmp")
-      config_dir = "spec/tmp/#{name}" 
-      new_dir = copy_project_to_tmp(name) 
-
-      cmd_result = run_shell_cmds(new_dir, shell_cmds)
-
-      @@log.info "new dir: #{new_dir}"
-
-      opts = {
-        :git => new_dir,
-        # override org and repo
-        :org => "org",
-        :repo =>  File.basename(new_dir),
-        :branch => "master",
-        :cmd => "",
-        :build_assets => ["index.js"]  
-      }
-
-      binary_result = BuildFromGit.new("DEBUG", config_dir).run(opts)
-
-      mk_slug_opts = {
-        :git => new_dir,
-        :org => "org",
-        :repo => File.basename(new_dir),
-        :branch => "master",
-        :template => formula 
-      }
-
-      slug_result = MakeGitSlug.new("DEBUG", config_dir).run(mk_slug_opts) 
-
-      { 
-        :cmd_result => cmd_result,
-        :binary_result => binary_result, 
-        :slug_result => slug_result 
-      }
-
-    end
-
 
   end
 end

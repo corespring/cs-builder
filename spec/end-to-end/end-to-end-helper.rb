@@ -8,7 +8,7 @@ module Helpers
 
     CsBuilder::Log.set_config({"default" => "DEBUG", "slug-builder" => "DEBUG"})
     
-    def build_deploy_and_load_example(name, cmd, assets, template, stack)
+    def build_deploy_and_load_example(name, mk_opts, deploy_opts, stack)
 
       heroku_app = ENV["TEST_HEROKU_APP"]
 

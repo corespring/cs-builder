@@ -32,18 +32,18 @@ describe CsBuilder::Commands::Artifacts::List do
   context "with a node app" do 
 
     before(:each) do
-      init_example("node-4.2.3", "npm pack", "an-example-cs-builder-app-(.*)\.tgz") 
+      init_example("node-4.2.3", "npm pack", "node-4.2.3-(.*)\.tgz") 
     end 
 
     it "return an empty list",
       :node => true do
-      run_shell_cmds(@result[:project_dir], @cmds)
+      shell_runs(@result[:project_dir], @cmds)
       list = List.new(@result[:config_dir]).run(@opts)
       list.should eql([])
     end
 
     it "should return 1 tgz" do 
-      run_shell_cmds(@result[:project_dir], @cmds)
+      shell_runs(@result[:project_dir], @cmds)
       mk_result = MkFromGit.new(@result[:config_dir]).run(@opts)
       list = List.new(@result[:config_dir]).run(@opts)
       list.length.should eql(1)

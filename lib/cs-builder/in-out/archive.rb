@@ -4,7 +4,7 @@ require_relative '../shell/runner'
 require 'tmpdir'
 
 module CsBuilder
-  module IO
+  module InOut
     module Archive
       extend CsBuilder::ShellRunner
 
@@ -31,7 +31,7 @@ module CsBuilder
         FileUtils.mkdir_p(parent)
         raise "Parent directory doesn't exist: #{parent}" unless File.exists?(parent) and File.directory?(parent)
         cmd = "tar czvf #{out_path} -C #{binary_folder} ."
-        run_shell_cmd(cmd)
+        shell_run(cmd)
         FileUtils.rm_rf(binary_folder, :verbose => @@log.debug?)
         raise "Failed to create Archive: #{out_path}" unless File.exists?(out_path)
         out_path
@@ -66,14 +66,14 @@ module CsBuilder
 
           archives.each{|a|
             @@log.info("extract #{a} -> #{archive_root}")
-            run_shell_cmd("tar xzvf #{a} -C #{archive_root}")
+            shell_run("tar xzvf #{a} -C #{archive_root}")
           }
 
           @@log.debug "compress folder to a new archive: #{final_path}"
           tar_root = root_dir.nil? ? "." : "./#{root_dir}"
           cmd = "tar czvf #{final_path} -C #{tmp_dir} #{tar_root}"
           @@log.debug("cmd: #{cmd}")
-          run_shell_cmd(cmd)
+          shell_run(cmd)
           FileUtils.rm_rf tmp_dir, :verbose => true
           raise "failed to create tgz" unless File.exists?(final_path)
         end

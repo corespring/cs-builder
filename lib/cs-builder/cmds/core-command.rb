@@ -1,6 +1,6 @@
 require_relative '../log/logger'
 require_relative '../shell/runner'
-require_relative '../io/utils'
+require_relative '../in-out/utils'
 require_relative '../init'
 
 include CsBuilder
@@ -10,7 +10,7 @@ module CsBuilder
     class CoreCommand
 
       include CsBuilder::ShellRunner
-      include CsBuilder::IO::Utils
+      include CsBuilder::InOut::Utils
 
       @config_dir = File.expand_path("~/.cs-builder")
 
@@ -24,7 +24,7 @@ module CsBuilder
       protected
       def run_cmd(cmd, strip_ansi: true)
         @log.debug "[run] -> #{cmd}"
-        run_shell_cmd(cmd, strip_ansi: strip_ansi)
+        shell_run(cmd, strip_ansi: strip_ansi)
       end
 
     end

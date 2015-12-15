@@ -36,7 +36,7 @@ jdk_dir="tmp/.jdk"
 `tar pxzf #{jdk_tar_ball} -C "#{jdk_dir}"`
 `rm #{jdk_tar_ball}`
 `echo "#{version}" > #{jdk_dir}/version`
-`echo "java.runtime.version=$VERSION" >> tmp/system.properties`
+`echo "java.runtime.version=#{version}" >> tmp/system.properties`
 `mkdir tmp/.profile.d`
 
 File.open("tmp/.profile.d/scala.sh", 'w') { |file|

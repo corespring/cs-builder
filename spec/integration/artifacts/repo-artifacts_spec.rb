@@ -2,6 +2,7 @@ require 'cs-builder/artifacts/repo-artifacts'
 require 'cs-builder/git/repo'
 require 'cs-builder/init'
 require_relative '../helpers/integration'
+require 'tmpdir'
 
 include CsBuilder
 include CsBuilder::Artifacts
@@ -37,7 +38,7 @@ describe CsBuilder::Artifacts::RepoArtifacts do
     @paths = Paths.new(@root, "org", "repo", "branch")
     Init.init_cs_builder_dir(@root)
     copy_example_project(NODE, @paths.repo)
-    run_shell_cmds(@paths.repo, cmds)
+    shell_runs(@paths.repo, cmds)
   end
 
   describe "build" do 
@@ -140,8 +141,8 @@ describe CsBuilder::Artifacts::RepoArtifacts do
       build_result = @re.build_and_move_to_store("npm pack", PATTERN)
     end
    
-    it "shouldn't have an artifact" do 
-      @re.artifact_from_tag(@repo.hash_and_tag.tag).should eql("#{@paths.artifacts}/0.0.1/#{@repo.hash_and_tag.to_simple}.tgz") 
+    it "should return an artifact" do 
+      @re.artifact_from_tag(@repo.hash_and_tag.tag)[:path].should eql("#{@paths.artifacts}/0.0.1/#{@repo.hash_and_tag.to_simple}.tgz") 
     end
   end
 end

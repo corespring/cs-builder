@@ -1,0 +1,1 @@
+cs-builder-two move-slug --from="corespring-app-qa" --to="corespring-app-staging"

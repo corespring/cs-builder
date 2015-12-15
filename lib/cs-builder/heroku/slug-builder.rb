@@ -1,14 +1,14 @@
 require_relative '../log/logger'
-require_relative '../io/file-lock'
-require_relative '../io/archive'
+require_relative '../in-out/file-lock'
+require_relative '../in-out/archive'
 
 module CsBuilder
   module Heroku
 
      module SlugBuilder
 
-      extend CsBuilder::IO::FileLock
-      include CsBuilder::IO
+      extend CsBuilder::InOut::FileLock
+      include CsBuilder::InOut
       
       @@log = CsBuilder::Log.get_logger('slug-builder')
 

@@ -3,7 +3,7 @@ require_relative '../git/git-helper'
 require_relative '../heroku/heroku-deployer'
 require_relative '../heroku/slug-helper'
 require_relative '../models/paths'
-require_relative '../io/file-lock'
+require_relative '../in-out/file-lock'
 require_relative 'core-command'
 
 require 'yaml'

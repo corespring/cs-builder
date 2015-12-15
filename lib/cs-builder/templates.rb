@@ -1,12 +1,12 @@
 require_relative './log/logger'
-require_relative './io/utils'
+require_relative './in-out/utils'
 require_relative './shell/runner'
 
 module CsBuilder
   class Templates
 
     include CsBuilder::ShellRunner
-    include CsBuilder::IO::Utils
+    include CsBuilder::InOut::Utils
 
     def initialize(templates_dir)
       @log = CsBuilder::Log.get_logger('templates')
@@ -37,7 +37,7 @@ module CsBuilder
       in_dir(File.dirname(script)){
         File.chmod(0755, "#{name}.formula")
         @log.debug "running formula: #{name}.formula - this will install the template for #{name} - this is a one-time process ... please wait"
-        run_shell_cmd "./#{name}.formula ../built"
+        shell_run "./#{name}.formula ../built"
       }
       raise "The formula didn't install the template correctly: #{name}" unless exists? template_archive(name)
       template_archive(name)

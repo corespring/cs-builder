@@ -1,10 +1,10 @@
 require_relative './log/logger'
-require_relative './io/utils'
+require_relative './in-out/utils'
 
 module CsBuilder
   module Init
 
-    extend CsBuilder::IO::Utils
+    extend CsBuilder::InOut::Utils
 
     Default_Config = "#{File.expand_path(File.dirname(__FILE__))}/../../.default-config/."
 
