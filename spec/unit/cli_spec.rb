@@ -10,9 +10,10 @@ describe CLI do
 
   describe "mk-artifact-from-git" do 
 
-    it "should" do 
+    it "call :run" do 
       mk_stub("CsBuilder::Commands::Artifacts::MkFromGit")
       CsBuilder::CLI.start(%w[artifact-mk-from-git --cmd="build" --branch=b --artifact-pattern="p" --git=git@github.com:blah/blah.git])
     end
   end
+
 end
