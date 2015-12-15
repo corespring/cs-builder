@@ -60,6 +60,7 @@ module Helpers
     def create_tmp_config_dir(name)
       tmp_path = "spec/tmp/#{name}"
       FileUtils.rm_rf(tmp_path)
+      FileUtils.mkdir_p(File.dirname(tmp_path))
       FileUtils.cp_r(default_config_dir, tmp_path)
       tmp_path
     end
