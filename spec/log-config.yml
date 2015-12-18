@@ -1,2 +1,3 @@
 default: "info"
 repo-artifacts: "debug"
+repo-local-store-spec: "debug"

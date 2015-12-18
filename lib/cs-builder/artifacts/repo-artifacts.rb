@@ -9,25 +9,140 @@ include CsBuilder::Artifacts::ArtifactPaths
 module CsBuilder
   module Artifacts
 
-    class RepoArtifacts
+    class RepoS3Store
 
-      include InOut::Utils 
-      include ShellRunner
-
-
-      def initialize(root, repo)
-        @log = Log.get_logger('repo-artifacts')
-        @repo = repo  
-        @paths = Paths.new(root, @repo.org, @repo.repo, @repo.branch)
+      def initialize(artifacts_root, s3)
+        @artifacts_root = artifacts_root
+        @s3 = s3
       end
 
+    end
+
+
+    class BaseStore
+
+      def initialize
+        @log = Log.get_logger('base-store')
+      end
+
+      def move_to_store(path, org, repo, version, hash_and_tag, extname, force: false)
+
+        raise "path: #{path} doesn't exist - can't move it" unless File.exist?(path)
+        raise "path: #{path} is a directory - can't move it" if File.directory?(path)
+
+        key = ArtifactPaths.mk(org, repo, version, hash_and_tag, extname: extname)
+        store_path = mk_root_path(key)
+
+        if(force)
+          rm_path(store_path)
+        end
+
+        if(path_exists?(store_path) and !force)
+          {:path => store_path, :moved => false}
+        else
+          @log.debug("store_path: #{store_path}")
+          mv_path(path, store_path)
+          {:path => store_path, :moved => true}
+        end
+      end
+
+      def has_artifact?(hash_and_tag)
+        !artifact(hash_and_tag).nil?
+      end
+
+      # get artifacts by the git sha + maybe tag
+      def artifact(hash_and_tag)
+        path = artifact_from_key(hash_and_tag.to_simple)
+
+        unless path.nil?
+          version = read_version_from_artifact(path)
+          {:path => path, :hash_and_tag => hash_and_tag, :version => version}
+        end
+      end
+
+      def artifact_from_tag(tag)
+        path = artifact_from_key(tag)
+
+        unless path.nil?
+          ht = HashAndTag.from_simple(File.basename(path, ".tgz"))
+          version = read_version_from_artifact(path)
+          {:path => path, :hash_and_tag => ht, :version => version}
+        end
+      end
+
+      def artifact_from_hash(hash)
+        artifact_from_key(hash)
+      end
+
+      def rm_artifact(hash_and_tag)
+        artifacts_from_key(hash_and_tag.to_simple).each{|p|
+          @log.info("force:true -> rm: #{p}")
+          rm_path(p)
+        }
+      end
+
+      private
+
+      def read_version_from_artifact(path)
+        File.basename(File.dirname(path))
+      end
+
+      def artifact_from_key(key)
+        found = artifacts_from_key(key)
+        if(found.length > 0)
+          found[0]
+        else
+          nil
+        end
+      end
+    end
+
+    class RepoLocalStore < BaseStore
+
+      def initialize(artifacts_root)
+        @log = Log.get_logger('repo-store')
+        @artifacts_root = artifacts_root
+      end
+
+      def mk_root_path(key)
+        "#{@artifacts_root}/#{key}"
+      end
+
+      def mv_path(from, to)
+        FileUtils.mkdir_p(File.dirname(to), :verbose => @log.debug?)
+        FileUtils.mv(from, to)
+      end
+
+      def rm_path(path)
+        FileUtils.rm_rf(path)
+      end
+
+      def path_exists?(path)
+        File.exist?(path)
+      end
+
+      def artifacts_from_key(key)
+        Dir["#{@artifacts_root}/**/*#{key}*.tgz"]
+      end
+    end
+
+    class RepoArtifacts
+
+      include InOut::Utils
+      include ShellRunner
+
+      def initialize(root, repo, store)
+        @log = Log.get_logger('repo-artifacts')
+        @repo = repo
+        @store = store
+      end
 
       def build_and_move_to_store(cmd, pattern, force:false)
         result = build(cmd, pattern, force:force)
         if(result.has_key?(:build_info))
           stored_path = move_to_store(result[:build_info])
           result.merge({:moved_to_store => true, :stored_path => stored_path})
-        else 
+        else
           result.merge({:moved_to_store => false})
         end
       end
@@ -41,16 +156,16 @@ module CsBuilder
         end
 
         if(has_artifact?(ht) and !force)
-          @log.warn("artifact for #{ht} already exists: #{artifact(ht)} - skipping") 
+          @log.warn("artifact for #{ht} already exists: #{artifact(ht)} - skipping")
           {
-            :build_info => artifact(ht), 
-            :skipped => true, 
+            :build_info => artifact(ht),
+            :skipped => true,
             :forced => force
           }
-        else 
+        else
           in_dir(@repo.path){
             @log.debug( "run: #{cmd}")
-            
+
             Dir[artifact_glob(pattern)].each{|a|
               FileUtils.rm_rf(a, :verbose => @log.debug?)
             }
@@ -60,96 +175,56 @@ module CsBuilder
 
           @log.debug "find the built artifact for hash_and_tag : #{ht}, using: #{pattern}"
           path = find_built_artifact_path(pattern)
-          version = version_from_built_artifact(path, pattern) 
+          version = version_from_built_artifact(path, pattern)
           extname = File.extname(path)
           {
             :build_info => {
-              :path => path, 
-              :version => version, 
+              :path => path,
+              :version => version,
               :extname => extname,
               :hash_and_tag => ht
             },
-            :skipped => false, 
+            :skipped => false,
             :forced => force
           }
         end
       end
 
       def move_to_store(path:, version:, extname:, hash_and_tag:)
-        key = ArtifactPaths.mk(@repo.org, @repo.repo, version, hash_and_tag, extname)
-        store_path = "#{@paths.artifacts_root}/#{key}"
-        @log.debug("store_path: #{store_path}")
-        FileUtils.mkdir_p(File.dirname(store_path), :verbose => @log.debug?) 
-        FileUtils.mv(path, store_path) 
-        store_path
+        @store.move_to_store(path, @repo.org, @repo.repo, version, hash_and_tag, extname)
       end
 
       def has_artifact?(hash_and_tag)
-        !artifact(hash_and_tag).nil? 
+        @store.has_artifact?(hash_and_tag)
       end
-      
-      # get artifacts by the git sha + maybe tag
+
       def artifact(hash_and_tag)
-
-        path = artifact_from_key(hash_and_tag.to_simple)
-
-        unless path.nil?
-          version = read_version_from_artifact(path) 
-          {:path => path, :hash_and_tag => hash_and_tag, :version => version} 
-        end
-
+        @store.artifact(hash_and_tag)
       end
-      
+
       def artifact_from_tag(tag)
-        path = artifact_from_key(tag)
-
-        unless path.nil?
-          ht = HashAndTag.from_simple(File.basename(path, ".tgz"))
-          version = read_version_from_artifact(path)
-          {:path => path, :hash_and_tag => ht, :version => version}
-        end
+        @store.artifact_from_tag(tag)
       end
-      
+
       def artifact_from_hash(hash)
-        artifact_from_key(hash)
+        @store.artifact_from_hash(hash)
       end
 
-      def rm_artifact(hash_and_tag) 
-        artifacts_from_key(hash_and_tag.to_simple).each{|p|
-          @log.info("force:true -> rm: #{p}") 
-          FileUtils.rm_rf(p, :verbose => @log.debug?) 
-        }
+      def rm_artifact(hash_and_tag)
+        @store.rm_artifact(hash_and_tag)
       end
 
-      private 
-
-      def read_version_from_artifact(path)
-        File.basename(File.dirname(path))
-      end
-
+      private
       def artifact_glob(pattern)
         "#{@repo.path}/#{pattern.gsub(/\(.*\)/, "*")}"
       end
 
       def find_built_artifact_path(pattern)
-        glob = artifact_glob(pattern) 
+        glob = artifact_glob(pattern)
         @log.debug "glob: #{glob}"
-        paths = Dir[glob] 
+        paths = Dir[glob]
         raise "[repo-artifacts] Can't find artifact at: #{glob}" if paths.length == 0
-        paths[0] 
-      end
-
-      def artifact_from_key(key)
-        found = artifacts_from_key(key)
-        if(found.length > 0)
-          found[0]
-        else 
-          nil
-        end
-      end
-      
-      def artifacts_from_key(key)
-        Dir["#{@paths.artifacts}/**/*#{key}*.tgz"]
+        paths[0]
       end
 
       def version_from_built_artifact(artifact, pattern)
