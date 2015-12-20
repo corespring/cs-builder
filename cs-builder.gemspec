@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "rake", "~> 10.1.0"
   gem.add_development_dependency "dotenv", "~> 0.11.1"
   gem.add_dependency "thor"
-  gem.add_dependency "log4r", '~> 1.1.10'
+  gem.add_dependency "logging", '~> 2.0.0'
   gem.add_dependency "rest-client", '~> 1.6.7'
   gem.add_dependency "platform-api", '~> 0.3.0'
   gem.add_dependency "aws-sdk", "~> 2"

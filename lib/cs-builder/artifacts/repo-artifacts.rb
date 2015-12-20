@@ -9,123 +9,6 @@ include CsBuilder::Artifacts::ArtifactPaths
 module CsBuilder
   module Artifacts
 
-    class RepoS3Store
-
-      def initialize(artifacts_root, s3)
-        @artifacts_root = artifacts_root
-        @s3 = s3
-      end
-
-    end
-
-
-    class BaseStore
-
-      def initialize
-        @log = Log.get_logger('base-store')
-      end
-
-      def move_to_store(path, org, repo, version, hash_and_tag, extname, force: false)
-
-        raise "path: #{path} doesn't exist - can't move it" unless File.exist?(path)
-        raise "path: #{path} is a directory - can't move it" if File.directory?(path)
-
-        key = ArtifactPaths.mk(org, repo, version, hash_and_tag, extname: extname)
-        store_path = mk_root_path(key)
-
-        if(force)
-          rm_path(store_path)
-        end
-
-        if(path_exists?(store_path) and !force)
-          {:path => store_path, :moved => false}
-        else
-          @log.debug("store_path: #{store_path}")
-          mv_path(path, store_path)
-          {:path => store_path, :moved => true}
-        end
-      end
-
-      def has_artifact?(hash_and_tag)
-        !artifact(hash_and_tag).nil?
-      end
-
-      # get artifacts by the git sha + maybe tag
-      def artifact(hash_and_tag)
-        path = artifact_from_key(hash_and_tag.to_simple)
-
-        unless path.nil?
-          version = read_version_from_artifact(path)
-          {:path => path, :hash_and_tag => hash_and_tag, :version => version}
-        end
-      end
-
-      def artifact_from_tag(tag)
-        path = artifact_from_key(tag)
-
-        unless path.nil?
-          ht = HashAndTag.from_simple(File.basename(path, ".tgz"))
-          version = read_version_from_artifact(path)
-          {:path => path, :hash_and_tag => ht, :version => version}
-        end
-      end
-
-      def artifact_from_hash(hash)
-        artifact_from_key(hash)
-      end
-
-      def rm_artifact(hash_and_tag)
-        artifacts_from_key(hash_and_tag.to_simple).each{|p|
-          @log.info("force:true -> rm: #{p}")
-          rm_path(p)
-        }
-      end
-
-      private
-
-      def read_version_from_artifact(path)
-        File.basename(File.dirname(path))
-      end
-
-      def artifact_from_key(key)
-        found = artifacts_from_key(key)
-        if(found.length > 0)
-          found[0]
-        else
-          nil
-        end
-      end
-    end
-
-    class RepoLocalStore < BaseStore
-
-      def initialize(artifacts_root)
-        @log = Log.get_logger('repo-store')
-        @artifacts_root = artifacts_root
-      end
-
-      def mk_root_path(key)
-        "#{@artifacts_root}/#{key}"
-      end
-
-      def mv_path(from, to)
-        FileUtils.mkdir_p(File.dirname(to), :verbose => @log.debug?)
-        FileUtils.mv(from, to)
-      end
-
-      def rm_path(path)
-        FileUtils.rm_rf(path)
-      end
-
-      def path_exists?(path)
-        File.exist?(path)
-      end
-
-      def artifacts_from_key(key)
-        Dir["#{@artifacts_root}/**/*#{key}*.tgz"]
-      end
-    end
-
     class RepoArtifacts
 
       include InOut::Utils
@@ -170,7 +53,7 @@ module CsBuilder
               FileUtils.rm_rf(a, :verbose => @log.debug?)
             }
 
-            shell_run cmd
+            shell_run(cmd)
           }
 
           @log.debug "find the built artifact for hash_and_tag : #{ht}, using: #{pattern}"
@@ -195,23 +78,23 @@ module CsBuilder
       end
 
       def has_artifact?(hash_and_tag)
-        @store.has_artifact?(hash_and_tag)
+        @store.has_artifact?(@repo.org, @repo.repo, hash_and_tag)
       end
 
       def artifact(hash_and_tag)
-        @store.artifact(hash_and_tag)
+        @store.artifact(@repo.org, @repo.repo, hash_and_tag)
       end
 
       def artifact_from_tag(tag)
-        @store.artifact_from_tag(tag)
+        @store.artifact_from_tag(@repo.org, @repo.repo, tag)
       end
 
       def artifact_from_hash(hash)
-        @store.artifact_from_hash(hash)
+        @store.artifact_from_hash(@repo.org, @repo.repo, hash)
       end
 
       def rm_artifact(hash_and_tag)
-        @store.rm_artifact(hash_and_tag)
+        @store.rm_artifact(@repo.org, @repo.repo, hash_and_tag)
       end
 
       private

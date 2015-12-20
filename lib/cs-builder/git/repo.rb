@@ -1,54 +1,20 @@
 require_relative './git-parser'
 require_relative './git-helper'
 require_relative '../models/paths'
+require_relative './hash-and-tag'
 
-include CsBuilder::Models 
+include CsBuilder::Models
 
 module CsBuilder
   module Git
-
-    class HashAndTag
-      attr_accessor :hash, :tag 
-      def initialize(hash, tag = nil)
-        @hash = hash
-        @tag = tag
-      end
-
-      def to_simple
-        if(tag.nil? or tag.empty?)
-          @hash
-        else 
-          "#{@tag}-#{@hash}"
-        end
-      end
-
-      def to_s 
-        self.to_simple
-      end
-      
-      def ==(other)
-         self.to_simple == other.to_simple
-      end
-
-      def self.from_simple(s)
-        if(s.include?("-"))
-          m = s.match(/(.*)-(.*)/)
-          HashAndTag.new(m[2], m[1])
-        else 
-          HashAndTag.new(s)
-        end 
-      end
-
-    end
-
     class Repo
 
       def self.from_url(root, url, branch)
         org, repo = GitUrlParser.org_and_repo(url)
         Repo.new(root, url, org, repo, branch)
       end
-      
-      attr_accessor :org, :repo, :branch 
+
+      attr_accessor :org, :repo, :branch
       def initialize(root, url, org, repo, branch)
         @root = root
         @url = url
@@ -80,7 +46,7 @@ module CsBuilder
       end
 
       def clone_and_update
-        clone 
+        clone
         update
       end
 
@@ -89,7 +55,7 @@ module CsBuilder
         tag = GitHelper.commit_tag(path)
         HashAndTag.new(hash,tag)
       end
-    
+
     end
   end
 end
