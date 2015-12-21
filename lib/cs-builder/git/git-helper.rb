@@ -34,6 +34,16 @@ module CsBuilder
           false
         end
       end
+      
+      def self.hash_for_tag(path, tag)
+        begin
+          hash = shell_run("#{base_git(path)} rev-parse --short #{tag}")
+          @@log.debug("[hash_for_tag] hash: #{hash}")
+          hash
+        rescue => e
+          nil
+        end
+      end
 
       def self.clone_repo(path, git_repo, branch)
         @@log.info "path: #{path}, branch: #{branch}"

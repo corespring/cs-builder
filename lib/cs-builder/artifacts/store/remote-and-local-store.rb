@@ -41,7 +41,7 @@ module CsBuilder
 
         @local.mv_path(from, to, force: force)
         if(@backup_tagged_archives and is_tagged(to))
-          @remote.mv_path(@local.expand_path(to), to, force: force)
+          @remote.cp_path(@local.resolve_path(to), to, force: force)
         end
         to
       end
@@ -62,7 +62,9 @@ module CsBuilder
 
         if(!@local.path_exists?(path) and @remote.path_exists?(path))
           downloaded_path = @remote.resolve_path(path)
-          FileUtils.mv(downloaded_path, @local.expand_path(path))
+          destination = @local.resolve_path(path)
+          FileUtils.mkdir_p(File.dirname(destination))
+          FileUtils.mv(downloaded_path, destination)
         end
 
         if(@local.path_exists?(path))

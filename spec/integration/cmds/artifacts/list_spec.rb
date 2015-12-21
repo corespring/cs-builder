@@ -2,8 +2,10 @@ require_relative '../../helpers/integration'
 require 'cs-builder/cmds/artifacts/list'
 require 'cs-builder/cmds/artifacts/mk-from-git'
 require 'cs-builder/log/logger'
+require 'cs-builder/artifacts/store/local-store'
 
 include CsBuilder::Commands::Artifacts
+include CsBuilder::Artifacts
 
 describe CsBuilder::Commands::Artifacts::List do
 
@@ -44,7 +46,8 @@ describe CsBuilder::Commands::Artifacts::List do
 
     it "should return 1 tgz" do 
       run_shell_cmds(@result[:project_dir], @cmds)
-      mk_result = MkFromGit.new(@result[:config_dir]).run(@opts)
+      store = LocalStore.new(File.join(@result[:config_dir], "artifacts"))
+      mk_result = MkFromGit.new(@result[:config_dir], store).run(@opts)
       list = List.new(@result[:config_dir]).run(@opts)
       list.length.should eql(1)
       list[0].should include(File.join(@result[:config_dir], "artifacts", "org", "test-repo", "0.0.1"))

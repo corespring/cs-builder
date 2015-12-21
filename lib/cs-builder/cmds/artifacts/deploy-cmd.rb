@@ -29,10 +29,10 @@ module CsBuilder
           raise "abstract method: load_artifact"
         end
 
-        def run(options)
-          @_log.debug("options: #{options}")
+        def run(heroku_app:, platform:, heroku_stack: "cedar-14", procfile: "Procfile", force: false)
+          @_log.info(__method__)
 
-          app = options[:heroku_app]
+          app = heroku_app
 
           if(app.nil?)
             @_log.warn("app is nil")
@@ -45,17 +45,15 @@ module CsBuilder
             msg = "No artifact found, have you built it yet?"
             @_log.warn("#{msg}")
 
-            not_deployed_result(options, {
+            not_deployed_result({}, {
               :deployed => false,
               :message => msg
             })
           else
 
             @_log.debug("artifact: #{artifact}")
-            template = options[:platform]
-            out_path = File.join(Dir.mktmpdir("deploy-from-branch_") , "#{artifact[:hash]}-#{template}.tgz")
-            slug = SlugFromTemplate.mk_slug(artifact[:path], out_path, template, File.join(@config_dir, "templates"), options[:force] == true)
-            app = options[:heroku_app]
+            out_path = File.join(Dir.mktmpdir("deploy-from-branch_") , "#{artifact[:hash]}-#{platform}.tgz")
+            slug = SlugFromTemplate.mk_slug(artifact[:path], out_path, platform, File.join(@config_dir, "templates"), force == true)
 
             ht = artifact[:hash_and_tag]
             
@@ -64,13 +62,9 @@ module CsBuilder
               ht.hash,
               ht.tag).json_string
 
-            stack = options[:heroku_stack]
-
             deployer = HerokuDeployer.new
 
-            procfile = options.has_key?(:procfile) ? options[:procfile] : "Procfile"
-
-            @_log.debug("app: #{app}, stack: #{stack}, description: #{description}, slug: #{slug}, procfile: #{procfile}")
+            @_log.debug("app: #{app}, stack: #{heroku_stack}, description: #{description}, slug: #{slug}, procfile: #{procfile}")
 
             release_response = deployer.deploy(
               slug,
@@ -78,14 +72,14 @@ module CsBuilder
               app,
               artifact[:hash],
               description,
-              stack,
-              force: options[:force] == true)
+              heroku_stack,
+              force: force)
 
             @_log.debug("release_response: #{release_response}")
             @_log.debug("removing the slug: #{slug}")
             FileUtils.rm_rf(slug, :verbose => @_log.debug?)
 
-            deployed_result(options, {
+            deployed_result({}, {
               :deployed => !release_response.nil?,
               :description => description
             })

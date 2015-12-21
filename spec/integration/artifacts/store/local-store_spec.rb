@@ -29,7 +29,7 @@ describe CsBuilder::Artifacts::LocalStore do
   before(:each) do
     init
     @ls = LocalStore.new(@root)
-    @result = @ls.move_to_store(@archive, "org", "repo", "1.0", @hash_and_tag, ".tgz")
+    @result = @ls.move_to_store(@archive, "org", "repo", "1.0", @hash_and_tag)
   end
 
   describe "artifact" do
@@ -38,10 +38,10 @@ describe CsBuilder::Artifacts::LocalStore do
       @ls.artifact("org", "repo", @hash_and_tag).nil?.should be(false)
     end
 
-    it "should return :path" do
+    it "should return :virtual_path" do
       expected_path = "org/repo/1.0/#{@hash_and_tag.to_simple}.tgz"
       result = @ls.artifact("org", "repo", @hash_and_tag)
-      result[:path].should eql(expected_path)
+      result[:virtual_path].should eql(expected_path)
     end
 
     it "should return :hash_and_tag" do
@@ -78,13 +78,13 @@ describe CsBuilder::Artifacts::LocalStore do
 
     it "returns :moved => false if file exists and force is false" do
       second_archive = mk_dummy_archive("two")
-      second_result = @ls.move_to_store(second_archive, "org", "repo", "1.0", @hash_and_tag, ".tgz")
+      second_result = @ls.move_to_store(second_archive, "org", "repo", "1.0", @hash_and_tag)
       second_result[:moved].should be(false)
     end
 
     it "returns :moved => true if file exists and force is true" do
       second_archive = mk_dummy_archive("two")
-      second_result = @ls.move_to_store(second_archive, "org", "repo", "1.0", @hash_and_tag, ".tgz", force:true)
+      second_result = @ls.move_to_store(second_archive, "org", "repo", "1.0", @hash_and_tag, force:true)
       second_result[:moved].should be(true)
     end
 
@@ -92,7 +92,7 @@ describe CsBuilder::Artifacts::LocalStore do
       second_archive = mk_archive("two")
       size = second_archive.size
       @log.debug("a: #{second_archive}, size: #{size}")
-      second_result = @ls.move_to_store(second_archive, "org", "repo", "1.0", @hash_and_tag, ".tgz", force:true)
+      second_result = @ls.move_to_store(second_archive, "org", "repo", "1.0", @hash_and_tag, force:true)
       @log.debug("result: #{second_result}")
       second_result[:path].size.should eql(size)
     end

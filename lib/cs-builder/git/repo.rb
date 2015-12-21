@@ -45,6 +45,10 @@ module CsBuilder
         GitHelper.has_tag?(path, tag)
       end
 
+      def hash_for_tag(tag)
+        GitHelper.hash_for_tag(path, tag)
+      end
+
       def clone_and_update
         clone
         update

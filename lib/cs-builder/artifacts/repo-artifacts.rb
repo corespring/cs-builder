@@ -23,8 +23,13 @@ module CsBuilder
       def build_and_move_to_store(cmd, pattern, force:false)
         result = build(cmd, pattern, force:force)
         if(result.has_key?(:build_info))
-          stored_path = move_to_store(result[:build_info])
-          result.merge({:moved_to_store => true, :stored_path => stored_path})
+          args = {
+            :path => result[:build_info][:path],
+            :version => result[:build_info][:version],
+            :hash_and_tag => result[:build_info][:hash_and_tag]}
+
+          stored_path = move_to_store(args)
+          result.merge({:moved_to_store => true, :store_info => stored_path})
         else
           result.merge({:moved_to_store => false})
         end
@@ -64,7 +69,6 @@ module CsBuilder
             :build_info => {
               :path => path,
               :version => version,
-              :extname => extname,
               :hash_and_tag => ht
             },
             :skipped => false,
@@ -73,8 +77,8 @@ module CsBuilder
         end
       end
 
-      def move_to_store(path:, version:, extname:, hash_and_tag:)
-        @store.move_to_store(path, @repo.org, @repo.repo, version, hash_and_tag, extname)
+      def move_to_store(path:, version:, hash_and_tag:)
+        @store.move_to_store(path, @repo.org, @repo.repo, version, hash_and_tag)
       end
 
       def has_artifact?(hash_and_tag)
@@ -83,10 +87,6 @@ module CsBuilder
 
       def artifact(hash_and_tag)
         @store.artifact(@repo.org, @repo.repo, hash_and_tag)
-      end
-
-      def artifact_from_tag(tag)
-        @store.artifact_from_tag(@repo.org, @repo.repo, tag)
       end
 
       def artifact_from_hash(hash)

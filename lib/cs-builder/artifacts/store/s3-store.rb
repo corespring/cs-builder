@@ -20,8 +20,9 @@ module CsBuilder
         "File already exists at this path: #{path}, add :force => true to overwrite"
       end
 
-      def mv_path(from, to, force: false)
-
+      def cp_path(from, to, force: false)
+        @log.info("[#{__method__}] from: #{from}, to: #{to}, force: #{force}")
+        
         if(force)
           rm_path(to)
         end
@@ -29,17 +30,23 @@ module CsBuilder
         if(path_exists?(to) and !force)
           raise "File already exists at this path: #{to}, add :force => true to overwrite"
         else
-          @log.debug("backing up to: #{to}, bucket: #{@bucket}")
+          @log.debug("[cp_path] putting #{from} -> #{to}, bucket: #{@bucket}")
           key = mk_key(to)
           File.open(from, 'rb') do |file|
             @s3.put_object(bucket: @bucket, key: key, body: file)
           end
-          FileUtils.rm_rf(from)
         end
       end
 
+
+      def mv_path(from, to, force: false)
+        @log.info("[#{__method__}] from: #{from}, to: #{to}, force: #{force}")
+        cp_path(from, to, force: force)
+        FileUtils.rm_rf(from)
+      end
+
       def rm_path(path)
-        @log.debug("rm_path: #{path}")
+        @log.info("[#{__method__}]: #{path}")
         key = mk_key(path)
         @s3.delete_object({bucket: @bucket, key: key})
       end
@@ -51,7 +58,7 @@ module CsBuilder
 
       ## list all artifacts
       def artifacts_from_key(org, repo, key)
-        @log.debug("[artifacts_from_key] org: #{org}, repo: #{repo}, key: #{key} - call s3...")
+        @log.info("[#{__method__}] org: #{org}, repo: #{repo}, key: #{key} - call s3...")
         resp = @s3.list_objects({
           bucket: @bucket,
           max_keys: 50,
@@ -72,11 +79,13 @@ module CsBuilder
       ## Download it from s3 and put it in the tmp dir.
       def resolve_path(path)
         key = mk_key(path)
-        @log.debug("pull, key: #{key}")
+        @log.info("#{__method__}, key: #{key}")
         basename = File.basename(path)
         local_path = File.join(Dir.tmpdir, "s3-store-downloads", basename)
         FileUtils.mkdir_p(File.dirname(local_path))
-        @s3.get_object(bucket: @bucket, key: key, response_target: local_path)
+        response = @s3.get_object(bucket: @bucket, key: key, response_target: local_path)
+        @log.debug("#{__method__} response: #{response}")
+        local_path
       end
 
       private

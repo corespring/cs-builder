@@ -4,11 +4,12 @@ Dir[File.dirname(__FILE__) + '/cmds/**/*.rb'].each {|file| require file }
 
 require_relative './log/logger'
 require_relative './opts-helper'
-
+require 'cs-builder/artifacts/store/remote-and-local'
 
 include CsBuilder::Log
 include CsBuilder::Commands
 include CsBuilder::Commands::Artifacts
+include CsBuilder::Artifacts
 
 module CsBuilder
 
@@ -28,7 +29,14 @@ module CsBuilder
     class_option :log_config, str(f: File.expand_path("~/.cs-builder/log-config.yml"))
 
     include CsBuilder::Docs
-  
+    
+    no_commands{
+
+      def get_store(root_dir)
+        RemoteAndLocalStore.build(File.join(root_dir, "artifacts"))
+      end
+    } 
+
     git = { 
       :git => str(r:true, d: "the git repo (eg: git@github.com:org/repo.git) (note: url is used to create :org and :repo)"),
       :branch => str(r:true, d: "the git branch (eg: master)")
@@ -57,7 +65,7 @@ module CsBuilder
     def artifact_mk_from_git
       o = OptsHelper.symbols(options)
       Log.load_config(o[:log_config])
-      cmd = MkFromGit.new(o[:config_dir])
+      cmd = MkFromGit.new(o[:config_dir], get_store(o[:config_dir]))
       out = cmd.run(o)
       puts out
     end
@@ -68,7 +76,12 @@ module CsBuilder
     def artifact_deploy_from_branch
       o = OptsHelper.symbols(options)
       Log.load_config(o[:log_config])
-      cmd = DeployFromBranch.new(o[:config_dir])
+      cmd = DeployFromBranch.build(o[:config_dir], 
+        get_store(o[:config_dir],
+          options[:git],
+          options[:branch],
+          options[:org],
+          options[:repo]))
       out = cmd.run(o)
       puts out
     end  

@@ -20,13 +20,7 @@ module CsBuilder
         
         def run(options)
           @log.debug("options: #{options}")
-          git_url = options[:git]
-          org = options.has_key?(:org) ? options[:org] : GitUrlParser.org(git_url)
-          repo = options.has_key?(:repo) ? options[:repo] : GitUrlParser.repo(git_url)
-          @paths = Paths.new(@config_dir, org, repo, "branch")
-          @repo = Repo.new(@config_dir, git_url, org, repo, options[:branch])
-          @artifacts = RepoArtifacts.new(@config_dir, @repo)
-          Dir["#{@paths.artifacts}/**/*.tgz"]
+          Dir["#{@config_dir}/artifacts/**/*.tgz"]
         end
       end
     end

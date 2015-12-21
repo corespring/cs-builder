@@ -70,7 +70,6 @@ describe CsBuilder::Artifacts::RepoArtifacts do
       it "builds the artifact and returns the build info" do
         @first_build[:build_info].should include({
           :version => "0.0.1",
-          :extname => ".tgz",
           :path => "#{@repo.path}/node-0.10.20-0.0.1.tgz"
           })
       end
@@ -107,7 +106,7 @@ describe CsBuilder::Artifacts::RepoArtifacts do
       it "returns the artifact" do
         build_result = @ra.build_and_move_to_store("npm pack", PATTERN)
         @ra.artifact(@repo.hash_and_tag).should include({
-          :path => "org/repo/0.0.1/#{@repo.hash_and_tag.to_simple}.tgz",
+          :virtual_path => "org/repo/0.0.1/#{@repo.hash_and_tag.to_simple}.tgz",
           :version => "0.0.1",
           :hash_and_tag => @repo.hash_and_tag
           })
@@ -137,25 +136,10 @@ describe CsBuilder::Artifacts::RepoArtifacts do
         @ra.artifact(@repo.hash_and_tag).should include({
           :version => "0.0.1",
           :hash_and_tag => HashAndTag.new(@repo.hash_and_tag.hash, "v0.0.1"),
-          :path => "org/repo/0.0.1/#{@repo.hash_and_tag.to_simple}.tgz"
+          :virtual_path => "org/repo/0.0.1/#{@repo.hash_and_tag.to_simple}.tgz"
         })
       end
     end
-
-    describe "artifact_from_tag", :tag => true do
-      before(:each) do
-        init_repo(DefaultCmds + "\ngit tag v0.0.1")
-        @repo = Repo.new(@root, "url", "org", "repo", "branch")
-        @store = new_local_store(@root)
-        @ra = RepoArtifacts.new(@root, @repo, @store)
-        build_result = @ra.build_and_move_to_store("npm pack", PATTERN)
-      end
-
-      it "should return an artifact" do
-        @ra.artifact_from_tag(@repo.hash_and_tag.tag)[:path].should eql("org/repo/0.0.1/#{@repo.hash_and_tag.to_simple}.tgz")
-      end
-    end
-
 
 end
 end
