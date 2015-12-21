@@ -1,4 +1,3 @@
-require_relative './end-to-end-helper'
 require_relative './base-mk-deploy'
 require 'restclient'
 
@@ -27,7 +26,9 @@ describe CsBuilder do
       cmd: "play universal:packageZipTarball", 
       artifact: "target/universal/#{APP}-(.*).tgz",
       heroku_app: heroku_app,
-      platform: "jdk-1.7")
+      platform: "jdk-1.7",
+      org: "test-org", 
+      repo: "test-repo")
     
     url = "http://#{heroku_app}.herokuapp.com"
     RestClient.get(url).should eql("I'm a simple play app")

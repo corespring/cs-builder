@@ -1,4 +1,5 @@
 require_relative '../../helpers/integration'
+require 'cs-builder/cmds/artifacts/mk-from-git'
 require 'cs-builder/artifacts/store/remote-and-local-store'
 
 include CsBuilder::Artifacts 

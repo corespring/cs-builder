@@ -1,5 +1,4 @@
-require 'cs-builder/cmds/artifacts/deploy-from-repo-commands'
-require 'cs-builder/cmds/artifacts/mk-from-git'
+require 'cs-builder/cmds/artifacts/deploy-from-branch'
 require_relative './deploy-helper'
 
 include CsBuilder::Commands::Artifacts

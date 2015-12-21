@@ -13,13 +13,14 @@ describe CsBuilder::Commands::Artifacts::MkFromGit do
   def init_example(example_project, cmd, artifact)
     @result = prepare_tmp_project(example_project)
     @store = LocalStore.new(File.join(@result[:config_dir], "artifacts"))
+    
     @opts = {
-      :git => @result[:project_dir],
+      :git_url => @result[:project_dir],
       :org => "org",
-      :repo => "test-repo",
+      :repo_name => "test-repo",
       :branch => "master",
       :cmd => cmd,
-      :artifact => artifact 
+      :artifact => artifact
     }
     
     @cmds = <<-EOF

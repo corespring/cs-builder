@@ -21,16 +21,14 @@ module CsBuilder
           @store = store
         end
 
-        def run(options)
+        def run(git_url:, branch:, cmd:, artifact:, org: nil, repo_name: nil, force: false)
 
-          @log.debug("options: #{options}")
+          @log.debug("#{__method__} git_url: #{git_url}, org: #{org.class.name}" )
 
-          git_url = options[:git]
+          org = org.nil? ? GitUrlParser.org(git_url) : org
+          repo_name = repo_name.nil? ? GitUrlParser.repo(git_url) : repo_name
 
-          org = options.has_key?(:org) ? options[:org] : GitUrlParser.org(git_url)
-          repo = options.has_key?(:repo) ? options[:repo] : GitUrlParser.repo(git_url)
-
-          @repo = Repo.new(@config_dir, git_url, org, repo, options[:branch])
+          @repo = Repo.new(@config_dir, git_url, org, repo_name, branch)
           @artifacts = RepoArtifacts.new(@config_dir, @repo, @store)
 
           run_with_lock(@repo.lock_file) {
@@ -38,10 +36,9 @@ module CsBuilder
             @repo.clone
             @log.debug "update repo"
             @repo.update
-            force = options[:force] == true
             result = @artifacts.build_and_move_to_store(
-              options[:cmd],
-              options[:artifact],
+              cmd,
+              artifact,
               force: force)
             @log.debug("build result: #{result}")
 

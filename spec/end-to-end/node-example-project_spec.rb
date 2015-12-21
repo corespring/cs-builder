@@ -1,4 +1,3 @@
-require_relative './end-to-end-helper'
 require_relative './base-mk-deploy'
 require 'restclient'
 
@@ -30,7 +29,9 @@ describe CsBuilder do
       artifact: "#{APP}-(.*).tgz",
       heroku_app: heroku_app,
       procfile: "package/Procfile",
-      platform: "node-4.2.3"
+      platform: "node-4.2.3",
+      org: "test-org",
+      repo: "test-repo"
       )
 
     

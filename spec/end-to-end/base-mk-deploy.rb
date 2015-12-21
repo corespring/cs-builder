@@ -1,7 +1,12 @@
 require 'cs-builder/cli'
+require_relative '../integration/helpers/integration'
+
 
 module Helpers
   module EndToEnd
+
+    include Helpers::Integration
+
     def self.build_and_deploy_app( 
       config_dir:,
       git_dir:,
@@ -22,10 +27,12 @@ module Helpers
        repo.nil? ? nil : "--repo=repo",
        "--branch=master"].compact
 
+
     mk_args =  ["artifact-mk-from-git"] + 
       common + 
       ["--cmd=#{cmd}", "--artifact=#{artifact}"] 
 
+    puts "mk_args: #{mk_args}"
    CsBuilder::CLI.start(mk_args)
 
     deploy_args = ["artifact-deploy-from-branch"] + common + 

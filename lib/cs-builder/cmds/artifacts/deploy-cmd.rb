@@ -52,7 +52,7 @@ module CsBuilder
           else
 
             @_log.debug("artifact: #{artifact}")
-            out_path = File.join(Dir.mktmpdir("deploy-from-branch_") , "#{artifact[:hash]}-#{platform}.tgz")
+            out_path = File.join(Dir.mktmpdir("deploy-from-branch_") , "#{artifact[:hash_and_tag].hash}-#{platform}.tgz")
             slug = SlugFromTemplate.mk_slug(artifact[:path], out_path, platform, File.join(@config_dir, "templates"), force == true)
 
             ht = artifact[:hash_and_tag]
