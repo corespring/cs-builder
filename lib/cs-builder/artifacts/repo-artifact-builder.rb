@@ -9,13 +9,13 @@ include CsBuilder::Artifacts::ArtifactPaths
 module CsBuilder
   module Artifacts
 
-    class RepoArtifacts
+    class RepoArtifactBuilder
 
       include InOut::Utils
       include ShellRunner
 
       def initialize(root, repo, store)
-        @log = Log.get_logger('repo-artifacts')
+        @log = Log.get_logger('repo-artifacts-builder')
         @repo = repo
         @store = store
       end
@@ -81,32 +81,24 @@ module CsBuilder
         @store.move_to_store(path, @repo.org, @repo.repo, version, hash_and_tag)
       end
 
+      private
+      def artifact_glob(pattern)
+        "#{@repo.path}/#{pattern.gsub(/\(.*\)/, "*")}"
+      end
+
       def has_artifact?(hash_and_tag)
         @store.has_artifact?(@repo.org, @repo.repo, hash_and_tag)
-      end
-
-      def artifact(hash_and_tag)
-        @store.artifact(@repo.org, @repo.repo, hash_and_tag)
-      end
-
-      def artifact_from_hash(hash)
-        @store.artifact_from_hash(@repo.org, @repo.repo, hash)
       end
 
       def rm_artifact(hash_and_tag)
         @store.rm_artifact(@repo.org, @repo.repo, hash_and_tag)
       end
 
-      private
-      def artifact_glob(pattern)
-        "#{@repo.path}/#{pattern.gsub(/\(.*\)/, "*")}"
-      end
-
       def find_built_artifact_path(pattern)
         glob = artifact_glob(pattern)
         @log.debug "glob: #{glob}"
         paths = Dir[glob]
-        raise "[repo-artifacts] Can't find artifact at: #{glob}" if paths.length == 0
+        raise "[repo-artifacts-builder] Can't find artifact at: #{glob}" if paths.length == 0
         paths[0]
       end
 

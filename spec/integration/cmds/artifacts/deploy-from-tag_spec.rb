@@ -19,6 +19,7 @@ describe CsBuilder::Commands::Artifacts::DeployFromTag do
         repo_name: "test-repo"
       )
     end
+    
     it "should do nothing if the artifact hasn't been built" do 
       init_example("node-4.2.3", extra_cmds: "git tag v0.0.1")
       result = cmd.run(@deploy_opts)

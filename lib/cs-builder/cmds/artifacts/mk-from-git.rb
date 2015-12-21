@@ -2,7 +2,7 @@ require_relative '../../log/logger'
 require_relative '../../git/git-parser'
 require_relative '../../git/repo'
 require_relative '../../runner'
-require_relative '../../artifacts/repo-artifacts'
+require_relative '../../artifacts/repo-artifacts-builder'
 require_relative '../../init'
 
 module CsBuilder
@@ -28,15 +28,15 @@ module CsBuilder
           org = org.nil? ? GitUrlParser.org(git_url) : org
           repo_name = repo_name.nil? ? GitUrlParser.repo(git_url) : repo_name
 
-          @repo = Repo.new(@config_dir, git_url, org, repo_name, branch)
-          @artifacts = RepoArtifacts.new(@config_dir, @repo, @store)
+          repo = Repo.new(@config_dir, git_url, org, repo_name, branch)
+          builder = RepoArtifactBuilder.new(@config_dir, repo, @store)
 
-          run_with_lock(@repo.lock_file) {
+          run_with_lock(repo.lock_file) {
             @log.debug "clone repo"
-            @repo.clone
+            repo.clone
             @log.debug "update repo"
-            @repo.update
-            result = @artifacts.build_and_move_to_store(
+            repo.update
+            result = builder.build_and_move_to_store(
               cmd,
               artifact,
               force: force)
