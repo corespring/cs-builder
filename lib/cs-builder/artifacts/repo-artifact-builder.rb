@@ -93,6 +93,10 @@ module CsBuilder
       def rm_artifact(hash_and_tag)
         @store.rm_artifact(@repo.org, @repo.repo, hash_and_tag)
       end
+      
+      def artifact(hash_and_tag)
+        @store.artifact(@repo.org, @repo.repo, hash_and_tag)
+      end
 
       def find_built_artifact_path(pattern)
         glob = artifact_glob(pattern)

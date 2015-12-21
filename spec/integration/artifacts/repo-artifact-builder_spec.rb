@@ -1,4 +1,4 @@
-require 'cs-builder/artifacts/repo-artifacts-builder'
+require 'cs-builder/artifacts/repo-artifact-builder'
 require 'cs-builder/artifacts/store/local-store'
 require 'cs-builder/git/repo'
 require 'cs-builder/init'
