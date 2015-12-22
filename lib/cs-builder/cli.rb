@@ -62,6 +62,12 @@ module CsBuilder
       end
     } 
 
+    #TODO: RM locks
+    
+    desc "build-from-git", "just run a command against a repo"
+    def build_from_git 
+    end
+
     desc "artifact-mk-from-git", "create an artifact from a git repo and branch and store it for later use"
     add_opts(options, git, org_repo(false, override:true))
     option :cmd, str(r:true, d: "this command is run against the project and it must create a .tgz of your project")
