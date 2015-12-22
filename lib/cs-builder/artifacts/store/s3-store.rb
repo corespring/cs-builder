@@ -83,6 +83,7 @@ module CsBuilder
         basename = File.basename(path)
         local_path = File.join(Dir.tmpdir, "s3-store-downloads", basename)
         FileUtils.mkdir_p(File.dirname(local_path))
+        @log.debug("#{__method__} call @s3.get_object")
         response = @s3.get_object(bucket: @bucket, key: key, response_target: local_path)
         @log.debug("#{__method__} response: #{response}")
         local_path

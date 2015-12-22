@@ -2,7 +2,7 @@ require_relative '../../log/logger'
 require_relative '../../git/git-parser'
 require_relative '../../git/repo'
 require_relative '../../runner'
-require_relative '../../artifacts/repo-artifacts-builder'
+require_relative '../../artifacts/repo-artifact-builder'
 require_relative '../../init'
 
 module CsBuilder

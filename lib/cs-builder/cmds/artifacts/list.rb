@@ -1,7 +1,4 @@
 require_relative '../../log/logger'
-require_relative '../../git/git-parser'
-require_relative '../../git/repo'
-require_relative '../../artifacts/repo-artifacts-builder'
 require_relative '../../init'
 
 module CsBuilder
@@ -9,18 +6,19 @@ module CsBuilder
     module Artifacts
       class List
 
-        include CsBuilder::Git
-        include CsBuilder::Artifacts
-
-        def initialize(config_dir)
+        def initialize(config_dir, store)
           CsBuilder::Init.init_cs_builder_dir(config_dir)
           @config_dir = config_dir
           @log = CsBuilder::Log.get_logger("list")
+          @store = store
         end
         
-        def run(options)
-          @log.debug("options: #{options}")
-          Dir["#{@config_dir}/artifacts/**/*.tgz"]
+        def run(org:, repo:)
+          @log.debug("org: #{org}, repo: #{repo}")
+          artifacts = @store.list_artifacts(org, repo)
+          artifacts.map{ |a| 
+            "#{a[:key]} local: #{a[:local]}, remote: #{a[:remote]}"
+          }.join("\n")
         end
       end
     end

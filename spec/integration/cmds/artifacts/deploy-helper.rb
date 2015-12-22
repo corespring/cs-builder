@@ -42,9 +42,9 @@ module Helpers
     def build_artifact
       mk = MkFromGit.new(@result[:config_dir], @store)
       mk.run({
-        :git => @result[:project_dir],
+        :git_url => @result[:project_dir],
         :org => "org",
-        :repo => "test-repo",
+        :repo_name => "test-repo",
         :branch => "master",
         :cmd  => "npm pack",
         :artifact => "node-4.2.3-(.*).tgz"

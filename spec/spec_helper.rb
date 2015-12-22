@@ -1,6 +1,8 @@
 require 'cs-builder/log/logger'
 require 'dotenv'
 require 'aws-sdk'
+require 'pry-byebug'
+
 
 Dotenv.load
 

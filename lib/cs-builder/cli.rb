@@ -135,18 +135,19 @@ module CsBuilder
     def artifact_deploy_from_file
       o = OptsHelper.symbols(options)
       Log.load_config(o[:log_config])
-      cmd = DeployFromFile.new(o[:config_dir])
-      cmd.run(o)
+      cmd = DeployFromFile.new(o[:config_dir], o[:artifact_file], tag: o[:tag], hash: o[:hash])
+      deploy_opts = to_deploy_opts(o, :heroku_app, :heroku_stack, :procfile, :platform) 
+      cmd.run(deploy_opts)
     end
 
     desc "artifact-list", "list available artifacts"
-    add_opts(options, git, org_repo(false))
+    add_opts(options, org_repo)
     def artifact_list
       o = OptsHelper.symbols(options)
       Log.load_config(o[:log_config])
-      cmd = List.new(o[:config_dir])
-      list = cmd.run(o)
-      puts list.join("\n")
+      cmd = List.new(o[:config_dir], get_store(o[:config_dir]))
+      list = cmd.run(o[:org], o[:repo])
+      puts list
     end
 
     desc "slug-mk-from-artifact-file", "create a heroku slug from an artifact"

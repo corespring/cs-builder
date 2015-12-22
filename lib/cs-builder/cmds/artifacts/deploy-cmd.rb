@@ -5,7 +5,7 @@ require_relative '../../heroku/heroku-deployer'
 require_relative '../../heroku/heroku-description'
 require_relative '../../git/repo'
 require_relative '../../git/git-parser'
-require_relative '../../artifacts/repo-artifacts-builder'
+require_relative '../../artifacts/repo-artifact-builder'
 
 require 'tmpdir'
 

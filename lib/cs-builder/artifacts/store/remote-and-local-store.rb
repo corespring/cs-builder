@@ -56,6 +56,21 @@ module CsBuilder
       end
 
 
+      def list_artifacts(org, repo)
+
+        local = @local.artifacts_from_key(org, repo, "*")
+        remote = @remote.artifacts_from_key(org, repo, "*")
+
+        @log.debug("local: #{local}")
+        @log.debug("remote: #{remote}")
+
+        all = (local + remote).uniq
+
+        all.map{ |k| 
+          {:key => k, :local => local.include?(k), :remote => remote.include?(k)}
+        }
+      end
+
       ## Return a local path to the archive
       ## If the archive is remote, pull it down to the local path
       def resolve_path(path)
