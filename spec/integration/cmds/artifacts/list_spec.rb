@@ -30,7 +30,6 @@ describe CsBuilder::Commands::Artifacts::List do
       git commit . -m "first commit"
     EOF
 
-    @paths = Paths.new(@result[:config_dir], "org", "test-repo", "branch")
   end
   
   context "with a node app" do 
