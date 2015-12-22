@@ -122,7 +122,13 @@ module CsBuilder
       end
 
       def trigger_release(app, id)
-        @heroku.release.create(app, {"slug" => id})
+        begin
+          @heroku.release.create(app, {"slug" => id})
+        rescue => e 
+          @log.error("#{__method__}: app: #{app}, id: #{id} - failed..."))
+          @log.error(e)
+          raise e
+        end
       end
 
       def auth_token

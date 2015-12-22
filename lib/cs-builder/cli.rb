@@ -127,6 +127,7 @@ module CsBuilder
     end
 
     
+    desc "artifact-deploy-from-file", "slugifies the file and deploys it."
     add_opts(options, heroku, platform)
     option :force, force
     option :artifact_file, str(r:true)
@@ -141,7 +142,7 @@ module CsBuilder
     end
 
     desc "artifact-list", "list available artifacts"
-    add_opts(options, org_repo)
+    add_opts(options, org_repo(true))
     def artifact_list
       o = OptsHelper.symbols(options)
       Log.load_config(o[:log_config])
