@@ -125,7 +125,7 @@ module CsBuilder
         begin
           @heroku.release.create(app, {"slug" => id})
         rescue => e 
-          @log.error("#{__method__}: app: #{app}, id: #{id} - failed..."))
+          @log.error("#{__method__}: app: #{app}, id: #{id} - failed...")
           @log.error(e)
           raise e
         end
