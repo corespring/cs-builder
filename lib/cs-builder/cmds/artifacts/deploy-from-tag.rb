@@ -7,11 +7,13 @@ module CsBuilder
     module Artifacts
 
       class DeployFromTag < DeployCommand
+        
+        extend NilCheck 
 
         def self.build(config_dir, store, tag, git_url:, org: nil, repo_name: nil)
           org = nil_or_empty?(org) ? Git::GitUrlParser.org(git_url) : org
           repo_name = nil_or_empty?(repo_name) ? Git::GitUrlParser.repo(git_url) : repo_name
-          @log.info("[#{__method__}] org: #{org}, repo_name: #{repo_name}")
+          CsBuilder::Log.get_logger('deploy-from-tag').info("[#{__method__}] org: #{org}, repo_name: #{repo_name}")
           repo = Repo.new(config_dir, git_url, org, repo_name, "master")
           DeployFromTag.new(config_dir, store, repo, tag)
         end
