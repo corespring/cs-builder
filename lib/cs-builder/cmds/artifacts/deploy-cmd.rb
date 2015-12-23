@@ -89,6 +89,10 @@ module CsBuilder
 
         protected
 
+        def nil_or_empty?(s)
+          s.nil? or s.empty?
+        end
+
         def not_deployed_result(options, base)
           base
         end

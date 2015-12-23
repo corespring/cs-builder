@@ -23,6 +23,10 @@ module CsBuilder
 
   class CLI < Thor
 
+    def self.exit_on_failure?
+      true
+    end
+
     extend OptsHelper 
 
 
