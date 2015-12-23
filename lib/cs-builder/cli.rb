@@ -124,7 +124,7 @@ module CsBuilder
     def artifact_deploy_from_tag
       o = OptsHelper.symbols(options)
       Log.load_config(o[:log_config])
-      cmd = DeployFromTag.new(
+      cmd = DeployFromTag.build(
         o[:config_dir], 
         get_store(o[:config_dir]), 
         o[:tag],
