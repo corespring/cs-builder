@@ -83,8 +83,8 @@ module CsBuilder
               force: force)
 
             @_log.debug("release_response: #{release_response}")
-            @_log.debug("removing the slug: #{slug}")
-            FileUtils.rm_rf(slug, :verbose => @_log.debug?)
+            @_log.info("removing the temporary slug: #{slug}")
+            FileUtils.rm_rf(slug, :verbose => @_log.info?)
 
             deployed_result({}, {
               :deployed => !release_response.nil?,
