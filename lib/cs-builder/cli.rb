@@ -63,9 +63,23 @@ module CsBuilder
     } 
 
     #TODO: RM locks
-    
+
     desc "build-from-git", "just run a command against a repo"
+    add_opts(options, git, org_repo(false, override:true))
+    option :cmd, str(r:true)
     def build_from_git 
+      o = OptsHelper.symbols(options)
+      Log.load_config(o[:log_config])
+      @@log.info("running: MkFromGit: options: #{o}")
+      cmd = BuildFromGit.new(o[:config_dir])
+      out = cmd.run(
+        git_url: o[:git],
+        branch: o[:branch],
+        cmd: o[:cmd],
+        org: o[:org],
+        repo_name: o[:repo])
+
+      puts out
     end
 
     desc "artifact-mk-from-git", "create an artifact from a git repo and branch and store it for later use"
