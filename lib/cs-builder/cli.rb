@@ -118,7 +118,7 @@ module CsBuilder
     end  
 
     desc "artifact-deploy-from-tag", "Looks for an artifact with the given tag, slugifies it, deploys it."
-    add_opts(options, heroku, platform, org_repo(true))
+    add_opts(options, heroku, platform, git, org_repo(false, override:true))
     option :force, force
     option :tag, str(r:true, d: "The tag/version to look for")
     def artifact_deploy_from_tag
