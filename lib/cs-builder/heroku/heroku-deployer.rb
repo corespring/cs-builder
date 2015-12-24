@@ -36,7 +36,6 @@ module CsBuilder
         end
       end
 
-      private
 
       def already_deployed(app, commit_hash, description)
 
@@ -57,6 +56,8 @@ module CsBuilder
           current_desc == new_desc
         end
       end
+      
+      private
 
       def get_current_description(app)
         release = get_most_recent_release(app)

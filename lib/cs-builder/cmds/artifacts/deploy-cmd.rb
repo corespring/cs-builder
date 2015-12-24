@@ -68,28 +68,35 @@ module CsBuilder
               artifact[:version],
               ht.hash,
               ht.tag).json_string
+            
+            @_log.debug("app: #{app}, stack: #{heroku_stack}, description: #{description}, slug: #{slug}, procfile: #{procfile}")
 
             deployer = HerokuDeployer.new
 
-            @_log.debug("app: #{app}, stack: #{heroku_stack}, description: #{description}, slug: #{slug}, procfile: #{procfile}")
+            no_deploy_needed = !force and deployer.already_deployed(app, artifact[:hash], description)
 
-            release_response = deployer.deploy(
-              slug,
-              SlugHelper.processes_from_slug(slug, procfile: procfile),
-              app,
-              artifact[:hash],
-              description,
-              heroku_stack,
-              force: force)
+            if(no_deploy_needed)
+              @_log.info("No deployment needed - the app is already deployed: #{description}")
+            else 
+              release_response = deployer.deploy(
+                slug,
+                SlugHelper.processes_from_slug(slug, procfile: procfile),
+                app,
+                artifact[:hash],
+                description,
+                heroku_stack,
+                force: force)
 
-            @_log.debug("release_response: #{release_response}")
-            @_log.info("removing the temporary slug: #{slug}")
-            FileUtils.rm_rf(slug, :verbose => @_log.info?)
+              @_log.debug("release_response: #{release_response}")
+              @_log.info("removing the temporary slug: #{slug}")
+              FileUtils.rm_rf(slug, :verbose => @_log.info?)
 
-            deployed_result({}, {
-              :deployed => !release_response.nil?,
-              :description => description
-            })
+              deployed_result({}, {
+                :deployed => !release_response.nil?,
+                :description => description
+              })
+
+            end
 
           end
         end

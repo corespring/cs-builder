@@ -64,6 +64,13 @@ module CsBuilder
       def to_deploy_opts(opts, *keys)
         opts.select{ |k| keys.include?(k) }
       end
+
+      def prep(name, options) 
+        o = OptsHelper.symbols(options)
+        Log.load_config(o[:log_config])
+        @@log.info("running: #{name}: options: #{o}")
+        yield o
+      end
     } 
 
     #TODO: RM locks
@@ -72,18 +79,17 @@ module CsBuilder
     add_opts(options, git, org_repo(false, override:true))
     option :cmd, str(r:true)
     def build_from_git 
-      o = OptsHelper.symbols(options)
-      Log.load_config(o[:log_config])
-      @@log.info("running: MkFromGit: options: #{o}")
-      cmd = BuildFromGit.new(o[:config_dir])
-      out = cmd.run(
-        git_url: o[:git],
-        branch: o[:branch],
-        cmd: o[:cmd],
-        org: o[:org],
-        repo_name: o[:repo])
+      prep(__method__, options){ |o|
+        cmd = BuildFromGit.new(o[:config_dir])
+        out = cmd.run(
+          git_url: o[:git],
+          branch: o[:branch],
+          cmd: o[:cmd],
+          org: o[:org],
+          repo_name: o[:repo])
 
-      puts out
+        puts out
+      }
     end
 
     desc "artifact-mk-from-git", "create an artifact from a git repo and branch and store it for later use"
@@ -95,40 +101,39 @@ module CsBuilder
     option :back_up_if_tagged, :type => :boolean, :default => true
     long_desc Docs.docs("make-artifact-git")
     def artifact_mk_from_git
-      o = OptsHelper.symbols(options)
-      Log.load_config(o[:log_config])
-      @@log.info("running: MkFromGit: options: #{o}")
-      cmd = MkFromGit.new(o[:config_dir], get_store(o[:config_dir]))
-      out = cmd.run(
-        git_url: o[:git],
-        branch: o[:branch],
-        cmd: o[:cmd],
-        artifact: o[:artifact], 
-        org: o[:org],
-        repo_name: o[:repo],
-        force: o[:force])
+      prep(__method__, options){|o|
+        cmd = MkFromGit.new(o[:config_dir], get_store(o[:config_dir]))
+        out = cmd.run(
+          git_url: o[:git],
+          branch: o[:branch],
+          cmd: o[:cmd],
+          artifact: o[:artifact], 
+          org: o[:org],
+          repo_name: o[:repo],
+          force: o[:force])
 
-      puts out
+        puts out
+      }
     end
    
     desc "artifact-deploy-from-branch", "Gets the sha/tag from the head of the repo branch, looks for the artifact, slugs it, deploys it"
     add_opts(options, git, heroku, platform, org_repo(false, override:true))
     option :force, :type => :boolean, :default => false
     def artifact_deploy_from_branch
-      o = OptsHelper.symbols(options)
-      Log.load_config(o[:log_config])
-      cmd = DeployFromBranch.build(
-        o[:config_dir], 
-        get_store(o[:config_dir]),
-        git_url: o[:git],
-        branch: o[:branch],
-        org: o.has_key?(:org) ? o[:org] : nil,
-        repo_name: o.has_key?(:repo) ? o[:repo] : nil)
+      prep(__method__, options){|o|
+        cmd = DeployFromBranch.build(
+          o[:config_dir], 
+          get_store(o[:config_dir]),
+          git_url: o[:git],
+          branch: o[:branch],
+          org: o.has_key?(:org) ? o[:org] : nil,
+          repo_name: o.has_key?(:repo) ? o[:repo] : nil)
 
-      deploy_opts = to_deploy_opts(o, :heroku_app, :heroku_stack, :procfile, :platform) 
-      @@log.info("[deploy-from-branch]: deploy_opts: #{deploy_opts}")
-      out = cmd.run(deploy_opts)
-      puts out
+        deploy_opts = to_deploy_opts(o, :heroku_app, :heroku_stack, :procfile, :platform) 
+        @@log.info("[deploy-from-branch]: deploy_opts: #{deploy_opts}")
+        out = cmd.run(deploy_opts)
+        puts out
+      }
     end  
 
     desc "artifact-deploy-from-tag", "Looks for an artifact with the given tag, slugifies it, deploys it."
@@ -136,18 +141,18 @@ module CsBuilder
     option :force, force
     option :tag, str(r:true, d: "The tag/version to look for")
     def artifact_deploy_from_tag
-      o = OptsHelper.symbols(options)
-      Log.load_config(o[:log_config])
-      cmd = DeployFromTag.build(
-        o[:config_dir], 
-        get_store(o[:config_dir]), 
-        o[:tag],
-        git_url: o[:git],
-        org: o[:org],
-        repo_name: o[:repo])
-      deploy_opts = to_deploy_opts(o, :heroku_app, :heroku_stack, :procfile, :platform) 
-      @@log.info("[deploy-from-tag]: deploy_opts: #{deploy_opts}")
-      cmd.run(deploy_opts)
+      prep(__method__, options){ |o|
+        cmd = DeployFromTag.build(
+          o[:config_dir], 
+          get_store(o[:config_dir]), 
+          o[:tag],
+          git_url: o[:git],
+          org: o[:org],
+          repo_name: o[:repo])
+        deploy_opts = to_deploy_opts(o, :heroku_app, :heroku_stack, :procfile, :platform) 
+        @@log.info("[deploy-from-tag]: deploy_opts: #{deploy_opts}")
+        cmd.run(deploy_opts)
+      }
     end
 
     
@@ -158,21 +163,21 @@ module CsBuilder
     option :tag, str(r:true) 
     option :hash, str
     def artifact_deploy_from_file
-      o = OptsHelper.symbols(options)
-      Log.load_config(o[:log_config])
-      cmd = DeployFromFile.new(o[:config_dir], o[:artifact_file], tag: o[:tag], hash: o[:hash])
-      deploy_opts = to_deploy_opts(o, :heroku_app, :heroku_stack, :procfile, :platform) 
-      cmd.run(deploy_opts)
+      prep(__method__, options) { |o| 
+        cmd = DeployFromFile.new(o[:config_dir], o[:artifact_file], tag: o[:tag], hash: o[:hash])
+        deploy_opts = to_deploy_opts(o, :heroku_app, :heroku_stack, :procfile, :platform) 
+        cmd.run(deploy_opts)
+      }
     end
 
     desc "artifact-list", "list available artifacts"
     add_opts(options, org_repo(true))
     def artifact_list
-      o = OptsHelper.symbols(options)
-      Log.load_config(o[:log_config])
-      cmd = List.new(o[:config_dir], get_store(o[:config_dir]))
-      list = cmd.run(o[:org], o[:repo])
-      puts list
+      prep(__method__, options){|o|
+        cmd = List.new(o[:config_dir], get_store(o[:config_dir]))
+        list = cmd.run(o[:org], o[:repo])
+        puts list
+      }
     end
 
     desc "slug-mk-from-artifact-file", "create a heroku slug from an artifact"
@@ -181,11 +186,10 @@ module CsBuilder
     option :out_path, str(r:true, d: "Where to save the slug")
     option :force, force 
     def slug_mk_from_artifact_file
-      o = OptsHelper.symbols(options)
-      Log.load_config(o[:log_config])
-      cmd = MakeSlugFromArtifact.new(o[:config_dir])
-      out = cmd.run(o)
-      puts "done."
+      prep(__method__, options){|o| 
+        cmd = MakeSlugFromArtifact.new(o[:config_dir])
+        out = cmd.run(o)
+      }
     end
 
     desc "slug-deploy-from-file", "create a heroku slug from an artifact"
@@ -195,11 +199,11 @@ module CsBuilder
     option :description, str(d: "A description", f: "deploy")
     option :force, force 
     def slug_deploy_from_file
-      o = OptsHelper.symbols(options)
-      Log.load_config(o[:log_config])
-      cmd = DeploySlugFile.new(o[:config_dir], o[:stack])
-      out = cmd.run(o)
-      puts "deployed to: #{options[:app]}"
+      prep(__method__, options){|o|  
+        cmd = DeploySlugFile.new(o[:config_dir], o[:stack])
+        out = cmd.run(o)
+        puts "deployed to: #{options[:app]}"
+      }
     end
 
   end
