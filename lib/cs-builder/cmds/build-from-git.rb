@@ -19,7 +19,7 @@ module CsBuilder
 
       def run(git_url:, branch:, cmd:, org: nil, repo_name: nil)
         org = nil_or_empty?(org) ? GitUrlParser.org(git_url) : org 
-        repo_name = nil_or_empty?(repo_name) ? GitUrlParser.org(git_url) : repo_name 
+        repo_name = nil_or_empty?(repo_name) ? GitUrlParser.repo(git_url) : repo_name 
         @paths = Paths.new(@config_dir, org, repo_name, branch)
         repo = Repo.new(@config_dir, git_url, org, repo_name, branch)
         repo.clone_and_update
