@@ -58,10 +58,6 @@ module CsBuilder
             })
           else
 
-            @_log.debug("artifact: #{artifact}")
-            out_path = File.join(Dir.mktmpdir("deploy-from-branch_") , "#{artifact[:hash_and_tag].hash}-#{platform}.tgz")
-            slug = SlugFromTemplate.mk_slug(artifact[:path], out_path, platform, File.join(@config_dir, "templates"), force == true)
-
             ht = artifact[:hash_and_tag]
             
             description = HerokuDescription.new(
@@ -69,7 +65,7 @@ module CsBuilder
               ht.hash,
               ht.tag).json_string
             
-            @_log.debug("app: #{app}, stack: #{heroku_stack}, description: #{description}, slug: #{slug}, procfile: #{procfile}")
+            @_log.debug("app: #{app}, stack: #{heroku_stack}, description: #{description}, procfile: #{procfile}")
 
             deployer = HerokuDeployer.new
 
@@ -77,7 +73,14 @@ module CsBuilder
 
             if(no_deploy_needed)
               @_log.info("No deployment needed - the app is already deployed: #{description}")
+              deployed_result({}, {:deployed => false, :description => "no deployment needed"})
             else 
+              
+              @_log.debug("artifact: #{artifact}")
+              out_path = File.join(Dir.mktmpdir("deploy-from-branch_") , "#{artifact[:hash_and_tag].hash}-#{platform}.tgz")
+              slug = SlugFromTemplate.mk_slug(artifact[:path], out_path, platform, File.join(@config_dir, "templates"), force == true)
+              @_log.debug("app: #{app}, slug: #{slug}, procfile: #{procfile}")
+
               release_response = deployer.deploy(
                 slug,
                 SlugHelper.processes_from_slug(slug, procfile: procfile),
@@ -102,8 +105,6 @@ module CsBuilder
         end
 
         protected
-
-        
 
         def not_deployed_result(options, base)
           base

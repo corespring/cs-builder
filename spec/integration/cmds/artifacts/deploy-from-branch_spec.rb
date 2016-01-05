@@ -21,7 +21,7 @@ describe CsBuilder::Commands::Artifacts::DeployFromBranch do
 
     it "should do nothing if the artifact hasn't been built" do
       init_example("node-4.2.3")
-      result = deploy_cmd.run(@deploy_opts)
+      result = deploy_cmd.run(@deploy_opts) 
       result[:deployed].should eql(false)
     end
 

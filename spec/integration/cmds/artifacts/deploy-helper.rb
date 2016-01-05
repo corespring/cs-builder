@@ -22,7 +22,9 @@ module Helpers
         :platform => "node-4.2.3",
         :heroku_app => heroku_app,
         :heroku_stack => "cedar-14",
-        :procfile => "package/Procfile"
+        :procfile => "package/Procfile",
+        # we force by default to that the deployment always happens
+        :force => true
       }
 
       @cmds = <<-EOF
