@@ -129,7 +129,7 @@ module CsBuilder
           org: o.has_key?(:org) ? o[:org] : nil,
           repo_name: o.has_key?(:repo) ? o[:repo] : nil)
 
-        deploy_opts = to_deploy_opts(o, :heroku_app, :heroku_stack, :procfile, :platform) 
+        deploy_opts = to_deploy_opts(o, :heroku_app, :heroku_stack, :procfile, :platform, :force) 
         @@log.info("[deploy-from-branch]: deploy_opts: #{deploy_opts}")
         out = cmd.run(deploy_opts)
         puts out
@@ -149,7 +149,7 @@ module CsBuilder
           git_url: o[:git],
           org: o[:org],
           repo_name: o[:repo])
-        deploy_opts = to_deploy_opts(o, :heroku_app, :heroku_stack, :procfile, :platform) 
+        deploy_opts = to_deploy_opts(o, :heroku_app, :heroku_stack, :procfile, :platform, :force) 
         @@log.info("[deploy-from-tag]: deploy_opts: #{deploy_opts}")
         cmd.run(deploy_opts)
       }
@@ -165,7 +165,7 @@ module CsBuilder
     def artifact_deploy_from_file
       prep(__method__, options) { |o| 
         cmd = DeployFromFile.new(o[:config_dir], o[:artifact_file], tag: o[:tag], hash: o[:hash])
-        deploy_opts = to_deploy_opts(o, :heroku_app, :heroku_stack, :procfile, :platform) 
+        deploy_opts = to_deploy_opts(o, :heroku_app, :heroku_stack, :procfile, :platform, :force) 
         cmd.run(deploy_opts)
       }
     end

@@ -53,7 +53,9 @@ module CsBuilder
         if(current_desc.nil? and new_desc.nil?)
           false
         else
-          current_desc == new_desc
+          descriptions_match = current_desc == new_desc
+          @log.debug("descriptions match: #{descriptions_match}")
+          descriptions_match
         end
       end
       
