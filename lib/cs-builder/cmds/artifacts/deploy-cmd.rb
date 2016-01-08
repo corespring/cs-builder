@@ -69,9 +69,11 @@ module CsBuilder
 
             deployer = HerokuDeployer.new
 
-            no_deploy_needed = !force and deployer.already_deployed(app, artifact[:hash], description)
+            already_deployed = deployer.already_deployed(app, artifact[:hash], description)
 
-            if(no_deploy_needed)
+            @_log.debug("already deployed? #{already_deployed}, force: #{force}")
+
+            if(already_deployed and !force)
               @_log.info("No deployment needed - the app is already deployed: #{description}")
               deployed_result({}, {:deployed => false, :description => "no deployment needed"})
             else 

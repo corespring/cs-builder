@@ -14,7 +14,11 @@ module CsBuilder
       end
 
       def ==(other)
-        other.json_string == self.json_string
+        begin
+          other.json_string == self.json_string
+        rescue
+          false
+        end
       end
 
       def json_string

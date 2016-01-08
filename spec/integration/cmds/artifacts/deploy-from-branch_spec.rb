@@ -31,5 +31,28 @@ describe CsBuilder::Commands::Artifacts::DeployFromBranch do
       result = deploy_cmd.run(@deploy_opts)
       result[:deployed].should eql(true)
     end
+    
+    
+    it "should deploy if the artifact hash has changed an force is false" do
+      init_example("node-4.2.3")
+      build_artifact
+
+      result = deploy_cmd.run(@deploy_opts)
+      result[:deployed].should eql(true)
+
+      cmds = <<-EOF
+      touch new-file.txt
+      git add new-file.txt
+      git commit . -m "new file.txt"
+      EOF
+
+      run_shell_cmds(@result[:project_dir], cmds)
+      
+      build_artifact
+
+      result = deploy_cmd.run(@deploy_opts.merge({:force => false}))
+      result[:deployed].should eql(true)
+    end
+
   end
 end

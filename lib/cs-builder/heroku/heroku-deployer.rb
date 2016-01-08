@@ -41,20 +41,23 @@ module CsBuilder
 
         new_desc = HerokuDescription.from_json_string(description) 
         
+        @log.info("new_desc: #{new_desc}") 
+        
         if(new_desc.nil?)
           @log.warn("The description #{description} can't be read as a HerokuDescription")
         end
 
         current_desc = get_current_description(app)
 
-        @log.debug("current_desc: #{current_desc}, #{current_desc.class.name}")
-        @log.debug("new_desc: #{new_desc}, #{new_desc.class.name}")
+        @log.info("[already_deployed] current_desc: #{current_desc}, #{current_desc.class.name}")
+        @log.info("[already_deployed] new_desc: #{new_desc}, #{new_desc.class.name}")
 
         if(current_desc.nil? and new_desc.nil?)
+          @log.info("[already_deployed] both are nil - return false")
           false
         else
           descriptions_match = current_desc == new_desc
-          @log.debug("descriptions match: #{descriptions_match}")
+          @log.info("[already_deployed] descriptions match: #{descriptions_match}")
           descriptions_match
         end
       end

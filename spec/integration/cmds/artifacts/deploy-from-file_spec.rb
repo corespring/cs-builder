@@ -37,6 +37,7 @@ describe CsBuilder::Commands::Artifacts::DeployFromFile do
       result = cmd.run(@deploy_opts)
       result[:deployed].should eql(true)
     end
+
   end
 end
 
