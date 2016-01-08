@@ -70,7 +70,8 @@ module CsBuilder
         cleaned = resp.contents.map{ |o|
           strip_path(o.key)
         }.select{ |k|
-          k[/.*#{key}.*/]
+          expr = ".*#{key}.*".gsub("**", "*")
+          k[/#{expr}/]
         }
       end
 
