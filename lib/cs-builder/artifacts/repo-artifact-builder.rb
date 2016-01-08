@@ -60,7 +60,11 @@ module CsBuilder
 
             shell_run(cmd)
           }
+          # It may be that the build command has affected the hash and tag
+          # so update it now.
 
+          ht = @repo.hash_and_tag
+          
           @log.debug "find the built artifact for hash_and_tag : #{ht}, using: #{pattern}"
           path = find_built_artifact_path(pattern)
           version = version_from_built_artifact(path, pattern)
