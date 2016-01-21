@@ -106,7 +106,7 @@ module CsBuilder
 
         @log.debug("get release list...")
         begin
-          with_slug = heroku.release(list_opts).list(app).find{ |r| 
+          with_slug = heroku(list_opts).release.list(app).find{ |r| 
             @log.debug("release version: #{r["version"]}")
             !r["slug"].nil?
           }
