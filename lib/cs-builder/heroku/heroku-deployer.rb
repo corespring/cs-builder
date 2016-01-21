@@ -13,7 +13,6 @@ module CsBuilder
 
       def initialize()
         @log = CsBuilder::Log.get_logger('heroku-deployer')
-        @heroku = PlatformAPI.connect_oauth(auth_token)
       end
 
       def deploy(slug, process_hash, app, commit_hash, description, stack, force: false)
@@ -64,10 +63,18 @@ module CsBuilder
       
       private
 
+
+      ###
+      # See: https://devcenter.heroku.com/articles/platform-api-reference#ranges
+      ###
+      def heroku(headers = {})
+        PlatformAPI.connect_oauth(auth_token, default_headers: headers)
+      end
+
       def get_current_description(app)
-        release = get_most_recent_release(app)
+        release = most_recent_slug_release(app)
         slug_id = release["slug"]["id"]
-        slug_info = @heroku.slug.info(app, slug_id)
+        slug_info = heroku.slug.info(app, slug_id)
         @log.debug("slug: \n#{PP.pp(slug_info, "")}")
         HerokuDescription.from_json_string(slug_info["commit_description"])
       end
@@ -77,25 +84,34 @@ module CsBuilder
       end
 
       def get_current_commit_hash(app)
-        release = get_most_recent_release(app)
+        release = most_recent_slug_release(app)
         @log.debug("app: #{app}, release: #{release}")
 
         if release.nil?
           ""
         else
           slug_id = release["slug"]["id"]
-          slug_info = @heroku.slug.info(app,slug_id)
+          slug_info = heroku.slug.info(app,slug_id)
           @log.debug("slug: \n#{PP.pp(slug_info, "")}")
           slug_info["commit"] 
         end
       end
 
-      def get_most_recent_release(app)
+      def most_recent_slug_release(app)
+
+        list_opts = {
+         #order by version descending...
+         "Range" => "version; order=desc,max=20;" 
+        }
+
         @log.debug("get release list...")
         begin
-          release_list = @heroku.release.list(app)
-          sorted = release_list.sort{ |o| o["version"]}
-          sorted[0] if sorted.length > 0
+          with_slug = heroku.release(list_opts).list(app).find{ |r| 
+            @log.debug("release version: #{r["version"]}")
+            !r["slug"].nil?
+          }
+          @log.debug("found release with slug: #{with_slug}")
+          with_slug
         rescue => e
           @log.warn(e)
           raise e
@@ -113,7 +129,7 @@ module CsBuilder
           :stack => stack
         }
 
-        @heroku.slug.create(app, data)
+        heroku.slug.create(app, data)
       end
 
       #TODO - use a ruby lib instead
@@ -129,7 +145,7 @@ module CsBuilder
 
       def trigger_release(app, id)
         begin
-          @heroku.release.create(app, {"slug" => id})
+          heroku.release.create(app, {"slug" => id})
         rescue => e 
           @log.error("#{__method__}: app: #{app}, id: #{id} - failed...")
           @log.error(e)
