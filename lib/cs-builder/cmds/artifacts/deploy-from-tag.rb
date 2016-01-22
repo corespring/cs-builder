@@ -34,6 +34,7 @@ module CsBuilder
             @log.warn("Can't find hash for tag: #{@tag}")
             nil
           else
+            @log.debug("#{__method__} org: #{@repo.org}, repo: #{@repo.repo},  hash: #{hash}")
             @store.artifact_from_hash(@repo.org, @repo.repo, hash)
           end
         end

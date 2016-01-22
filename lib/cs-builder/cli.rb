@@ -175,7 +175,7 @@ module CsBuilder
     def artifact_list
       prep(__method__, options){|o|
         cmd = List.new(o[:config_dir], get_store(o[:config_dir]))
-        list = cmd.run(o[:org], o[:repo])
+        list = cmd.run(org: o[:org], repo: o[:repo])
         puts list
       }
     end
