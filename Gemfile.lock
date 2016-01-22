@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cs-builder-two (2.0.2)
+    cs-builder-two (2.0.3)
       aws-sdk (~> 2)
       logging (~> 2.0.0)
       platform-api (~> 0.3.0)
