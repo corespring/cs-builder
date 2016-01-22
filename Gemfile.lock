@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cs-builder-two (2.0.0)
+    cs-builder-two (2.0.1)
       aws-sdk (~> 2)
       logging (~> 2.0.0)
       platform-api (~> 0.3.0)
@@ -11,12 +11,13 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    aws-sdk (2.2.7)
-      aws-sdk-resources (= 2.2.7)
-    aws-sdk-core (2.2.7)
+    aws-sdk (2.2.8)
+      aws-sdk-resources (= 2.2.8)
+    aws-sdk-core (2.2.8)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.2.7)
-      aws-sdk-core (= 2.2.7)
+    aws-sdk-resources (2.2.8)
+      aws-sdk-core (= 2.2.8)
+    bump (0.5.3)
     byebug (8.2.1)
     coderay (1.1.0)
     diff-lcs (1.2.5)
@@ -73,6 +74,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bump
   cs-builder-two!
   dotenv (~> 0.11.1)
   pry-byebug
@@ -80,4 +82,4 @@ DEPENDENCIES
   rspec (~> 3.4)
 
 BUNDLED WITH
-   1.11.1
+   1.11.2
