@@ -77,8 +77,8 @@ module CsBuilder
               @_log.info("No deployment needed - the app is already deployed: #{description}")
               deployed_result({}, {:deployed => false, :description => "no deployment needed"})
             else 
-              
-              @_log.debug("artifact: #{artifact}")
+             
+              @_log.debug("----> artifact: #{artifact}")
               out_path = File.join(Dir.mktmpdir("deploy-from-branch_") , "#{artifact[:hash_and_tag].hash}-#{platform}.tgz")
               slug = SlugFromTemplate.mk_slug(artifact[:path], out_path, platform, File.join(@config_dir, "templates"), force == true)
               @_log.debug("app: #{app}, slug: #{slug}, procfile: #{procfile}")
@@ -87,7 +87,7 @@ module CsBuilder
                 slug,
                 SlugHelper.processes_from_slug(slug, procfile: procfile),
                 app,
-                artifact[:hash],
+                artifact[:hash_and_tag][:hash],
                 description,
                 heroku_stack,
                 force: force)

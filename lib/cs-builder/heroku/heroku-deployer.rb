@@ -17,6 +17,8 @@ module CsBuilder
 
       def deploy(slug, process_hash, app, commit_hash, description, stack, force: false)
 
+        @log.info("#{__method__} app: #{app}, commit_hash: #{commit_hash}, description: #{description}, stack: #{stack}, force: #{force}")
+        
         raise "Can't deploy - slug doesn't exist" unless File.exists? slug
 
         if(already_deployed(app, commit_hash, description) and !force)
