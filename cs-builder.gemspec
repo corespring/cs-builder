@@ -20,6 +20,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "rspec", "~> 3.4"
   gem.add_development_dependency "rake", "~> 10.1.0"
   gem.add_development_dependency "dotenv", "~> 0.11.1"
+  gem.add_development_dependency "bump"
   gem.add_development_dependency "pry-byebug" 
   gem.add_dependency "thor"
   gem.add_dependency "logging", '~> 2.0.0'
