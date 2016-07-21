@@ -9,6 +9,7 @@ module CsBuilder
       @@log = CsBuilder::Log.get_logger('file-lock')
 
       def with_file_lock(path)
+        @@log.debug("path: #{path}")
         raise "File doesn't exist #{path}" unless File.exists?(path)
         file = File.open(path, File::RDWR|File::CREAT, 0644)
         @@log.info( "locking: #{path} with #{File::LOCK_SH}")

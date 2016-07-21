@@ -188,6 +188,9 @@ module CsBuilder
     def slug_mk_from_artifact_file
       prep(__method__, options){|o| 
         cmd = MakeSlugFromArtifact.new(o[:config_dir])
+        # TODO: Normalize opt names
+        o[:artifact] = o[:artifact_file]
+        o[:out] = o[:out_path]
         out = cmd.run(o)
       }
     end
@@ -201,7 +204,14 @@ module CsBuilder
     def slug_deploy_from_file
       prep(__method__, options){|o|  
         cmd = DeploySlugFile.new(o[:config_dir], o[:stack])
-        out = cmd.run(o)
+        o[:slug] = o[:slug_file]
+        cmd_opts = {
+          :slug => o[:slug_file],
+          :app => o[:heroku_app],
+          :version => o[:tag],
+          :description => o[:description]
+        }
+        out = cmd.run(cmd_opts)
         puts "deployed to: #{options[:app]}"
       }
     end
