@@ -50,13 +50,13 @@ module CsBuilder
 
         current_desc = get_current_description(app)
 
-        @log.info("[already_deployed] current_desc: #{current_desc}, #{current_desc.class.name}")
-        @log.info("[already_deployed] new_desc: #{new_desc}, #{new_desc.class.name}")
-
         if(current_desc.nil? and new_desc.nil?)
           @log.info("[already_deployed] both are nil - return false")
           false
         else
+          @log.info("[already_deployed] current_desc: #{current_desc}, #{current_desc.class.name}")
+          @log.info("[already_deployed] new_desc: #{new_desc}, #{new_desc.class.name}")
+
           descriptions_match = current_desc == new_desc
           @log.info("[already_deployed] descriptions match: #{descriptions_match}")
           descriptions_match
@@ -75,10 +75,14 @@ module CsBuilder
 
       def get_current_description(app)
         release = most_recent_slug_release(app)
-        slug_id = release["slug"]["id"]
-        slug_info = heroku.slug.info(app, slug_id)
-        @log.debug("slug: \n#{PP.pp(slug_info, "")}")
-        HerokuDescription.from_json_string(slug_info["commit_description"])
+        if release.nil?
+          ""
+        else
+          slug_id = release["slug"]["id"]
+          slug_info = heroku.slug.info(app, slug_id)
+          @log.debug("slug: \n#{PP.pp(slug_info, "")}")
+          HerokuDescription.from_json_string(slug_info["commit_description"])
+	end
       end
 
       def nilify(s)
@@ -87,6 +91,7 @@ module CsBuilder
 
       def get_current_commit_hash(app)
         release = most_recent_slug_release(app)
+
         @log.debug("app: #{app}, release: #{release}")
 
         if release.nil?
