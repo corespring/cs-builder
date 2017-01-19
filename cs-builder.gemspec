@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version = '>= 2.2.0'
   gem.version       = CsBuilder::VERSION
   gem.add_development_dependency "rspec", "~> 3.4"
-  gem.add_development_dependency "rake", "~> 10.1.0"
+  gem.add_development_dependency "rake", "~> 10.1"
   gem.add_development_dependency "dotenv", "~> 0.11.1"
   gem.add_development_dependency "bump"
   gem.add_development_dependency "pry-byebug" 
