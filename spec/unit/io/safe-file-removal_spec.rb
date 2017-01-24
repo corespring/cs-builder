@@ -1,7 +1,7 @@
-require 'cs-builder/io/file-lock'
-require 'cs-builder/io/safe-file-removal'
+require 'cs-builder/in-out/file-lock'
+require 'cs-builder/in-out/safe-file-removal'
 
-include CsBuilder::Io
+include CsBuilder::InOut
 
 include SafeFileRemoval
 
@@ -41,7 +41,7 @@ describe SafeFileRemoval do
 
   end
 
-  it "should safely one file in dir - if all unlocked" do 
+  it "should safely remove one file in dir - if all unlocked" do 
 
     path = "spec/tmp/safe-dir"
 

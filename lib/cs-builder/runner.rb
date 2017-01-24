@@ -1,10 +1,10 @@
+require_relative './log/logger'
+
 module CsBuilder
 
   module Runner
 
-    def runner_log(msg)
-      puts msg
-    end
+    @@log = CsBuilder::Log.get_logger('runner')
 
     def runner_error(path)
       "Lock exists -> #{path} - this means that the same process is already running"
@@ -16,7 +16,7 @@ module CsBuilder
       begin
         yield
       rescue => e
-        runner_log("--------> an error has occured when running the lock - see above to see the cause of the error")
+        @@log.warn("--------> an error has occured when running the lock - see above to see the cause of the error")
         raise e
       ensure
         remove_lock(lock_path)
@@ -27,19 +27,19 @@ module CsBuilder
 
     def has_lock?(path)
       has = File.exists?(path)
-      runner_log "has lock? #{path} #{has}"
+      @@log.debug "has lock? #{path} #{has}"
       has
     end
 
     def add_lock(path)
-      runner_log "add_lock: #{path}"
-      FileUtils.mkdir_p(File.dirname(path), :verbose => true)
+      @@log.info "add_lock: #{path}"
+      FileUtils.mkdir_p(File.dirname(path), :verbose => @@log.debug?)
       File.write(path, path)
     end
 
     def remove_lock(path)
-      runner_log "remove_lock: #{path}"
-      FileUtils.rm_rf(path, :verbose => true)
+      @@log.info "remove_lock: #{path}"
+      FileUtils.rm_rf(path, :verbose => @@log.debug?)
     end
   end
 end

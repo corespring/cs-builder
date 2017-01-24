@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby 
+
+name="cs-builder-two"
+`echo|sudo gem uninstall #{name}`
+`rm -fr pkg`
+path = Dir["cs-builder/pkg/*.gem"][0]
+puts "path: #{path}"
+`sudo gem install #{path}` 

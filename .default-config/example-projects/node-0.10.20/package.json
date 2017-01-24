@@ -1,0 +1,9 @@
+{
+  "organization" : "corespring",
+  "name" : "node-0.10.20",
+  "version" : "0.0.1",
+  "files" : [
+    "index.js",
+    "Procfile"
+  ]
+}

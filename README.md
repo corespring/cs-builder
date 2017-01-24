@@ -105,21 +105,34 @@ This `stack_name` parameter has to be the same as the one used above with the `h
 ### Tests
 
 #### Unit 
-for Unit tests you'll want to override the env var: `TEST_HEROKU_APP` and `TEST_HEROKU_STACK`  
-`TEST_HEROKU_STACK` **needs to be different from the stack of the** `TEST_HEROKU_APP`.  
-_This will be the new stack Heroku will migrate the app after the successful deploy._
-(Otherwise the unit test `deploy-heroku_spec` will fail 1 example out of the 4)
+
+```bash
 
     rspec spec/unit
-    
+```
     
 #### Integration
 
+
+```bash
+
+    rspec spec/integration
+
+```
 for integration tests you'll want to override the env var: `TEST_HEROKU_APP`
 
-You'll want to run the integration tests specifically (it'll break if you don't): 
+> The integration tests take time!
 
-    rspec spec/integration/node-example-project_spec.rb
+
+#### End to end
+
+```bash
+
+    rspec spec/end-to-end
+
+```
+
+These tests exercise the CLI.start function
 
 
 ### How it works

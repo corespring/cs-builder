@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 require File.expand_path('../lib/cs-builder/version', __FILE__)
 
-name = "cs-builder"
+name = "cs-builder-two"
 
 Gem::Specification.new do |gem|
   gem.authors       = ["edeustace"]
@@ -15,13 +15,17 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = name
   gem.require_paths = ["lib"]
-  gem.required_ruby_version = '>= 2.0.0'
+  gem.required_ruby_version = '>= 2.2.0'
   gem.version       = CsBuilder::VERSION
-  gem.add_development_dependency "rspec", "~> 2.6"
-  gem.add_development_dependency "rake", "~> 10.1.0"
+  gem.add_development_dependency "rspec", "~> 3.4"
+  gem.add_development_dependency "rake", "~> 10.1"
   gem.add_development_dependency "dotenv", "~> 0.11.1"
+  gem.add_development_dependency "bump"
+  gem.add_development_dependency "pry-byebug" 
   gem.add_dependency "thor"
-  gem.add_dependency "log4r", '~> 1.1.10'
+  gem.add_dependency "logging", '~> 2.0.0'
   gem.add_dependency "rest-client", '~> 1.6.7'
+  gem.add_dependency "platform-api", '~> 0.3.0'
+  gem.add_dependency "aws-sdk", "~> 2"
 
 end
